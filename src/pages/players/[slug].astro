@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { players, type Player } from "../../data/players";
+import { players, TOURNAMENTS, type Player } from "../../data/players";
 
 export function getStaticPaths() {
   return players.map((player) => ({
@@ -15,20 +15,38 @@ interface Props {
 
 const { player } = Astro.props;
 
+// 基本情報（存在する項目のみ表示。past は背番号を出さない）
 const profile = [
   { label: "ポジション", value: player.position },
-  { label: "背番号", value: `No.${player.number}` },
+  ...(player.status !== "past" && player.number !== undefined
+    ? [{ label: "背番号", value: `No.${player.number}` }]
+    : []),
   ...(player.nickname ? [{ label: "ニックネーム", value: player.nickname }] : []),
   ...(player.birthdate ? [{ label: "生年月日", value: player.birthdate }] : []),
   ...(player.height ? [{ label: "身長", value: player.height }] : []),
   ...(player.weight ? [{ label: "体重", value: player.weight }] : []),
   ...(player.hometown ? [{ label: "出身", value: player.hometown }] : []),
 ];
+
+const statusBadge =
+  player.status === "pending"
+    ? "準備中"
+    : player.status === "past"
+      ? "歴代メンバー"
+      : null;
+
+const hasCareer = !!(player.career && player.career.length > 0);
+const hasFeature = !!player.feature;
+const hasTournaments = !!(player.tournaments && player.tournaments.length > 0);
+// 詳細データが何も無い pending のみ「準備中です」枠を表示
+const showPendingNote = player.status === "pending" && !hasCareer && !hasFeature;
 ---
 
 <Layout
-  title={`${player.name}（背番号${player.number}）| 選手名鑑 | ムラッシュFC ファンサイト（非公認）`}
-  description={`ムラッシュFC ${player.position} 背番号${player.number} ${player.name}（${player.nameEn}）のプロフィール。`}
+  title={`${player.name}${
+    player.number !== undefined ? `（背番号${player.number}）` : ""
+  } | 選手名鑑 | ムラッシュFC ファンサイト（非公認）`}
+  description={`ムラッシュFC ${player.position} ${player.name}（${player.nameEn}）のプロフィール。`}
 >
   <!-- プロフィールヘッダー -->
   <section class="relative overflow-hidden border-b border-white/10">
@@ -37,13 +55,16 @@ const profile = [
       <div class="absolute -right-20 -top-24 h-80 w-80 rounded-full bg-murash-red/20 blur-3xl"></div>
     </div>
 
-    <!-- 大きな背番号の透かし -->
-    <span
-      aria-hidden="true"
-      class="pointer-events-none absolute -right-4 top-1/2 -translate-y-1/2 select-none font-display text-[12rem] font-bold leading-none text-white/[0.04] sm:text-[18rem]"
-    >
-      {player.number}
-    </span>
+    {
+      player.number !== undefined && player.status !== "past" && (
+        <span
+          aria-hidden="true"
+          class="pointer-events-none absolute -right-4 top-1/2 -translate-y-1/2 select-none font-display text-[12rem] font-bold leading-none text-white/[0.04] sm:text-[18rem]"
+        >
+          {player.number}
+        </span>
+      )
+    }
 
     <div class="relative mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
       <a
@@ -53,26 +74,36 @@ const profile = [
         <span aria-hidden="true">←</span> 選手名鑑へ戻る
       </a>
 
-      <div class="mt-8 flex items-center gap-3">
-        <span class="rounded-sm bg-murash-red px-2.5 py-1 font-display text-sm font-bold tracking-wide text-white">
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <span
+          class="rounded-sm bg-murash-red px-2.5 py-1 font-display text-sm font-bold tracking-wide text-white"
+        >
           {player.position}
         </span>
-        <span class="font-display text-sm font-semibold tracking-wider text-white/40">
-          No.{player.number}
-        </span>
         {
-          player.status === "pending" && (
-            <span class="rounded-sm border border-white/20 bg-white/5 px-2 py-0.5 text-xs font-semibold text-white/50">
-              準備中
+          player.number !== undefined && player.status !== "past" && (
+            <span class="font-display text-sm font-semibold tracking-wider text-white/40">
+              No.{player.number}
+            </span>
+          )
+        }
+        {
+          statusBadge && (
+            <span class="rounded-sm border border-white/20 bg-white/5 px-2 py-0.5 text-xs font-semibold text-white/60">
+              {statusBadge}
             </span>
           )
         }
       </div>
 
-      <h1 class="mt-4 font-display text-4xl font-bold tracking-tight text-white sm:text-6xl">
+      <h1
+        class="mt-4 font-display text-4xl font-bold tracking-tight text-white sm:text-6xl"
+      >
         {player.name}
       </h1>
-      <p class="mt-2 font-display text-base font-semibold tracking-[0.2em] text-murash-red">
+      <p
+        class="mt-2 font-display text-base font-semibold tracking-[0.2em] text-murash-red"
+      >
         {player.nameEn}
       </p>
       {
@@ -89,7 +120,9 @@ const profile = [
   <div class="mx-auto max-w-3xl px-4 py-14 sm:px-6">
     <!-- 基本情報 -->
     <section>
-      <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">基本情報</h2>
+      <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+        基本情報
+      </h2>
       <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent"></div>
       <dl class="mt-5 grid gap-3 sm:grid-cols-2">
         {
@@ -105,49 +138,91 @@ const profile = [
       </dl>
     </section>
 
+    <!-- 出場大会 -->
     {
-      player.status === "confirmed" ? (
-        <>
-          {/* 経歴 */}
-          {player.career && player.career.length > 0 && (
-            <section class="mt-12">
-              <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
-                経歴
-              </h2>
-              <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
-              <ol class="relative mt-6">
-                <span
-                  aria-hidden="true"
-                  class="pointer-events-none absolute bottom-2 left-[5px] top-2 w-px bg-gradient-to-b from-murash-red/70 via-white/15 to-transparent"
-                />
-                {player.career.map((step) => (
-                  <li class="relative flex items-start gap-4 pb-6 last:pb-0">
+      hasTournaments && (
+        <section class="mt-12">
+          <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+            出場大会
+          </h2>
+          <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+          <ul class="mt-5 space-y-3">
+            {player.tournaments!.map((t) => {
+              const info = TOURNAMENTS[t];
+              return (
+                <li>
+                  <a
+                    href="/tournaments"
+                    class="group flex items-center justify-between rounded-md border border-white/10 bg-murash-charcoal px-5 py-4 transition-colors hover:border-murash-red/50"
+                  >
+                    <span class="flex items-center gap-3">
+                      <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                        {info.no}
+                      </span>
+                      <span class="font-display text-base font-bold tracking-tight text-white">
+                        {info.short}大会
+                      </span>
+                    </span>
                     <span
                       aria-hidden="true"
-                      class="relative z-10 mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-murash-red ring-4 ring-murash-black"
-                    />
-                    <span class="text-sm leading-[1.7] text-[#e5e5e5] sm:text-base">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )}
+                      class="text-murash-red transition-transform group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )
+    }
 
-          {/* 特徴 */}
-          {player.feature && (
-            <section class="mt-12">
-              <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
-                特徴
-              </h2>
-              <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
-              <p class="mt-5 rounded-md border-l-2 border-murash-red/50 bg-murash-charcoal p-5 text-sm leading-[1.9] text-[#e5e5e5] sm:text-base">
-                {player.feature}
-              </p>
-            </section>
-          )}
-        </>
-      ) : (
-        /* 準備中 */
+    <!-- 経歴 -->
+    {
+      hasCareer && (
+        <section class="mt-12">
+          <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+            経歴
+          </h2>
+          <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+          <ol class="relative mt-6">
+            <span
+              aria-hidden="true"
+              class="pointer-events-none absolute bottom-2 left-[5px] top-2 w-px bg-gradient-to-b from-murash-red/70 via-white/15 to-transparent"
+            />
+            {player.career!.map((step) => (
+              <li class="relative flex items-start gap-4 pb-6 last:pb-0">
+                <span
+                  aria-hidden="true"
+                  class="relative z-10 mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-murash-red ring-4 ring-murash-black"
+                />
+                <span class="text-sm leading-[1.7] text-[#e5e5e5] sm:text-base">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    <!-- 特徴 -->
+    {
+      hasFeature && (
+        <section class="mt-12">
+          <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+            特徴
+          </h2>
+          <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+          <p class="mt-5 rounded-md border-l-2 border-murash-red/50 bg-murash-charcoal p-5 text-sm leading-[1.9] text-[#e5e5e5] sm:text-base">
+            {player.feature}
+          </p>
+        </section>
+      )
+    }
+
+    <!-- 準備中（pending かつ詳細データなしの時だけ） -->
+    {
+      showPendingNote && (
         <section class="mt-12">
           <div class="rounded-md border border-dashed border-white/20 bg-white/5 p-10 text-center">
             <p class="font-display text-lg font-bold text-white/70">情報を準備中です</p>

@@ -1,19 +1,32 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { players, type Position } from "../../data/players";
+import { players, TOURNAMENTS, type Position, type TournamentSlug } from "../../data/players";
 
-const roster = [...players].sort((a, b) => a.number - b.number);
+// 現メンバー（confirmed + pending）と歴代メンバー（past）に分離
+const current = players
+  .filter((p) => p.status !== "past")
+  .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
 
+const past = players.filter((p) => p.status === "past");
+
+// 現メンバーのポジション別カウント
 const order: Position[] = ["GK", "DF", "MF", "FW"];
 const countByPosition = order.map((pos) => ({
   pos,
-  count: roster.filter((p) => p.position === pos).length,
+  count: current.filter((p) => p.position === pos).length,
+}));
+
+// 歴代メンバーの大会別カウント
+const tournamentOrder: TournamentSlug[] = ["mexico", "italy", "france", "brazil"];
+const pastCountByTournament = tournamentOrder.map((t) => ({
+  t,
+  count: past.filter((p) => p.tournaments?.includes(t)).length,
 }));
 ---
 
 <Layout
   title="選手名鑑 | ムラッシュFC ファンサイト（非公認）"
-  description="ムラッシュFCの現メンバーを一覧で紹介。背番号・ポジションとあわせてチェックできます。"
+  description="ムラッシュFCの現メンバーと歴代メンバーを一覧で紹介。背番号・ポジション・出場大会とあわせてチェックできます。"
 >
   <!-- ページヘッダー -->
   <section class="relative overflow-hidden border-b border-white/10">
@@ -28,70 +41,177 @@ const countByPosition = order.map((pos) => ({
         選手名鑑
       </h1>
       <p class="mt-4 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
-        ムラッシュFCの現メンバー {roster.length} 名。背番号・ポジションとあわせて紹介します。
+        ムラッシュFCの現メンバー {current.length} 名と、これまでチームを支えた歴代メンバー {past.length}
+         名をまとめています。
       </p>
+    </div>
+  </section>
 
+  <!-- タブ -->
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div role="tablist" aria-label="メンバー切り替え" class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        role="tab"
+        data-tab="current"
+        aria-selected="true"
+        class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
+      >
+        現メンバー（{current.length}名）
+      </button>
+      <button
+        type="button"
+        role="tab"
+        data-tab="past"
+        aria-selected="false"
+        class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
+      >
+        歴代メンバー（{past.length}名）
+      </button>
+    </div>
+
+    <!-- 現メンバー パネル -->
+    <div id="panel-current" role="tabpanel" class="mt-8">
       <!-- ポジション別サマリー -->
-      <div class="mt-8 flex flex-wrap gap-3">
+      <div class="flex flex-wrap gap-3">
         {
           countByPosition.map(({ pos, count }) => (
             <div class="flex items-center gap-2 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5">
-              <span class="font-display text-xs font-bold tracking-wide text-murash-red">{pos}</span>
+              <span class="font-display text-xs font-bold tracking-wide text-murash-red">
+                {pos}
+              </span>
               <span class="font-display text-sm font-semibold text-white">{count}</span>
             </div>
           ))
         }
       </div>
-    </div>
-  </section>
 
-  <!-- 選手カード一覧 -->
-  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-    <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {
-        roster.map((player) => (
-          <li>
-            <a
-              href={`/players/${player.slug}`}
-              class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
-            >
-              {/* 背番号の透かし */}
-              <span
-                aria-hidden="true"
-                class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+      <ul class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {
+          current.map((player) => (
+            <li>
+              <a
+                href={`/players/${player.slug}`}
+                class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
               >
-                {player.number}
-              </span>
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+                >
+                  {player.number}
+                </span>
 
-              <div class="relative flex items-center gap-2">
-                <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
-                  {player.position}
-                </span>
-                <span class="font-display text-xs font-semibold tracking-wider text-white/40">
-                  No.{player.number}
-                </span>
-                {player.status === "pending" && (
-                  <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
-                    準備中
+                <div class="relative flex items-center gap-2">
+                  <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                    {player.position}
                   </span>
-                )}
-              </div>
+                  <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                    No.{player.number}
+                  </span>
+                  {player.status === "pending" && (
+                    <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                      準備中
+                    </span>
+                  )}
+                </div>
 
-              <h2 class="relative mt-8 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
-                {player.name}
-              </h2>
+                <h2 class="relative mt-8 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                  {player.name}
+                </h2>
 
-              <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
-                詳細を見る
-                <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">
-                  →
+                <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
+                  詳細を見る
+                  <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">
+                    →
+                  </span>
                 </span>
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- 歴代メンバー パネル -->
+    <div id="panel-past" role="tabpanel" class="mt-8" hidden>
+      <!-- 大会フィルター -->
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          data-filter="all"
+          aria-pressed="true"
+          class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
+        >
+          すべて
+          <span class="text-white/40">{past.length}</span>
+        </button>
+        {
+          pastCountByTournament.map(({ t, count }) => (
+            <button
+              type="button"
+              data-filter={t}
+              aria-pressed="false"
+              class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
+            >
+              {TOURNAMENTS[t].short}
+              <span class="text-white/40">{count}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <ul
+        id="past-list"
+        class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+      >
+        {
+          past.map((player) => (
+            <li data-tournaments={(player.tournaments ?? []).join(",")}>
+              <a
+                href={`/players/${player.slug}`}
+                class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
+              >
+                <div class="relative flex items-center gap-2">
+                  <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                    {player.position}
+                  </span>
+                  <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                    歴代
+                  </span>
+                </div>
+
+                <h2 class="relative mt-6 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                  {player.name}
+                </h2>
+
+                {player.tournaments && player.tournaments.length > 0 && (
+                  <div class="relative mt-3 flex flex-wrap gap-1">
+                    {player.tournaments.map((t) => (
+                      <span class="rounded-sm border border-murash-red/30 bg-murash-red/5 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-murash-red">
+                        {TOURNAMENTS[t].short}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
+                  詳細を見る
+                  <span
+                    aria-hidden="true"
+                    class="transition-transform group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p id="past-empty" class="mt-6 hidden text-sm text-white/40">
+        該当する選手が見つかりませんでした。
+      </p>
+    </div>
 
     <!-- 注意書き -->
     <p class="mt-10 text-xs leading-relaxed text-white/40">
@@ -99,3 +219,55 @@ const countByPosition = order.map((pos) => ({
     </p>
   </section>
 </Layout>
+
+<style>
+  .tab-btn[aria-selected="true"] {
+    background-color: #e60012;
+    border-color: transparent;
+    color: #fff;
+  }
+  .filter-btn[aria-pressed="true"] {
+    background-color: #e60012;
+    border-color: transparent;
+    color: #fff;
+  }
+  .filter-btn[aria-pressed="true"] span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+</style>
+
+<script>
+  // タブ切り替え
+  const tabs = document.querySelectorAll<HTMLButtonElement>("[data-tab]");
+  const panelCurrent = document.getElementById("panel-current");
+  const panelPast = document.getElementById("panel-past");
+
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.tab;
+      tabs.forEach((b) => b.setAttribute("aria-selected", String(b === btn)));
+      if (panelCurrent) panelCurrent.hidden = tab !== "current";
+      if (panelPast) panelPast.hidden = tab !== "past";
+    });
+  });
+
+  // 大会フィルター
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const pastItems = document.querySelectorAll<HTMLLIElement>("#past-list > li[data-tournaments]");
+  const empty = document.getElementById("past-empty");
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const f = btn.dataset.filter ?? "all";
+      filterBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+      let visible = 0;
+      pastItems.forEach((li) => {
+        const ts = (li.dataset.tournaments ?? "").split(",").filter(Boolean);
+        const show = f === "all" || ts.includes(f);
+        li.hidden = !show;
+        if (show) visible++;
+      });
+      if (empty) empty.hidden = visible !== 0;
+    });
+  });
+</script>
