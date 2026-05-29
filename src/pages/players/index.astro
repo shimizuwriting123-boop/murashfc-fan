@@ -2,14 +2,12 @@
 import Layout from "../../layouts/Layout.astro";
 import { players, type Position } from "../../data/players";
 
-const current = players
-  .filter((p) => p.status === "current")
-  .sort((a, b) => a.number - b.number);
+const roster = [...players].sort((a, b) => a.number - b.number);
 
 const order: Position[] = ["GK", "DF", "MF", "FW"];
 const countByPosition = order.map((pos) => ({
   pos,
-  count: current.filter((p) => p.position === pos).length,
+  count: roster.filter((p) => p.position === pos).length,
 }));
 ---
 
@@ -30,7 +28,7 @@ const countByPosition = order.map((pos) => ({
         選手名鑑
       </h1>
       <p class="mt-4 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
-        ムラッシュFCの現メンバー {current.length} 名。背番号・ポジションとあわせて紹介します。
+        ムラッシュFCの現メンバー {roster.length} 名。背番号・ポジションとあわせて紹介します。
       </p>
 
       <!-- ポジション別サマリー -->
@@ -51,31 +49,53 @@ const countByPosition = order.map((pos) => ({
   <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
     <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {
-        current.map((player) => (
-          <li class="group relative overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black">
-            {/* 背番号の透かし */}
-            <span
-              aria-hidden="true"
-              class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+        roster.map((player) => (
+          <li>
+            <a
+              href={`/players/${player.slug}`}
+              class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
             >
-              {player.number}
-            </span>
-
-            <div class="relative flex items-center gap-2">
-              <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
-                {player.position}
+              {/* 背番号の透かし */}
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+              >
+                {player.number}
               </span>
-              <span class="font-display text-xs font-semibold tracking-wider text-white/40">
-                No.{player.number}
-              </span>
-            </div>
 
-            <h2 class="relative mt-8 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
-              {player.name}
-            </h2>
+              <div class="relative flex items-center gap-2">
+                <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                  {player.position}
+                </span>
+                <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                  No.{player.number}
+                </span>
+                {player.status === "pending" && (
+                  <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                    準備中
+                  </span>
+                )}
+              </div>
+
+              <h2 class="relative mt-8 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                {player.name}
+              </h2>
+
+              <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
+                詳細を見る
+                <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </span>
+            </a>
           </li>
         ))
       }
     </ul>
+
+    <!-- 注意書き -->
+    <p class="mt-10 text-xs leading-relaxed text-white/40">
+      ※本サイトの情報はファンが集めたものです。誤りがある場合は予告なく修正することがあります。
+    </p>
   </section>
 </Layout>

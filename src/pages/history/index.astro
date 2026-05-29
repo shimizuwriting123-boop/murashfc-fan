@@ -1,0 +1,267 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+type Category = "world" | "japan" | "tournament";
+
+interface TimelineEvent {
+  date: string;
+  category: Category;
+  body: string;
+  slug: string;
+  highlights?: string[];
+}
+
+const categoryConfig: Record<
+  Category,
+  { label: string; icon: string; ring: string; accent: string; badge: string }
+> = {
+  world: {
+    label: "世界",
+    icon: "🌍",
+    ring: "border-white/30",
+    accent: "bg-white/25",
+    badge: "border-white/15 bg-white/5 text-white/70",
+  },
+  japan: {
+    label: "日本",
+    icon: "🇯🇵",
+    ring: "border-murash-red/70",
+    accent: "bg-murash-red",
+    badge: "border-murash-red/40 bg-murash-red/10 text-murash-red",
+  },
+  tournament: {
+    label: "大会",
+    icon: "⚽",
+    ring: "border-white/70",
+    accent: "bg-white/70",
+    badge: "border-white/25 bg-white/10 text-white",
+  },
+};
+
+const timeline: TimelineEvent[] = [
+  {
+    date: "2022年11月",
+    category: "world",
+    slug: "kingsleague-founded",
+    body: "ピケがキングスリーグを発表・設立。7人制サッカーとエンタメを融合した新リーグがスペインで誕生。",
+  },
+  {
+    date: "2023年1月",
+    category: "world",
+    slug: "season1-kickoff",
+    body: "キングスリーグ第1シーズン開幕。アグエロ・カシージャスら元プロ選手とスペインの人気ストリーマーがオーナーとして参加。",
+  },
+  {
+    date: "2023年3月",
+    category: "world",
+    slug: "campnou-final-four",
+    body: "カンプノウでファイナルフォー開催。92,522人が来場、YouTube同時視聴50万人超を記録。キングスリーグが本物のムーブメントであることを証明した。",
+  },
+  {
+    date: "2023年12月",
+    category: "japan",
+    slug: "pique-dm-to-kato",
+    body: "ピケのXから加藤純一に突然リプ「それをしません」。謎のメッセージがキングスリーグ日本参戦の始まりだった。",
+  },
+  {
+    date: "2024年4月",
+    category: "japan",
+    slug: "kato-becomes-owner",
+    body: "加藤純一がムラッシュFCオーナー就任を正式発表。「サッカーわかんねぇし、できねぇよ」と断ろうとしたが「お前がやらないなら日本からは選ばない」の一言で承諾。",
+  },
+  {
+    date: "2024年5〜6月",
+    category: "tournament",
+    slug: "mexico-cup",
+    body: "第1回メキシコ大会。カオスなセレクションを経て初参戦。加藤純一がPKを決め世界中を驚かせるも1勝2敗でベスト32敗退。",
+  },
+  {
+    date: "2025年1月",
+    category: "tournament",
+    slug: "italy-cup",
+    body: "第2回イタリア大会。開幕戦でホスト国イタリアをまさかの撃破。GK深谷圭佑が「日本の壁」と称賛される活躍を見せたが、その後モロッコに敗れ敗退。",
+  },
+  {
+    date: "2025年4月",
+    category: "japan",
+    slug: "permanent-team-tryout-announced",
+    body: "常設チーム化に向けたトライアウト開始を発表。「大会のたびに招集」から「定期活動するクラブチーム」への転換を目指す。",
+  },
+  {
+    date: "2025年6月",
+    category: "tournament",
+    slug: "france-cup",
+    body: "第3回フランス大会。柿谷曜一朗・杉本竜二ら元Jリーガーを招集。練習中に伝説の「宮島事件」が勃発。",
+    highlights: ["宮島事件"],
+  },
+  {
+    date: "2025年11月",
+    category: "japan",
+    slug: "permanent-team-1st-gen",
+    body: "常設チーム第1期メンバー発足。ムラッシュFCが初めて継続的に活動するクラブチームとして動き始める。",
+  },
+  {
+    date: "2026年1月",
+    category: "tournament",
+    slug: "brazil-cup",
+    body: "第4回ブラジル大会。過去最高の気合いで臨むも3連敗でグループリーグ敗退。加藤純一が「魂の説教」、成田リッキーが号泣、縣翔平の名言「命かけてんだから点取れよ」が生まれた大会。",
+    highlights: ["魂の説教"],
+  },
+  {
+    date: "2026年3月",
+    category: "japan",
+    slug: "roster-reset-selection",
+    body: "ブラジル大会の結果を受けロスター完全リセット。250名以上が応募する大規模セレクション開始。",
+  },
+  {
+    date: "2026年5月28日",
+    category: "japan",
+    slug: "final-selection-16",
+    body: "埼玉スタジアム第2Gで最終セレクション開催。16名の常設メンバーが確定。新生ムラッシュFC誕生。",
+  },
+  {
+    date: "2026年7月末",
+    category: "tournament",
+    slug: "wc-exhibition-italy",
+    body: "イタリアでWCエキシビジョンマッチ参加予定。新生ムラッシュFCが初めて世界の舞台へ。",
+  },
+];
+
+// 本文を、強調対象（固有エピソード名）で分割したセグメントに変換
+function toSegments(e: TimelineEvent): { text: string; hl: boolean }[] {
+  const hls = e.highlights ?? [];
+  if (hls.length === 0) return [{ text: e.body, hl: false }];
+  const escaped = hls.map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const re = new RegExp(`(${escaped.join("|")})`, "g");
+  return e.body
+    .split(re)
+    .filter((s) => s !== "")
+    .map((s) => ({ text: s, hl: hls.includes(s) }));
+}
+---
+
+<Layout
+  title="歴史・年表 | ムラッシュFC ファンサイト（非公認）"
+  description="キングスリーグ誕生からムラッシュFC結成、4大会への挑戦、常設チーム化と新生ムラッシュFC誕生まで。世界・日本・大会の出来事を時系列の年表でまとめました。"
+>
+  <!-- ページヘッダー -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">HISTORY</p>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        歴史・年表
+      </h1>
+      <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
+        2022年のキングスリーグ誕生から、ムラッシュFCの結成、世界への挑戦、そして新生チーム誕生まで。世界・日本・大会の出来事を時系列で振り返ります。
+      </p>
+
+      <!-- 凡例 -->
+      <div class="mt-8 flex flex-wrap gap-2">
+        {
+          (Object.values(categoryConfig)).map((c) => (
+            <span
+              class:list={[
+                "inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs font-semibold",
+                c.badge,
+              ]}
+            >
+              <span aria-hidden="true">{c.icon}</span>
+              {c.label}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- タイムライン -->
+  <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div class="relative">
+      <!-- 縦のタイムライン軸（赤いライン） -->
+      <span
+        aria-hidden="true"
+        class="pointer-events-none absolute bottom-3 left-4 top-3 w-px -translate-x-1/2 bg-gradient-to-b from-murash-red/70 via-white/15 to-transparent"
+      ></span>
+
+      <ol class="space-y-6 sm:space-y-8">
+        {
+          timeline.map((e) => {
+            const cat = categoryConfig[e.category];
+            return (
+              <li class="relative pl-12 sm:pl-14">
+                {/* タイムラインのノード（カテゴリのアイコン＋色） */}
+                <span
+                  class:list={[
+                    "absolute left-4 top-1 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border-2 bg-murash-black text-sm leading-none",
+                    cat.ring,
+                  ]}
+                  aria-hidden="true"
+                >
+                  {cat.icon}
+                </span>
+
+                <article
+                  data-slug={e.slug}
+                  class="relative overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 pl-6"
+                >
+                  {/* カテゴリのアクセントバー */}
+                  <span
+                    aria-hidden="true"
+                    class:list={["absolute inset-y-0 left-0 w-1", cat.accent]}
+                  />
+
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <time class="font-display text-sm font-bold tracking-wide text-white">
+                      {e.date}
+                    </time>
+                    <span
+                      class:list={[
+                        "inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-semibold",
+                        cat.badge,
+                      ]}
+                    >
+                      <span aria-hidden="true">{cat.icon}</span>
+                      {cat.label}
+                    </span>
+                  </div>
+
+                  <p class="mt-3 text-sm leading-[1.8] text-[#e5e5e5] sm:text-base">
+                    {toSegments(e).map((seg) =>
+                      seg.hl ? (
+                        <strong class="font-semibold text-murash-red">{seg.text}</strong>
+                      ) : (
+                        seg.text
+                      ),
+                    )}
+                  </p>
+                </article>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </div>
+
+    <!-- 関連リンク -->
+    <div class="mt-14 flex flex-wrap gap-4 border-t border-white/10 pt-10">
+      <a
+        href="/about"
+        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+      >
+        ムラッシュFCとは
+        <span aria-hidden="true">→</span>
+      </a>
+      <a
+        href="/tournaments"
+        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+      >
+        大会の軌跡を見る
+      </a>
+    </div>
+  </section>
+</Layout>

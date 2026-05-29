@@ -1,43 +1,79 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-const sections = [
+// 次の試合（後で正確な日時に差し替え：iso を変更するだけでOK）
+const NEXT_MATCH = {
+  name: "キングス・ワールドカップ エキシビジョンマッチ",
+  location: "イタリア",
+  iso: "2026-07-31T19:00:00+09:00",
+  dateLabel: "2026年7月31日（仮）",
+};
+
+interface Section {
+  no: string;
+  label: string;
+  href: string;
+  sub: string;
+  desc: string;
+  hook: { kind: "number" | "keyword"; value: string; unit?: string };
+}
+
+const sections: Section[] = [
   {
+    no: "01",
     label: "ムラッシュFCとは",
     href: "/about",
+    sub: "すべての始まり",
     desc: "加藤純一がオーナーを務めるキングスリーグ日本チーム。その成り立ちと魅力を紹介。",
-    no: "01",
+    hook: { kind: "keyword", value: "加藤純一 × ピケ" },
   },
   {
+    no: "02",
     label: "選手名鑑",
     href: "/players",
+    sub: "世界を獲りに行く16人",
     desc: "ピッチを駆けるムラッシュFCの選手たちを一覧でチェック。",
-    no: "02",
+    hook: { kind: "number", value: "16", unit: "常設メンバー" },
   },
   {
+    no: "03",
     label: "大会の軌跡",
     href: "/tournaments",
+    sub: "メキシコ・イタリア・フランス・ブラジル",
     desc: "これまで戦ってきた大会の結果と名場面をまとめてアーカイブ。",
-    no: "03",
+    hook: { kind: "number", value: "4", unit: "大会" },
   },
   {
+    no: "04",
     label: "歴史・年表",
     href: "/history",
+    sub: "キングスリーグ誕生から新生ムラッシュFCまで",
     desc: "チーム結成から現在までの歩みを時系列で振り返る。",
-    no: "04",
+    hook: { kind: "number", value: "2022→2026" },
   },
   {
+    no: "05",
     label: "用語辞典",
     href: "/glossary",
+    sub: "観戦が100倍楽しくなる用語集",
     desc: "キングスリーグ・ムラッシュFC特有の用語をやさしく解説。",
-    no: "05",
+    hook: { kind: "keyword", value: "シークレットカード" },
   },
   {
+    no: "06",
     label: "ブログ",
     href: "/blog",
+    sub: "ファン目線で語るムラッシュFC",
     desc: "試合の感想やファン目線のコラムを不定期で更新中。",
-    no: "06",
+    hook: { kind: "keyword", value: "管理人の感想・雑記" },
   },
+];
+
+const results = [
+  { no: "第1回", index: "01", name: "メキシコ大会", ym: "2024.5", record: "1勝2敗", result: "ベスト32敗退" },
+  { no: "第2回", index: "02", name: "イタリア大会", ym: "2025.1", record: null, result: "ラストチャンス敗退" },
+  { no: "第3回", index: "03", name: "フランス大会", ym: "2025.6", record: null, result: "グループ敗退" },
+  { no: "第4回", index: "04", name: "ブラジル大会", ym: "2026.1", record: "3連敗", result: "敗退" },
 ];
 ---
 
@@ -47,25 +83,22 @@ const sections = [
     <!-- 背景の装飾 -->
     <div class="absolute inset-0 -z-10">
       <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-murash-red/20 blur-3xl"></div>
       <div
-        class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-murash-red/20 blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute inset-0 opacity-[0.04]"
+        class="grid-bg absolute inset-0 opacity-[0.04]"
         style="background-image: linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px); background-size: 48px 48px;"
       >
       </div>
     </div>
 
-    <div class="mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-32">
+    <div class="mx-auto max-w-6xl px-4 py-24 pb-32 sm:px-6 sm:py-32 sm:pb-36">
       <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">
         UNOFFICIAL FAN SITE
       </p>
       <h1
         class="mt-4 font-display text-5xl font-bold leading-none tracking-tight text-white sm:text-7xl lg:text-8xl"
       >
-        MURASH FC
+        <span class="glow-text">MURASH FC</span>
         <span class="mt-2 block text-2xl font-semibold text-white/70 sm:text-3xl">
           ムラッシュFC ファンサイト
         </span>
@@ -92,47 +125,217 @@ const sections = [
         </a>
       </div>
     </div>
+
+    <!-- スクロール促し -->
+    <a
+      href="#next-match"
+      aria-label="次のセクションへスクロール"
+      class="scroll-arrow absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 text-white/50 transition-colors hover:text-white"
+    >
+      <span class="font-display text-[10px] font-semibold tracking-[0.3em]">SCROLL</span>
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </a>
+  </section>
+
+  <!-- NEXT MATCH カウントダウン -->
+  <section id="next-match" class="relative overflow-hidden border-b border-white/10 bg-murash-black">
+    <div class="pointer-events-none absolute -left-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-murash-red/10 blur-3xl"></div>
+
+    <div class="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
+      <div class="flex items-center gap-3">
+        <span class="h-4 w-1.5 rounded-full bg-murash-red"></span>
+        <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">NEXT MATCH</p>
+      </div>
+
+      <div class="mt-6 overflow-hidden rounded-lg border border-murash-red/30 bg-gradient-to-br from-murash-charcoal to-murash-black p-6 sm:p-8">
+        <h2 class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          {NEXT_MATCH.name}
+        </h2>
+        <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-white/60">
+          <span class="inline-flex items-center gap-1.5">
+            <span aria-hidden="true">📍</span>{NEXT_MATCH.location}
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <span aria-hidden="true">🗓</span>{NEXT_MATCH.dateLabel}
+          </span>
+        </div>
+
+        <p class="mt-8 font-display text-xs font-semibold tracking-[0.25em] text-white/40">
+          KICK OFF まで
+        </p>
+        <div id="countdown" data-target={NEXT_MATCH.iso} class="mt-3 grid grid-cols-4 gap-2 sm:gap-4">
+          {
+            [
+              { id: "cd-days", label: "日" },
+              { id: "cd-hours", label: "時間" },
+              { id: "cd-mins", label: "分" },
+              { id: "cd-secs", label: "秒" },
+            ].map((u) => (
+              <div class="rounded-md border border-white/10 bg-black/40 py-4 text-center">
+                <div
+                  id={u.id}
+                  class="font-display text-3xl font-bold tabular-nums text-white sm:text-5xl"
+                >
+                  --
+                </div>
+                <div class="mt-1 font-display text-[10px] tracking-widest text-white/40 sm:text-xs">
+                  {u.label}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <p id="cd-note" class="mt-4 text-xs text-white/30">※日時は仮です。決定次第更新します。</p>
+      </div>
+    </div>
   </section>
 
   <!-- コンテンツ一覧 -->
-  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-    <div class="flex items-end justify-between">
-      <div>
-        <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">CONTENTS</p>
-        <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          コンテンツ一覧
-        </h2>
-      </div>
+  <section class="mx-auto max-w-6xl px-4 py-28 sm:px-6 sm:py-36">
+    <div>
+      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">CONTENTS</p>
+      <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        コンテンツ一覧
+      </h2>
+      <p class="mt-3 max-w-xl text-sm text-white/50">
+        ムラッシュFCのすべてを、6つの入り口から。
+      </p>
     </div>
 
-    <div class="mt-10 grid gap-px overflow-hidden rounded-md border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-12 grid gap-6 sm:grid-cols-2">
       {
         sections.map((s) => (
           <a
             href={s.href}
-            class="group relative flex flex-col bg-murash-charcoal p-6 transition-colors hover:bg-murash-black"
+            class="group relative flex flex-col overflow-hidden rounded-lg border border-white/10 bg-murash-charcoal p-8 transition-all duration-300 hover:-translate-y-1.5 hover:border-murash-red/60 hover:shadow-[0_18px_50px_-12px_rgba(230,0,18,0.45)] sm:p-10"
           >
-            <span class="font-display text-sm font-semibold tracking-widest text-white/30 transition-colors group-hover:text-murash-red">
+            {/* 装飾の大きな番号 */}
+            <span
+              aria-hidden="true"
+              class="pointer-events-none absolute -right-5 -top-10 select-none font-display text-[10rem] font-bold leading-none text-white/[0.035] transition-all duration-500 group-hover:scale-110 group-hover:text-murash-red/10"
+            >
               {s.no}
             </span>
-            <h3 class="mt-3 flex items-center gap-2 font-display text-xl font-bold text-white">
-              {s.label}
-              <span
-                aria-hidden="true"
-                class="translate-x-0 text-murash-red opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
-              >
+
+            {/* 見出し */}
+            <div class="relative">
+              <span class="font-display text-xs font-bold tracking-[0.4em] text-murash-red">
+                {s.no}
+              </span>
+              <h3 class="mt-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {s.label}
+              </h3>
+              <p class="mt-1.5 text-sm font-medium text-white/45">{s.sub}</p>
+            </div>
+
+            {/* 視覚的フック */}
+            <div class="relative mt-7">
+              {s.hook.kind === "number" ? (
+                <div class="flex items-baseline gap-2">
+                  <span
+                    class:list={[
+                      "whitespace-nowrap font-display font-bold tracking-tight text-white transition-transform duration-300 group-hover:scale-105",
+                      s.hook.value.length > 4 ? "text-3xl sm:text-4xl" : "text-5xl sm:text-6xl",
+                    ]}
+                  >
+                    {s.hook.value}
+                  </span>
+                  {s.hook.unit && (
+                    <span class="font-display text-sm font-semibold tracking-wide text-white/50">
+                      {s.hook.unit}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span class="inline-flex items-center rounded-sm border border-murash-red/40 bg-murash-red/10 px-3.5 py-2 font-display text-base font-bold tracking-wide text-murash-red transition-all duration-300 group-hover:border-murash-red group-hover:bg-murash-red/20 sm:text-lg">
+                  {s.hook.value}
+                </span>
+              )}
+            </div>
+
+            {/* 説明 */}
+            <p class="relative mt-5 text-sm leading-relaxed text-white/55">{s.desc}</p>
+
+            {/* ボタン */}
+            <div class="relative mt-auto flex items-center gap-2 border-t border-white/5 pt-6 font-display text-sm font-semibold tracking-wide text-white/60 transition-colors group-hover:text-murash-red">
+              <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>
-            </h3>
-            <p class="mt-2 text-sm leading-relaxed text-white/50">{s.desc}</p>
+              詳しく見る
+            </div>
           </a>
         ))
       }
     </div>
   </section>
 
+  <!-- 大会戦績ハイライト -->
+  <section class="border-y border-white/10 bg-murash-charcoal/40">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">
+            TOURNAMENT RESULTS
+          </p>
+          <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            大会戦績
+          </h2>
+        </div>
+        <a
+          href="/tournaments"
+          class="group inline-flex items-center gap-1.5 font-display text-sm font-semibold tracking-wide text-white/60 transition-colors hover:text-murash-red"
+        >
+          詳しく見る
+          <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          results.map((r) => (
+            <a
+              href="/tournaments"
+              class="group relative flex flex-col overflow-hidden rounded-md border border-white/10 bg-murash-black p-6 transition-colors hover:border-murash-red/50"
+            >
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute -right-3 -top-6 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+              >
+                {r.index}
+              </span>
+
+              <div class="relative flex items-center gap-2">
+                <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                  {r.no}
+                </span>
+                <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                  {r.ym}
+                </span>
+              </div>
+
+              <h3 class="relative mt-4 font-display text-xl font-bold tracking-tight text-white">
+                {r.name}
+              </h3>
+
+              <div class="relative mt-auto pt-6">
+                {r.record && (
+                  <p class="font-display text-3xl font-bold tracking-tight text-murash-red">
+                    {r.record}
+                  </p>
+                )}
+                <p class="mt-1 text-sm text-white/60">{r.result}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
   <!-- 注意書きバナー -->
-  <section class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
     <div class="rounded-md border border-murash-red/30 bg-murash-red/5 p-6">
       <p class="text-sm leading-relaxed text-white/70">
         <span class="font-semibold text-murash-red">⚠ 非公認サイトです。</span>
@@ -149,3 +352,89 @@ const sections = [
     </div>
   </section>
 </Layout>
+
+<style>
+  @keyframes gridDrift {
+    0% {
+      background-position: 0px 0px;
+    }
+    100% {
+      background-position: 48px 48px;
+    }
+  }
+  @keyframes glowPulse {
+    0%,
+    100% {
+      text-shadow: 0 0 18px rgba(230, 0, 18, 0.25);
+    }
+    50% {
+      text-shadow:
+        0 0 34px rgba(230, 0, 18, 0.55),
+        0 0 10px rgba(230, 0, 18, 0.35);
+    }
+  }
+  @keyframes bounceDown {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.55;
+    }
+    50% {
+      transform: translateY(8px);
+      opacity: 1;
+    }
+  }
+
+  .grid-bg {
+    animation: gridDrift 18s linear infinite;
+  }
+  .glow-text {
+    animation: glowPulse 4.5s ease-in-out infinite;
+  }
+  .scroll-arrow {
+    animation: bounceDown 1.8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grid-bg,
+    .glow-text,
+    .scroll-arrow {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const el = document.getElementById("countdown");
+  if (el instanceof HTMLElement && el.dataset.target) {
+    const target = new Date(el.dataset.target).getTime();
+    const dd = document.getElementById("cd-days");
+    const hh = document.getElementById("cd-hours");
+    const mm = document.getElementById("cd-mins");
+    const ss = document.getElementById("cd-secs");
+    const note = document.getElementById("cd-note");
+    const pad = (n: number) => String(n).padStart(2, "0");
+
+    let timer: ReturnType<typeof setInterval>;
+    const tick = () => {
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        if (dd) dd.textContent = "0";
+        if (hh) hh.textContent = "00";
+        if (mm) mm.textContent = "00";
+        if (ss) ss.textContent = "00";
+        if (note) note.textContent = "まもなくキックオフ！";
+        clearInterval(timer);
+        return;
+      }
+      const s = Math.floor(diff / 1000);
+      if (dd) dd.textContent = String(Math.floor(s / 86400));
+      if (hh) hh.textContent = pad(Math.floor((s % 86400) / 3600));
+      if (mm) mm.textContent = pad(Math.floor((s % 3600) / 60));
+      if (ss) ss.textContent = pad(s % 60);
+    };
+
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+</script>

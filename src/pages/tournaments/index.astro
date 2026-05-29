@@ -1,0 +1,236 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+interface Feature {
+  title: string;
+  body: string;
+}
+
+interface Tournament {
+  no: string;
+  name: string;
+  date: string;
+  format: string;
+  result: string;
+  record?: string;
+  champion?: string;
+  highlight: string;
+  episodeTitle?: string;
+  episodes?: string[];
+  feature?: Feature;
+}
+
+const tournaments: Tournament[] = [
+  {
+    no: "第1回",
+    name: "メキシコ大会",
+    date: "2024年5〜6月",
+    format: "ムラッシュFC（クラブチーム・初参戦）",
+    result: "1勝2敗・ベスト32敗退",
+    record: "vs Raniza FC 敗北 → vs UA Steel 勝利 → vs Limon FC 敗北",
+    highlight:
+      "加藤純一がPKキッカーとしてピッチに立ちゴールを決めたシーンが世界中で話題に。",
+    episodeTitle: "エピソード",
+    episodes: [
+      "セレクションがカオス。参加フォームにマイナンバーを要求、「1週間後に開催」という突然の告知、サッカー未経験者もトライアウトに来るなど前代未聞の混乱ぶりだった。",
+      "那須大亮が監督として参加。頼もしい存在だったが試合中にレッドカードで退場するひと幕も。",
+      "「こじろう」こと金武航二朗がヘイトタンクとして独自の立ち位置を確立。USスチール戦では神シュートを決め会場を沸かせた。",
+      "初戦はバスが渋滞で選手が15分走って会場入り。到着後は機材トラブルで試合が翌日に延期になるなど運営もカオスだった。",
+    ],
+  },
+  {
+    no: "第2回",
+    name: "イタリア大会",
+    date: "2025年1月",
+    format: "日本代表（国別対抗戦）",
+    result: "ラストチャンスラウンド敗退",
+    highlight:
+      "開催地イタリアとの開幕戦。「日本なんか相手にならない」という雰囲気を覆しまさかの勝利。「ピザがしなしなになった」と加藤純一が配信で大はしゃぎした名場面。GK深谷圭佑が「日本の壁」と称賛される活躍。",
+    episodeTitle: "エピソード",
+    episodes: ["その後モロッコに敗れグループリーグ敗退。"],
+  },
+  {
+    no: "第3回",
+    name: "フランス大会",
+    date: "2025年6月",
+    format: "ムラッシュFC（クラブチーム）",
+    result: "グループリーグ敗退",
+    champion: "Los Troncos FC（スペイン）",
+    highlight: "柿谷曜一朗、杉本竜二など元Jリーガーを招集し本格強化を図った大会。",
+    episodeTitle: "エピソード・宮島事件",
+    feature: {
+      title: "宮島事件",
+      body: "練習中、柿谷曜一朗がアキレス腱負傷により出場不可となることをメンバー全員の前で告白。初めて聞いた杉本竜二はショックのあまりその場を離脱し、宮島行きのチケットを即購入・空港へ向かった。チェックイン直前に父親からの電話で引き留められ戻ってくることに。その後加藤純一に喫煙所に呼び出され「社会人なめんじゃねえよ」と本気で叱られた。これが伝説の「宮島事件」である。",
+    },
+  },
+  {
+    no: "第4回",
+    name: "ブラジル大会",
+    date: "2026年1月",
+    format: "日本代表（国別対抗戦）",
+    result: "3連敗・グループリーグ敗退",
+    highlight:
+      "過去最高の気合いで臨んだ大会。安間TVでの特集・生配信で知名度も急上昇。しかし3連敗で帰国することに。この結果がロスター完全リセット・常設チーム化への決断につながった。",
+    episodeTitle: "エピソード",
+    episodes: [
+      "監督交代劇：中井健介監督が運営側の事情で外され、中村俊輔が新監督に就任。柿谷曜一朗はアンバサダーとしてサポート役で帯同。",
+      "金ガム田辺：田辺竜平がブラジルで金髪に染め、国歌斉唱中にガムを噛んでいる姿が放送されてプチ炎上。「金ガム」と呼ばれることに。しかしその後キーマンに成長し、不敵な笑みを浮かべる個性的なキャラとして確立した。",
+      "魂の説教：1試合目後、本気になれていない選手たちを見抜いた加藤純一が全員を集めて「お前ら本気でやってんのか」と熱く語りかける。これが効いて2試合目は大接戦に。",
+      "リッキーの号泣：3連敗が決まった瞬間、キャプテン宮下が「次いこ！」と声をかけたところ、第2GKの成田リッキーが「次なんてねえんだよ！」と号泣しながら激怒。一度も試合に出られなかった分の熱さが爆発した。",
+      "縣の名言：普段寡黙なDF縣翔平が「俺らディフェンス命かけてんだから前で点取れよ」と激昂。静かな選手だったからこそ全員に刺さった一言だった。",
+    ],
+  },
+];
+---
+
+<Layout
+  title="大会の軌跡 | ムラッシュFC ファンサイト（非公認）"
+  description="ムラッシュFCが戦ってきたキングスリーグ4大会（メキシコ・イタリア・フランス・ブラジル）の結果と名場面、舞台裏のエピソードを時系列でまとめました。"
+>
+  <!-- ページヘッダー -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">RESULTS</p>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        大会の軌跡
+      </h1>
+      <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
+        メキシコ、イタリア、フランス、ブラジル。ムラッシュFCがこれまで挑んだ4つの大会を、結果と名場面、舞台裏のエピソードとともに時系列で振り返ります。
+      </p>
+    </div>
+  </section>
+
+  <!-- タイムライン -->
+  <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div class="relative">
+      <!-- 縦のタイムライン軸 -->
+      <span
+        aria-hidden="true"
+        class="pointer-events-none absolute bottom-4 left-4 top-4 w-px -translate-x-1/2 bg-gradient-to-b from-murash-red/60 via-white/15 to-transparent"
+      ></span>
+
+      <ol class="space-y-12">
+        {
+          tournaments.map((t) => {
+            const meta = [
+              { label: "形態", value: t.format },
+              { label: "結果", value: t.result },
+              ...(t.record ? [{ label: "戦績", value: t.record }] : []),
+              ...(t.champion ? [{ label: "優勝", value: t.champion }] : []),
+            ];
+            const hasEpisode = (t.episodes && t.episodes.length > 0) || t.feature;
+            return (
+              <li class="relative pl-12 sm:pl-14">
+                {/* タイムラインのドット */}
+                <span
+                  aria-hidden="true"
+                  class="absolute left-4 top-2 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-murash-red/50 bg-murash-black"
+                >
+                  <span class="h-2.5 w-2.5 rounded-full bg-murash-red" />
+                </span>
+
+                <article class="overflow-hidden rounded-md border border-white/10 bg-murash-charcoal">
+                  {/* ヘッダー */}
+                  <div class="border-b border-white/10 p-5 sm:p-6">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                        {t.no}
+                      </span>
+                      <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                        {t.date}
+                      </span>
+                    </div>
+                    <h2 class="mt-2 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                      {t.name}
+                    </h2>
+
+                    <dl class="mt-4 space-y-2 text-sm">
+                      {meta.map((m) => (
+                        <div class="flex gap-3">
+                          <dt class="w-12 shrink-0 pt-0.5 font-display text-xs font-semibold tracking-wider text-white/40">
+                            {m.label}
+                          </dt>
+                          <dd class="leading-relaxed text-[#e5e5e5]">{m.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+
+                  {/* 本文 */}
+                  <div class="space-y-5 p-5 sm:p-6">
+                    {/* 見どころ */}
+                    <div>
+                      <h3 class="flex items-center gap-2 font-display text-sm font-bold tracking-widest text-murash-red">
+                        <span class="inline-block h-3 w-1 rounded-full bg-murash-red" />
+                        見どころ
+                      </h3>
+                      <p class="mt-2 text-sm leading-[1.85] text-[#e5e5e5] sm:text-base">
+                        {t.highlight}
+                      </p>
+                    </div>
+
+                    {/* エピソード（背景を変えて読みやすく） */}
+                    {hasEpisode && (
+                      <div class="rounded-md border border-white/10 bg-[#2a2a2a] p-4 sm:p-5">
+                        <h3 class="font-display text-sm font-bold tracking-widest text-white/70">
+                          {t.episodeTitle}
+                        </h3>
+
+                        {t.episodes && t.episodes.length > 0 && (
+                          <ul class="mt-3 list-disc space-y-4 pl-5 marker:text-murash-red">
+                            {t.episodes.map((e) => (
+                              <li class="text-sm leading-[1.8] text-[#e5e5e5] sm:text-base">{e}</li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {/* 宮島事件：特に強調 */}
+                        {t.feature && (
+                          <div class="mt-4 rounded-md border-2 border-murash-red/60 bg-murash-red/5 p-4 sm:p-5">
+                            <div class="flex items-center gap-2">
+                              <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-white">
+                                伝説
+                              </span>
+                              <h4 class="font-display text-lg font-bold tracking-tight text-white">
+                                {t.feature.title}
+                              </h4>
+                            </div>
+                            <p class="mt-3 text-sm leading-[1.9] text-[#e5e5e5] sm:text-base">
+                              {t.feature.body}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </article>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </div>
+
+    <!-- 関連リンク -->
+    <div class="mt-14 flex flex-wrap gap-4 border-t border-white/10 pt-10">
+      <a
+        href="/about"
+        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+      >
+        ムラッシュFCとは
+        <span aria-hidden="true">→</span>
+      </a>
+      <a
+        href="/players"
+        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+      >
+        選手名鑑を見る
+      </a>
+    </div>
+  </section>
+</Layout>

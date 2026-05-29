@@ -1,0 +1,137 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+interface Section {
+  no: string;
+  title: string;
+  body: string[];
+  note?: string;
+  bodyAfter?: string[];
+}
+
+const sections: Section[] = [
+  {
+    no: "01",
+    title: "キングスリーグとは？",
+    body: [
+      "2022年、元スペイン代表DFジェラール・ピケが立ち上げた7人制サッカーの新リーグ。従来のサッカーより試合時間が短く、得点が入りやすい独自ルールと、インフルエンサーや元プロ選手がオーナーとして参加するエンターテインメント性の高さが特徴。ネイマール、ロナウジーニョといったレジェンドも関わり、世界中で急速に広まっている。",
+    ],
+  },
+  {
+    no: "02",
+    title: "ムラッシュFCとは？",
+    body: [
+      "ムラッシュFCは、人気ゲーム配信者・加藤純一がオーナーを務めるキングスリーグの日本チーム。「加藤純一がサッカーをやる」のではなく、加藤純一がチームを率いて世界に挑む、というスタイルだ。",
+      "チームには2つの形態がある。大会によって「ムラッシュFC（クラブチーム）」として出場する場合と、「日本代表」として国別対抗戦に出場する場合がある。どちらも加藤純一がプレジデント（オーナー）として指揮を執る。",
+    ],
+  },
+  {
+    no: "03",
+    title: "なぜ加藤純一がオーナーに？",
+    body: [
+      "きっかけは2023年12月、加藤純一のXにピケから突然リプが届いたことだった。",
+      "その後、加藤純一はピケとオンライン会議を行うことになるが、本人いわく「俺サッカーわかんねぇし、できねぇよ」と断るつもりだったという。しかしピケから「お前がやらないなら正直日本からは選ばない」と言われ、「それはちょっと勿体ねぇなと思って」引き受けることを決めた。",
+      "ギャラも出ない、サッカーの知識もない。それでも「日本が出られなくなるなら」という理由で、野球しか興味がなかった男がサッカーチームを率いることになった。",
+    ],
+  },
+  {
+    no: "04",
+    title: "世界への挑戦と常設チーム化",
+    body: [
+      "2024年のメキシコ大会を皮切りに、イタリア、フランス、ブラジルと4大会に参加。しかし結果は振るわず、7連敗という苦しい時期も続いた。",
+      "課題は明確だった。ヨーロッパや南米の強豪国は国内にキングスリーグが存在し、日常的にチームとして活動している。対して日本は大会のたびにメンバーを招集する「都度編成」。この差は埋められなかった。",
+      "そこで2025年から動き出したのが「常設チーム化」だ。大会のたびに集まるのではなく、定期的に集まって活動する本格的なクラブチームとしてムラッシュFCを再構築する。",
+    ],
+  },
+  {
+    no: "05",
+    title: "新生ムラッシュFC誕生",
+    body: [
+      "2026年、大規模なセレクションが実施された。書類選考から始まり、1次・2次・3次・4次と絞り込みが続き、250名以上の応募者から最終的に16名の常設メンバーが選ばれた。",
+    ],
+    note: "管理人の現地参加エピソードを後で追記予定",
+    bodyAfter: [
+      "チームのコンセプトは「夢ではなく目標」。賞金よりも優勝トロフィーを日本に持ち帰ることを最優先に、新生ムラッシュFCは走り始めた。",
+    ],
+  },
+];
+---
+
+<Layout
+  title="ムラッシュFCとは | ムラッシュFC ファンサイト（非公認）"
+  description="キングスリーグの日本チーム「ムラッシュFC」とは何か。リーグの概要、加藤純一がオーナーになった経緯、常設チーム化と新生ムラッシュFC誕生までの歩みを紹介します。"
+>
+  <!-- ページヘッダー -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">ABOUT</p>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        ムラッシュFCとは
+      </h1>
+      <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
+        加藤純一がオーナーを務めるキングスリーグの日本チーム「ムラッシュFC」。その成り立ちから、世界への挑戦、そして新生チーム誕生までの歩みをまとめました。
+      </p>
+    </div>
+  </section>
+
+  <!-- 本文 -->
+  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div class="space-y-16">
+      {
+        sections.map((s) => (
+          <section class="relative scroll-mt-24">
+            <div class="flex items-baseline gap-4">
+              <span class="font-display text-3xl font-bold leading-none text-white/15 sm:text-4xl">
+                {s.no}
+              </span>
+              <h2 class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {s.title}
+              </h2>
+            </div>
+
+            <div class="mt-5 space-y-6 border-l-2 border-murash-red/40 pl-5 sm:pl-6">
+              {s.body.map((p) => (
+                <p class="text-base leading-[1.9] text-[#e5e5e5] sm:text-lg">{p}</p>
+              ))}
+
+              {s.note && (
+                <div class="rounded-md border border-dashed border-white/20 bg-white/5 px-4 py-3">
+                  <p class="font-display text-xs font-semibold tracking-wider text-murash-red">
+                    TODO
+                  </p>
+                  <p class="mt-1 text-sm leading-relaxed text-white/50">{s.note}</p>
+                </div>
+              )}
+
+              {(s.bodyAfter ?? []).map((p) => (
+                <p class="text-base leading-[1.9] text-[#e5e5e5] sm:text-lg">{p}</p>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <!-- 関連リンク -->
+    <div class="mt-16 flex flex-wrap gap-4 border-t border-white/10 pt-10">
+      <a
+        href="/players"
+        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+      >
+        選手名鑑を見る
+        <span aria-hidden="true">→</span>
+      </a>
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+      >
+        トップへ戻る
+      </a>
+    </div>
+  </article>
+</Layout>

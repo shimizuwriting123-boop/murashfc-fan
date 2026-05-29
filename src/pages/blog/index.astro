@@ -1,0 +1,90 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const fmtDate = (d: Date) =>
+  `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, "0")}.${String(
+    d.getUTCDate(),
+  ).padStart(2, "0")}`;
+
+const excerpt = (body: string, len = 80) => {
+  const text = body
+    .replace(/[#>*_`~\-]/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length > len ? `${text.slice(0, len)}…` : text;
+};
+---
+
+<Layout
+  title="ブログ | ムラッシュFC ファンサイト（非公認）"
+  description="ムラッシュFCに関する感想・雑記・気になることを書いていく管理人ブログ。"
+>
+  <!-- ページヘッダー -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">BLOG</p>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        管理人ブログ
+      </h1>
+      <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
+        ムラッシュFCに関する感想・雑記・気になることを書いていきます。
+      </p>
+    </div>
+  </section>
+
+  <!-- 記事一覧 -->
+  <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+    {
+      posts.length === 0 ? (
+        <div class="rounded-md border border-dashed border-white/20 bg-white/5 p-12 text-center">
+          <p class="font-display text-lg font-bold text-white/70">準備中</p>
+          <p class="mt-2 text-sm text-white/40">順次更新していきます。</p>
+        </div>
+      ) : (
+        <ul class="space-y-5">
+          {posts.map((post) => (
+            <li>
+              <a
+                href={`/blog/${post.id}`}
+                class="group block overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-6 transition-all duration-300 hover:-translate-y-1 hover:border-murash-red/50 sm:p-7"
+              >
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span class="rounded-sm border border-murash-red/40 bg-murash-red/10 px-2 py-0.5 font-display text-xs font-semibold tracking-wide text-murash-red">
+                    {post.data.category}
+                  </span>
+                  <time class="font-display text-xs font-semibold tracking-wider text-white/40">
+                    {fmtDate(post.data.date)}
+                  </time>
+                </div>
+
+                <h2 class="mt-3 font-display text-xl font-bold tracking-tight text-white transition-colors group-hover:text-murash-red sm:text-2xl">
+                  {post.data.title}
+                </h2>
+
+                <p class="mt-2 text-sm leading-relaxed text-white/55">{excerpt(post.body ?? "")}</p>
+
+                <span class="mt-4 inline-flex items-center gap-1.5 font-display text-xs font-semibold tracking-wide text-white/50 transition-colors group-hover:text-murash-red">
+                  続きを読む
+                  <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</Layout>
