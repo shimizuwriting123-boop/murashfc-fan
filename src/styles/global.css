@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-murash-black: #0a0a0a;
+  --color-murash-charcoal: #161616;
+  --color-murash-red: #e60012;
+  --color-murash-red-dark: #b3000e;
+
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-murash-black text-white antialiased;
+  font-family: "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+}
+
+/* 見出し用の引き締まったコンデンス書体 */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
