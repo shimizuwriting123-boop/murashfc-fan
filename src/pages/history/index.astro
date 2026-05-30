@@ -2,39 +2,72 @@
 import Layout from "../../layouts/Layout.astro";
 
 type Category = "world" | "japan" | "tournament";
+type RelatedTournament =
+  | "mexico-2024"
+  | "italy-2025"
+  | "france-2025"
+  | "brazil-2026"
+  | "rebirth";
 
 interface TimelineEvent {
   date: string;
   category: Category;
   body: string;
   slug: string;
+  /** 本文中の固有エピソード名 / 名言を赤強調 */
   highlights?: string[];
+  /** 詳細ページへの誘導（大会または再スタート編） */
+  relatedTournament?: RelatedTournament;
+  /** 物語の節目になる重要イベント → カードを赤グローで強調 */
+  highlight?: boolean;
 }
 
 const categoryConfig: Record<
   Category,
-  { label: string; icon: string; ring: string; accent: string; badge: string }
+  {
+    label: string;
+    icon: string;
+    /** ノード輪郭色 */
+    ring: string;
+    /** ノードに当たるグロー */
+    nodeGlow: string;
+    /** カードの左カテゴリアクセントバー */
+    accent: string;
+    /** バッジ配色 */
+    badge: string;
+    /** ホバー時のカード縁色 */
+    hoverBorder: string;
+  }
 > = {
   world: {
     label: "世界",
     icon: "🌍",
-    ring: "border-white/30",
-    accent: "bg-white/25",
-    badge: "border-white/15 bg-white/5 text-white/70",
+    ring: "border-blue-400/70",
+    nodeGlow:
+      "shadow-[0_0_22px_-2px_rgba(96,165,250,0.55),0_0_8px_-1px_rgba(96,165,250,0.5)]",
+    accent: "bg-blue-400",
+    badge: "border-blue-400/40 bg-blue-400/10 text-blue-300",
+    hoverBorder: "hover:border-blue-400/40",
   },
   japan: {
     label: "日本",
     icon: "🇯🇵",
     ring: "border-murash-red/70",
+    nodeGlow:
+      "shadow-[0_0_22px_-2px_rgba(230,0,18,0.6),0_0_8px_-1px_rgba(230,0,18,0.55)]",
     accent: "bg-murash-red",
     badge: "border-murash-red/40 bg-murash-red/10 text-murash-red",
+    hoverBorder: "hover:border-murash-red/50",
   },
   tournament: {
     label: "大会",
     icon: "⚽",
-    ring: "border-white/70",
-    accent: "bg-white/70",
-    badge: "border-white/25 bg-white/10 text-white",
+    ring: "border-amber-400/70",
+    nodeGlow:
+      "shadow-[0_0_22px_-2px_rgba(251,191,36,0.55),0_0_8px_-1px_rgba(251,191,36,0.5)]",
+    accent: "bg-amber-400",
+    badge: "border-amber-400/40 bg-amber-400/10 text-amber-300",
+    hoverBorder: "hover:border-amber-400/50",
   },
 };
 
@@ -62,62 +95,76 @@ const timeline: TimelineEvent[] = [
     category: "japan",
     slug: "pique-dm-to-kato",
     body: "ピケのXから加藤純一に突然リプ「それをしません」。謎のメッセージがキングスリーグ日本参戦の始まりだった。",
+    highlights: ["それをしません"],
+    highlight: true,
   },
   {
     date: "2024年4月",
     category: "japan",
     slug: "kato-becomes-owner",
     body: "加藤純一がムラッシュFCオーナー就任を正式発表。「サッカーわかんねぇし、できねぇよ」と断ろうとしたが「お前がやらないなら日本からは選ばない」の一言で承諾。",
+    highlights: ["お前がやらないなら日本からは選ばない"],
+    highlight: true,
   },
   {
     date: "2024年5〜6月",
     category: "tournament",
     slug: "mexico-cup",
     body: "第1回メキシコ大会。カオスなセレクションを経て初参戦。加藤純一がPKを決め世界中を驚かせるも1勝2敗でベスト32敗退。",
+    relatedTournament: "mexico-2024",
   },
   {
     date: "2025年1月",
     category: "tournament",
     slug: "italy-cup",
     body: "第2回イタリア大会。開幕戦でホスト国イタリアをまさかの撃破。GK深谷圭佑が「日本の壁」と称賛される活躍を見せたが、その後モロッコに敗れ敗退。",
+    highlights: ["日本の壁"],
+    relatedTournament: "italy-2025",
   },
   {
     date: "2025年4月",
     category: "japan",
     slug: "permanent-team-tryout-announced",
     body: "常設チーム化に向けたトライアウト開始を発表。「大会のたびに招集」から「定期活動するクラブチーム」への転換を目指す。",
+    relatedTournament: "rebirth",
   },
   {
     date: "2025年6月",
     category: "tournament",
     slug: "france-cup",
-    body: "第3回フランス大会。柿谷曜一朗・杉本竜二ら元Jリーガーを招集。練習中に伝説の「宮島事件」が勃発。",
-    highlights: ["宮島事件"],
+    body: "第3回フランス大会。柿谷曜一朗・杉本竜士ら元Jリーガーを招集。練習中に伝説の「宮古島事件」が勃発。",
+    highlights: ["宮古島事件"],
+    relatedTournament: "france-2025",
   },
   {
     date: "2025年11月",
     category: "japan",
     slug: "permanent-team-1st-gen",
     body: "常設チーム第1期メンバー発足。ムラッシュFCが初めて継続的に活動するクラブチームとして動き始める。",
+    relatedTournament: "rebirth",
   },
   {
     date: "2026年1月",
     category: "tournament",
     slug: "brazil-cup",
     body: "第4回ブラジル大会。過去最高の気合いで臨むも3連敗でグループリーグ敗退。加藤純一が「魂の説教」、成田リッキーが号泣、縣翔平の名言「命かけてんだから点取れよ」が生まれた大会。",
-    highlights: ["魂の説教"],
+    highlights: ["魂の説教", "命かけてんだから点取れよ"],
+    relatedTournament: "brazil-2026",
   },
   {
     date: "2026年3月",
     category: "japan",
     slug: "roster-reset-selection",
     body: "ブラジル大会の結果を受けロスター完全リセット。250名以上が応募する大規模セレクション開始。",
+    relatedTournament: "rebirth",
   },
   {
     date: "2026年5月28日",
     category: "japan",
     slug: "final-selection-16",
     body: "埼玉スタジアム第2Gで最終セレクション開催。16名の常設メンバーが確定。新生ムラッシュFC誕生。",
+    relatedTournament: "rebirth",
+    highlight: true,
   },
   {
     date: "2026年7月末",
@@ -127,7 +174,25 @@ const timeline: TimelineEvent[] = [
   },
 ];
 
-// 本文を、強調対象（固有エピソード名）で分割したセグメントに変換
+// =========================================================================
+// 年単位の区切り（year divider）を差し込んだ表示用リスト
+// =========================================================================
+type Row =
+  | { type: "year"; year: string }
+  | { type: "event"; event: TimelineEvent };
+
+const rows: Row[] = [];
+let lastYear = "";
+for (const e of timeline) {
+  const y = e.date.match(/^(\d{4})/)?.[1] ?? "";
+  if (y && y !== lastYear) {
+    rows.push({ type: "year", year: y });
+    lastYear = y;
+  }
+  rows.push({ type: "event", event: e });
+}
+
+// 本文を、強調対象（固有名／名言）で分割したセグメントに変換
 function toSegments(e: TimelineEvent): { text: string; hl: boolean }[] {
   const hls = e.highlights ?? [];
   if (hls.length === 0) return [{ text: e.body, hl: false }];
@@ -138,32 +203,77 @@ function toSegments(e: TimelineEvent): { text: string; hl: boolean }[] {
     .filter((s) => s !== "")
     .map((s) => ({ text: s, hl: hls.includes(s) }));
 }
+
+function ctaHref(t: RelatedTournament): string {
+  return t === "rebirth" ? "/rebirth" : `/tournaments/${t}`;
+}
+
+function ctaLabel(t: RelatedTournament): string {
+  switch (t) {
+    case "mexico-2024":
+      return "第1回 メキシコ大会";
+    case "italy-2025":
+      return "第2回 イタリア大会";
+    case "france-2025":
+      return "第3回 フランス大会";
+    case "brazil-2026":
+      return "第4回 ブラジル大会";
+    case "rebirth":
+      return "再スタート編";
+  }
+}
 ---
 
 <Layout
   title="歴史・年表 | ムラッシュFC ファンサイト（非公認）"
   description="キングスリーグ誕生からムラッシュFC結成、4大会への挑戦、常設チーム化と新生ムラッシュFC誕生まで。世界・日本・大会の出来事を時系列の年表でまとめました。"
 >
-  <!-- ページヘッダー -->
+  <!-- シネマチック・ヒーロー -->
   <section class="relative overflow-hidden border-b border-white/10">
     <div class="absolute inset-0 -z-10">
-      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
-      <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"></div>
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"
+      >
+      </div>
+      <div
+        class="absolute left-1/2 top-0 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-murash-red/15 blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute inset-0 opacity-[0.035]"
+        style="background-image: linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px); background-size: 48px 48px;"
+      >
+      </div>
     </div>
 
-    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">HISTORY</p>
-      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-        歴史・年表
+    <div class="mx-auto max-w-3xl px-4 py-20 sm:px-6 sm:py-24">
+      <p
+        class="font-display text-xs font-bold tracking-[0.45em] text-murash-red sm:text-sm"
+      >
+        HISTORY
+      </p>
+      <h1
+        class="history-glow mt-4 font-display text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl"
+      >
+        MURASH FC<br class="sm:hidden" />
+         HISTORY
       </h1>
-      <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
+      <p
+        class="mt-3 font-display text-base font-semibold tracking-[0.18em] text-white/85 sm:text-lg"
+      >
+        ── 2023年、すべては一通のリプから始まった ──
+      </p>
+
+      <div class="mx-auto mt-10 h-px w-24 bg-murash-red/60"></div>
+
+      <p class="mt-10 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base">
         2022年のキングスリーグ誕生から、ムラッシュFCの結成、世界への挑戦、そして新生チーム誕生まで。世界・日本・大会の出来事を時系列で振り返ります。
       </p>
 
       <!-- 凡例 -->
       <div class="mt-8 flex flex-wrap gap-2">
         {
-          (Object.values(categoryConfig)).map((c) => (
+          (Object.entries(categoryConfig)).map(([_k, c]) => (
             <span
               class:list={[
                 "inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs font-semibold",
@@ -179,82 +289,138 @@ function toSegments(e: TimelineEvent): { text: string; hl: boolean }[] {
     </div>
   </section>
 
-  <!-- タイムライン -->
+  <!-- タイムライン本体 -->
   <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-    <aside class="mb-10 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5">
+    <aside
+      class="mb-10 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5"
+    >
       <p class="text-xs leading-relaxed text-white/55 sm:text-sm">
         ※年表の内容はMURASH FC公式の発信やファンの記録を元に構成しています。修正・追記の情報提供を歓迎します。
       </p>
     </aside>
 
     <div class="relative">
-      <!-- 縦のタイムライン軸（赤いライン） -->
+      <!-- 縦のタイムライン軸：赤グラデ＋呼吸グロー -->
       <span
         aria-hidden="true"
-        class="pointer-events-none absolute bottom-3 left-4 top-3 w-px -translate-x-1/2 bg-gradient-to-b from-murash-red/70 via-white/15 to-transparent"
+        class="timeline-rail pointer-events-none absolute bottom-3 left-4 top-3 w-px -translate-x-1/2 bg-gradient-to-b from-murash-red via-murash-red/40 to-transparent"
       ></span>
 
-      <ol class="space-y-6 sm:space-y-8">
+      <ol class="space-y-8 sm:space-y-10">
         {
-          timeline.map((e) => {
-            const cat = categoryConfig[e.category];
-            return (
-              <li class="relative pl-12 sm:pl-14">
-                {/* タイムラインのノード（カテゴリのアイコン＋色） */}
+          rows.map((row) =>
+            row.type === "year" ? (
+              /* 年セパレーター：左にドット、右に大きな年と細い赤ライン */
+              <li class="relative" aria-label={`${row.year}年`}>
                 <span
-                  class:list={[
-                    "absolute left-4 top-1 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border-2 bg-murash-black text-sm leading-none",
-                    cat.ring,
-                  ]}
                   aria-hidden="true"
-                >
-                  {cat.icon}
-                </span>
-
-                <article
-                  data-slug={e.slug}
-                  class="relative overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 pl-6"
-                >
-                  {/* カテゴリのアクセントバー */}
+                  class="absolute left-4 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-murash-red ring-4 ring-murash-black shadow-[0_0_24px_-2px_rgba(230,0,18,0.7)]"
+                />
+                <div class="ml-12 flex items-center gap-4 sm:ml-14">
+                  <span class="font-display text-5xl font-black leading-none tracking-tight text-white/15 sm:text-6xl">
+                    {row.year}
+                  </span>
                   <span
                     aria-hidden="true"
-                    class:list={["absolute inset-y-0 left-0 w-1", cat.accent]}
+                    class="h-px flex-1 bg-gradient-to-r from-murash-red/40 to-transparent"
                   />
-
-                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <time class="font-display text-sm font-bold tracking-wide text-white">
-                      {e.date}
-                    </time>
+                </div>
+              </li>
+            ) : (
+              (() => {
+                const e = row.event;
+                const cat = categoryConfig[e.category];
+                return (
+                  <li class="relative pl-12 sm:pl-14">
+                    {/* ノード（カテゴリ色のグロー） */}
                     <span
+                      aria-hidden="true"
                       class:list={[
-                        "inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-semibold",
-                        cat.badge,
+                        "absolute left-4 top-2 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 bg-murash-black text-sm leading-none",
+                        cat.ring,
+                        cat.nodeGlow,
                       ]}
                     >
-                      <span aria-hidden="true">{cat.icon}</span>
-                      {cat.label}
+                      {cat.icon}
                     </span>
-                  </div>
 
-                  <p class="mt-3 text-sm leading-[1.8] text-[#e5e5e5] sm:text-base">
-                    {toSegments(e).map((seg) =>
-                      seg.hl ? (
-                        <strong class="font-semibold text-murash-red">{seg.text}</strong>
-                      ) : (
-                        seg.text
-                      ),
-                    )}
-                  </p>
-                </article>
-              </li>
-            );
-          })
+                    <article
+                      data-slug={e.slug}
+                      class:list={[
+                        "group relative overflow-hidden rounded-md border bg-murash-charcoal p-5 pl-6 transition-all duration-300 hover:-translate-y-0.5",
+                        e.highlight
+                          ? "border-2 border-murash-red/60 shadow-[0_0_42px_-12px_rgba(230,0,18,0.4)] hover:shadow-[0_0_60px_-12px_rgba(230,0,18,0.55)]"
+                          : "border-white/10 hover:shadow-[0_18px_45px_-15px_rgba(230,0,18,0.3)]",
+                        cat.hoverBorder,
+                      ]}
+                    >
+                      {/* カテゴリアクセントバー（太め） */}
+                      <span
+                        aria-hidden="true"
+                        class:list={["absolute inset-y-0 left-0 w-1.5", cat.accent]}
+                      />
+
+                      {/* highlight: true 用のラベル */}
+                      {e.highlight && (
+                        <span class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-sm bg-murash-red px-1.5 py-0.5 font-display text-[9px] font-bold tracking-widest text-white">
+                          KEY
+                        </span>
+                      )}
+
+                      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <time class="font-display text-base font-bold tracking-wide text-white sm:text-lg">
+                          {e.date}
+                        </time>
+                        <span
+                          class:list={[
+                            "inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-semibold",
+                            cat.badge,
+                          ]}
+                        >
+                          <span aria-hidden="true">{cat.icon}</span>
+                          {cat.label}
+                        </span>
+                      </div>
+
+                      <p class="mt-3 text-sm leading-[1.85] text-[#e5e5e5] sm:text-base">
+                        {toSegments(e).map((seg) =>
+                          seg.hl ? (
+                            <strong class="font-semibold text-murash-red">
+                              {seg.text}
+                            </strong>
+                          ) : (
+                            seg.text
+                          ),
+                        )}
+                      </p>
+
+                      {/* 詳しく読む CTA */}
+                      {e.relatedTournament && (
+                        <a
+                          href={ctaHref(e.relatedTournament)}
+                          class="mt-4 inline-flex items-center gap-1.5 rounded-sm border border-murash-red/50 bg-murash-red/[0.04] px-3 py-1.5 font-display text-xs font-bold tracking-wide text-murash-red transition-all duration-300 hover:bg-murash-red hover:text-white"
+                        >
+                          {ctaLabel(e.relatedTournament)}を詳しく読む
+                          <span
+                            aria-hidden="true"
+                            class="transition-transform group-hover:translate-x-0.5"
+                          >
+                            →
+                          </span>
+                        </a>
+                      )}
+                    </article>
+                  </li>
+                );
+              })()
+            ),
+          )
         }
       </ol>
     </div>
 
     <!-- 関連リンク -->
-    <div class="mt-14 flex flex-wrap gap-4 border-t border-white/10 pt-10">
+    <div class="mt-16 flex flex-wrap gap-4 border-t border-white/10 pt-10">
       <a
         href="/about"
         class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
@@ -271,3 +437,44 @@ function toSegments(e: TimelineEvent): { text: string; hl: boolean }[] {
     </div>
   </section>
 </Layout>
+
+<style>
+  /* 軸の呼吸グロー */
+  @keyframes railBreath {
+    0%,
+    100% {
+      opacity: 0.7;
+      filter: drop-shadow(0 0 4px rgba(230, 0, 18, 0.35));
+    }
+    50% {
+      opacity: 1;
+      filter: drop-shadow(0 0 14px rgba(230, 0, 18, 0.55));
+    }
+  }
+  .timeline-rail {
+    animation: railBreath 4s ease-in-out infinite;
+  }
+
+  /* タイトルの赤グロー pulse */
+  @keyframes historyGlow {
+    0%,
+    100% {
+      text-shadow: 0 0 18px rgba(230, 0, 18, 0.25);
+    }
+    50% {
+      text-shadow:
+        0 0 34px rgba(230, 0, 18, 0.55),
+        0 0 10px rgba(230, 0, 18, 0.35);
+    }
+  }
+  .history-glow {
+    animation: historyGlow 4.5s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-rail,
+    .history-glow {
+      animation: none;
+    }
+  }
+</style>
