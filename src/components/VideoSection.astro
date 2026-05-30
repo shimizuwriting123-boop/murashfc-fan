@@ -1,0 +1,178 @@
+---
+import type { VideoCard } from "../data/videos";
+
+interface Props {
+  videos: VideoCard[];
+  /** 初期表示件数（これを超えると折りたたみボタンが出る） */
+  initialCount?: number;
+  /** セクション見出し */
+  title?: string;
+  /** セクション直下の補足文 */
+  subtitle?: string;
+}
+
+const {
+  videos,
+  initialCount = 6,
+  title = "関連動画",
+  subtitle,
+} = Astro.props;
+
+const hasMore = videos.length > initialCount;
+const remaining = videos.length - initialCount;
+---
+
+{
+  videos.length > 0 && (
+    <section class="border-t border-white/10 bg-murash-black/40">
+      <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
+        <h2 class="flex flex-wrap items-center gap-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          <span aria-hidden="true" class="text-3xl">
+            📺
+          </span>
+          {title}
+          <span class="font-display text-sm font-semibold text-white/40">
+            {videos.length}本
+          </span>
+        </h2>
+        <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+
+        {subtitle && (
+          <p class="mt-4 text-sm leading-relaxed text-white/65 sm:text-base">
+            {subtitle}
+          </p>
+        )}
+
+        <ul
+          data-video-list
+          class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {videos.map((v, i) => (
+            <li
+              data-video-index={i}
+              class:list={[i >= initialCount ? "hidden" : ""]}
+            >
+              <a
+                href={v.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="video-card group flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal transition-all duration-200 hover:-translate-y-1 hover:border-murash-red/60"
+              >
+                <div class="relative aspect-video overflow-hidden bg-black">
+                  <img
+                    src={v.thumbnail}
+                    alt={v.title}
+                    loading="lazy"
+                    decoding="async"
+                    width="480"
+                    height="360"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <span
+                    aria-hidden="true"
+                    class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                  >
+                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-murash-red shadow-lg">
+                      <svg
+                        viewBox="0 0 24 24"
+                        class="ml-1 h-6 w-6 fill-current text-white"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </span>
+                  </span>
+                  <span class="absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-black/75 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      class="h-3 w-3 fill-current text-murash-red"
+                    >
+                      <path d="M23.5 6.2c-.3-1.1-1.1-1.9-2.1-2.2C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.5C1.6 4.3.8 5.1.5 6.2 0 8.1 0 12 0 12s0 3.9.5 5.8c.3 1.1 1.1 1.9 2.1 2.2C4.5 20.5 12 20.5 12 20.5s7.5 0 9.4-.5c1-.3 1.8-1.1 2.1-2.2.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z" />
+                    </svg>
+                    YouTube
+                  </span>
+                </div>
+                <div class="flex flex-1 flex-col p-4">
+                  <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-white sm:text-base">
+                    {v.title}
+                  </h3>
+                  <p class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/50 transition-colors group-hover:text-murash-red">
+                    YouTubeで見る
+                    <span aria-hidden="true">→</span>
+                  </p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        {hasMore && (
+          <div class="mt-8 text-center">
+            <button
+              type="button"
+              data-video-toggle
+              data-initial={initialCount}
+              data-total={videos.length}
+              aria-expanded="false"
+              class="inline-flex items-center gap-2 rounded-sm border border-white/20 bg-white/5 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-all hover:border-murash-red/60 hover:bg-murash-red/10 hover:text-white"
+            >
+              <span data-video-toggle-label>もっと見る（残り{remaining}本）</span>
+              <span aria-hidden="true" data-video-toggle-icon class="transition-transform">
+                ↓
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .video-card:hover {
+    box-shadow:
+      0 0 0 1px rgba(230, 0, 18, 0.35),
+      0 12px 30px -12px rgba(230, 0, 18, 0.4);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .video-card,
+    .video-card img {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-video-toggle]").forEach((btn) => {
+    const section = btn.closest("section");
+    if (!section) return;
+    const items = section.querySelectorAll<HTMLElement>("[data-video-index]");
+    const initial = Number(btn.dataset.initial ?? "6");
+    const total = Number(btn.dataset.total ?? items.length);
+    const labelEl = btn.querySelector<HTMLElement>("[data-video-toggle-label]");
+    const iconEl = btn.querySelector<HTMLElement>("[data-video-toggle-icon]");
+
+    let expanded = false;
+    btn.addEventListener("click", () => {
+      expanded = !expanded;
+      items.forEach((it, i) => {
+        it.classList.toggle("hidden", !expanded && i >= initial);
+      });
+      btn.setAttribute("aria-expanded", String(expanded));
+      if (labelEl) {
+        labelEl.textContent = expanded
+          ? "閉じる"
+          : `もっと見る（残り${total - initial}本）`;
+      }
+      if (iconEl) {
+        iconEl.style.transform = expanded ? "rotate(180deg)" : "rotate(0deg)";
+      }
+      // 折りたたみ時はセクション先頭にスクロール
+      if (!expanded) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
+</script>

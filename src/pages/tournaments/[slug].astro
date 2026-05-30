@@ -1,6 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { tournaments, type Tournament } from "../../data/tournaments";
+import {
+  getVideosFor,
+  TOURNAMENT_URLSLUG_TO_VIDEO_CATEGORY,
+} from "../../data/videos";
+import VideoSection from "../../components/VideoSection.astro";
 
 export function getStaticPaths() {
   return tournaments
@@ -26,6 +31,9 @@ interface Props {
 
 const { tournament: t, prev, next } = Astro.props;
 const detail = t.detail!;
+
+const videoCategory = TOURNAMENT_URLSLUG_TO_VIDEO_CATEGORY[t.urlSlug];
+const videos = videoCategory ? getVideosFor(videoCategory) : [];
 
 // 概要メタ
 const meta = [
@@ -314,4 +322,10 @@ function markupSegments(text: string): Segment[] {
       </a>
     </div>
   </article>
+
+  <VideoSection
+    videos={videos}
+    title={`${t.name} 関連動画`}
+    subtitle={`${t.no} ${t.name}（${t.date}）に関するムラッシュFC公式・加藤純一公式チャンネルなどの動画アーカイブ。`}
+  />
 </Layout>

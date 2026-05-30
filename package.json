@@ -6,7 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "predev": "node scripts/build-video-cache.mjs",
     "dev": "astro dev",
+    "prebuild": "node scripts/build-video-cache.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

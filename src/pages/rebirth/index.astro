@@ -1,5 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import VideoSection from "../../components/VideoSection.astro";
+import { getVideosFor } from "../../data/videos";
+
+const tryoutVideos = getVideosFor("tryout");
 
 interface Block {
   /** 段落／引用ライン。**強調** 記法をサポート */
@@ -408,6 +412,12 @@ function markupSegments(text: string): Segment[] {
       </a>
     </div>
   </article>
+
+  <VideoSection
+    videos={tryoutVideos}
+    title="再スタート編 関連動画"
+    subtitle="ブラジル大会後の新体制発表から、トライアウト・千葉合宿・最終セレクションまでを追ったムラッシュFC公式チャンネルのドキュメンタリー動画群。"
+  />
 </Layout>
 
 <style>
