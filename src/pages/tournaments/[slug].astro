@@ -120,13 +120,31 @@ function markupSegments(text: string): { text: string; bold: boolean }[] {
 
             <div class="mt-7 space-y-10">
               {section.items.map((item) => (
-                <div>
+                <div
+                  class:list={[
+                    item.emphasized
+                      ? "rounded-md border-2 border-murash-red/60 bg-murash-red/5 p-5 sm:p-6"
+                      : "",
+                  ]}
+                >
+                  {item.emphasized && (
+                    <span class="inline-flex items-center rounded-sm bg-murash-red px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-white">
+                      伝説
+                    </span>
+                  )}
                   {item.title && (
-                    <h3 class="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
-                      <span
-                        aria-hidden="true"
-                        class="inline-block h-4 w-1 shrink-0 rounded-full bg-murash-red"
-                      />
+                    <h3
+                      class:list={[
+                        "flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl",
+                        item.emphasized ? "mt-3" : "",
+                      ]}
+                    >
+                      {!item.emphasized && (
+                        <span
+                          aria-hidden="true"
+                          class="inline-block h-4 w-1 shrink-0 rounded-full bg-murash-red"
+                        />
+                      )}
                       {item.title}
                     </h3>
                   )}
