@@ -1,5 +1,5 @@
 export type Position = "GK" | "DF" | "MF" | "FW";
-export type PlayerStatus = "confirmed" | "pending" | "past";
+export type PlayerStatus = "confirmed" | "pending" | "past" | "staff";
 export type TournamentSlug = "mexico" | "italy" | "france" | "brazil";
 
 export interface Player {
@@ -454,7 +454,7 @@ export const players: Player[] = [
     status: "past",
     tournaments: ["france"],
     feature:
-      "元日本代表FW（2014年ワールドカップ出場）。セレッソ大阪・徳島ヴォルティス・名古屋グランパス。MURASH FCにフランス大会で参加予定だったが、アキレス腱痛再発でアドバイザーに変更、日本から帯同せずサポート。",
+      "元日本代表FW（2014年ワールドカップ出場）。セレッソ大阪・徳島ヴォルティス・名古屋グランパス。MURASH FCにフランス大会で参加予定だったが、アキレス腱痛再発でアドバイザーに変更、日本から帯同せずサポート。再スタート編からはダブルオーナーに昇格し、加藤純一と並んでチームを率いる。",
   },
 
   // ----- ブラジル大会出場者 -----
@@ -463,10 +463,10 @@ export const players: Player[] = [
     name: "野崎雅也",
     nameEn: "NOZAKI",
     position: "DF",
-    status: "past",
+    status: "staff",
     tournaments: ["brazil"],
     feature:
-      "浦和レッズユース、浦和レッズ、アビスパ福岡、ガイナーレ鳥取などJリーグ複数クラブを経験。",
+      "浦和レッズユース、浦和レッズ、アビスパ福岡、ガイナーレ鳥取などJリーグ複数クラブを経験。第4回ブラジル大会では選手として出場し、再スタート編からはマネージャーに転身。",
   },
   {
     slug: "tanabe",
@@ -494,6 +494,32 @@ export const players: Player[] = [
     position: "FW",
     status: "past",
     tournaments: ["brazil"],
+  },
+
+  // ============================================================
+  // スタッフ（再スタート編から発足）
+  // ============================================================
+  {
+    slug: "ota",
+    name: "太田宏介",
+    nameEn: "OTA",
+    position: "DF",
+    status: "staff",
+    tournaments: [],
+    nickname: "監督",
+    feature:
+      "元日本代表DF。FC東京・清水エスパルス・横浜FCなどで活躍した左サイドバック。2026年、再スタート編からムラッシュFCの新監督に就任。",
+  },
+  {
+    slug: "hasegawa",
+    name: "長谷川アーリアジャスール",
+    nameEn: "HASEGAWA",
+    position: "MF",
+    status: "staff",
+    tournaments: [],
+    nickname: "コーチ",
+    feature:
+      "元日本代表MF。横浜F・マリノス・名古屋グランパス・FC東京などで活躍した攻撃的MF。2026年、再スタート編からムラッシュFCのコーチに就任。",
   },
 ];
 

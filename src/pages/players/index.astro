@@ -2,11 +2,11 @@
 import Layout from "../../layouts/Layout.astro";
 import { players, TOURNAMENTS, type Position, type TournamentSlug } from "../../data/players";
 
-// 全選手を一つのグリッドに描画：現メンバー（背番号順）→ 歴代メンバー（データ定義順）
+// 全選手を一つのグリッドに描画：現メンバー（背番号順）→ 歴代メンバー＆スタッフ（データ定義順）
 const current = players
-  .filter((p) => p.status !== "past")
+  .filter((p) => p.status === "confirmed" || p.status === "pending")
   .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
-const past = players.filter((p) => p.status === "past");
+const past = players.filter((p) => p.status === "past" || p.status === "staff");
 const allPlayers = [...current, ...past];
 
 // 現メンバーのポジション別カウント
@@ -95,7 +95,7 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
           aria-selected="false"
           class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
         >
-          歴代メンバー（{past.length}名）
+          歴代メンバー・スタッフ（{past.length}名）
         </button>
       </div>
 
@@ -178,6 +178,11 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
                 {player.status === "past" && (
                   <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
                     歴代
+                  </span>
+                )}
+                {player.status === "staff" && (
+                  <span class="ml-auto rounded-sm border border-murash-red/40 bg-murash-red/10 px-1.5 py-0.5 text-[10px] font-semibold text-murash-red">
+                    スタッフ
                   </span>
                 )}
               </div>

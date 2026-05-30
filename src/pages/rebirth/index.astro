@@ -1,0 +1,384 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+interface Block {
+  /** 段落／引用ライン。**強調** 記法をサポート */
+  body: string[];
+  /** サブ見出し（h3） */
+  title?: string;
+  /** 赤枠＋「STORY」バッジで強調 */
+  emphasized?: boolean;
+}
+
+interface Chapter {
+  no: string;
+  icon: string;
+  title: string;
+  blocks: Block[];
+  /** 章全体を強調枠で包む */
+  emphasized?: boolean;
+}
+
+const chapters: Chapter[] = [
+  {
+    no: "01",
+    icon: "🔥",
+    title: "7連敗からの脱却。新体制と「競争」の始まり",
+    blocks: [
+      {
+        body: [
+          "ブラジル大会での3連敗を受け、国際大会で通算7連敗という結果に直面した加藤純一は、組織の根本的な改革を決断する。",
+          "「もう二度と負けたくない。勝つためには必要なことは明確にある」",
+          "そう語る加藤は、これまでアドバイザーを務めていた**柿谷曜一朗をダブルオーナーに迎え入れた**。さらに、元日本代表DFの**太田宏介を新監督**として招聘し、元日本代表MFの**長谷川アーリアジャスールをコーチ**に据える新体制を発表。",
+          "そして、これまで選手として共に戦ってきた**野崎雅也をマネージャーに任命**。選手からスタッフへの転身という重い決断だった。",
+          "選手たちには、こう宣言した。",
+          "「これまでの既存のメンバーを1回ゼロにして、フラットにしてまた競争しなければいけない」",
+          "情け容赦のないサバイバル、セレクション制の幕開けだった。",
+        ],
+      },
+    ],
+  },
+  {
+    no: "02",
+    icon: "⚡",
+    title: "「既存メンバーを引きずり下ろせ」熱狂の1次セレクション",
+    blocks: [
+      {
+        body: [
+          "約250名が応募した新体制でのセレクション。加藤純一は初対面の参加者たちに激を飛ばした。",
+          "「皆さんが経験してきたサッカーの技術をここで出して、現状あぐらをかいている**既存のメンバーを絶対に引きずり下ろしていただきたい**。全員入れ替わるぐらいの気持ちでいる」",
+          "白熱した1次セレクションでトップ評価を受けたのは、前回のブラジル大会のトライアウトで涙を飲んだ**小田崚平**だった。加藤純一は小田の自宅を突然訪問し、トップ通過を直接報告。",
+          "「落ちてからもずっとそこに標準を合わせてやり続けて、かなり自分自身成長してる」",
+          "驚きながらも語る小田の言葉には、下剋上への執念がにじんでいた。",
+          "加藤は中村駿介の実家にも訪問し、亡き父とのエピソードや母の支えが明かされ、彼が10番を背負い続ける覚悟が垣間見えた。",
+        ],
+      },
+    ],
+  },
+  {
+    no: "03",
+    icon: "💥",
+    title: "強まるプレッシャーと残酷な合否宣告",
+    blocks: [
+      {
+        body: [
+          "2次セレクションから既存のムラッシュFCメンバーが合流。スカウト組や1次通過者との三つ巴の戦いが始まる。",
+          "「すごく残酷に順位までつけて、しっかり優劣をつけて合格不合格を決めようと思ってる」",
+          "加藤純一からそう宣言され、ピッチは極限の緊張感に包まれた。",
+        ],
+      },
+      {
+        title: "圓乘健介の決断",
+        emphasized: true,
+        body: [
+          "合否が即日発表されるシビアな第3次セレクションでは、海外挑戦の夢とキングスリーグへの思いの間で葛藤していた**圓乘健介**が、自ら辞退を申し出る決断を下した。",
+          "「**中途半端な気持ちで来る場所じゃない**」",
+          "メキシコ・イタリア・フランスと、3大会連続で日本代表を支え続けてきたレジェンドの引き際。",
+          "怪我を抱えながらも強行出場し「自分の怪我ごときでミスミス逃すっていうのは、自分の中でも納得できなかった」と語る選手たちの執念も交錯し、ピッチ上は生き残りを懸けた異様な熱気に包まれていた。",
+        ],
+      },
+    ],
+  },
+  {
+    no: "04",
+    icon: "🌪",
+    title: "千葉合宿の激震。レジェンドの落選",
+    blocks: [
+      {
+        body: [
+          "選りすぐられた精鋭たちが千葉県での合宿（第4次セレクション）に参加。6人部屋での和気あいあいとした雰囲気から一転、ピッチに出れば**横山航河の身体能力**や**木戸皓貴の得点嗅覚**が光り、ポジションを奪い合う熾烈なアピール合戦が展開された。",
+          "しかし合宿1日目の夜、太田監督から告げられた言葉に全員が凍りついた。",
+          "「より濃度の高い練習をしていきたい」",
+          "突如として4名の落選が発表される。その中には、これまでチームを牽引してきた**三浦パブロ**の名前があった。",
+          "「もう少し結果のところ、ゴールのところを見せてほしかった」",
+          "監督から告げられたパブロは、合宿所を去る。この非情な決断に、残されたメンバーにも戦慄が走った。",
+        ],
+      },
+    ],
+  },
+  {
+    no: "05",
+    icon: "🔥",
+    title: "魂をぶつけ合う個人面談",
+    blocks: [
+      {
+        body: [
+          "合宿2日目、首脳陣との個人面談が行われた。加藤純一は選手たち一人ひとりの「覚悟」を鋭く問いただした。",
+        ],
+      },
+      {
+        title: "縣翔平への問い",
+        emphasized: true,
+        body: [
+          "縣翔平に対しては、こう迫った。",
+          "「ブラジル大会でなぜチームのために発言しなかったのか。**俺はもう二度とぬるいスタートはさせない**」",
+          "縣はこう誓った。",
+          "「**絶対にさせません。僕に任せてください**」",
+          "嫌われる覚悟でチームを鼓舞する決意の言葉だった。",
+        ],
+      },
+      {
+        title: "小田崚平への愛のムチ",
+        body: [
+          "小田崚平にも愛のムチが飛んだ。",
+          "「**自分で決めた限界値の範囲内でしか生きてない。波の選手で終わるぞ**」",
+          "小田は涙をこらえながら、こう応えた。",
+          "「限界を突破する必要があると感じた」",
+        ],
+      },
+      {
+        title: "中村駿介の役割",
+        body: [
+          "中村駿介には「チームの潤滑油的な役割」を自覚しているかが確認された。",
+          "単なるサッカーの技術だけでなく、世界で勝つための「人間力」や「メンタル」を本気でぶつけ合う加藤純一と選手たち。本気だからこそ出る厳しい言葉と、それに食らいつく選手たちの姿があった。",
+        ],
+      },
+    ],
+  },
+  {
+    no: "06",
+    icon: "⚽",
+    title: "反逆の「レベナンツ」と新生16名の誕生",
+    emphasized: true,
+    blocks: [
+      {
+        body: [
+          "2026年5月28日、埼玉スタジアム第2グラウンド。",
+          "最終セレクション当日、ムラッシュFCの相手は、**中井健介前監督に率いられ、三浦パブロ、田村佳翔、成田雄聖ら落選メンバーで結成された「レベナンツ（Revenants：亡霊たち）」**だった。",
+          "観客が見守る中、レベナンツは「**俺たちを選ばなかったことを後悔させてやる**」という気迫で襲いかかる。",
+          "試合は**木戸皓貴の鮮やかなダブルゴール**などでムラッシュFCがリードするも、後半、三浦パブロの執念の突破から田村佳翔が決めるなどレベナンツも猛追。",
+          "加藤純一がプレジデントPKを外す一方、**柿谷曜一朗が見事にPKを決め**、**深谷圭佑が再三の好セーブ**を見せるなど死闘を展開。",
+          "結果は**8対4でムラッシュFCの勝利**。",
+          "試合後、ピッチ上で柿谷オーナーから最終合格者16名の名前が読み上げられた。",
+          "横山航河、宮内俊輔、木戸皓貴、箱崎裕也、縣翔平、中村駿介、梅津怜央、小田崚平、江川雅信、林田大和、宮下豪也（としや）、白石郁哉、重信圭佑、谷田光、児玉剛、深谷圭佑。",
+          "**新生ムラッシュFCが誕生した瞬間だった。**",
+          "加藤純一は誓った。",
+          "「**落ちてしまった選手がもう一度入りたいと思うようなチームにする**」",
+          "新たな世界への挑戦が、今、始まる。",
+        ],
+      },
+    ],
+  },
+];
+
+// **強調** をハンドリングしたセグメント
+function markupSegments(text: string): { text: string; bold: boolean }[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  return parts
+    .filter((p) => p !== "")
+    .map((p) =>
+      p.startsWith("**") && p.endsWith("**")
+        ? { text: p.slice(2, -2), bold: true }
+        : { text: p, bold: false },
+    );
+}
+---
+
+<Layout
+  title="再スタート編 ── 新生ムラッシュFC誕生まで | ムラッシュFC ファンサイト（非公認）"
+  description="ブラジル大会の7連敗から組織を根本改革。新体制発足、250名のトライアウト、5月28日の最終セレクション、新生16名誕生までを描く全6章ドキュメンタリー特集。"
+>
+  <!-- ヒーロー（シネマチック） -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-b from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute left-1/2 top-0 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-murash-red/20 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6 sm:py-32">
+      <p class="font-display text-xs font-semibold tracking-[0.4em] text-murash-red sm:text-sm">
+        FEATURE / DOCUMENTARY
+      </p>
+      <h1
+        class="rebirth-glow mt-6 font-display text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl"
+      >
+        再スタート編
+      </h1>
+      <p class="mt-4 font-display text-base font-semibold tracking-[0.2em] text-white/70 sm:text-lg">
+        ── 新生ムラッシュFC誕生まで ──
+      </p>
+
+      <div class="mx-auto mt-12 h-px w-24 bg-murash-red/60"></div>
+
+      <div class="mx-auto mt-12 max-w-xl space-y-6 text-left text-base leading-[2.0] text-[#e5e5e5] sm:text-lg">
+        <p>2026年1月、ブラジル大会で3連敗を喫したムラッシュFC。</p>
+        <p>これで国際大会通算<strong class="text-murash-red">7連敗</strong>。</p>
+        <p class="text-xl font-semibold text-white sm:text-2xl">「もう二度と負けたくない」</p>
+        <p>プレジデント加藤純一は、組織の根本的な改革を決断する。</p>
+        <p class="font-display font-semibold tracking-wide text-white">
+          ── これは、解体から再生までの物語。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 本文 -->
+  <article class="mx-auto max-w-3xl px-4 py-20 sm:px-6">
+    <div class="space-y-20">
+      {
+        chapters.map((c) => (
+          <section
+            class:list={[
+              "scroll-mt-24",
+              c.emphasized
+                ? "rounded-lg border-2 border-murash-red/50 bg-murash-red/[0.04] p-6 sm:p-10"
+                : "",
+            ]}
+          >
+            {c.emphasized && (
+              <div class="mb-6 flex items-center gap-2">
+                <span class="inline-flex items-center rounded-sm bg-murash-red px-2 py-0.5 font-display text-[10px] font-bold tracking-[0.25em] text-white">
+                  CLIMAX
+                </span>
+                <span class="font-display text-[10px] font-semibold tracking-[0.3em] text-murash-red">
+                  最終決戦
+                </span>
+              </div>
+            )}
+
+            <div class="flex items-center gap-4">
+              <span class="font-display text-xs font-bold tracking-[0.35em] text-murash-red sm:text-sm">
+                {c.icon} 第{c.no}章
+              </span>
+              <span
+                aria-hidden="true"
+                class="h-px flex-1 bg-gradient-to-r from-murash-red/50 to-transparent"
+              />
+            </div>
+
+            <h2 class="mt-4 font-display text-2xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
+              {c.title}
+            </h2>
+
+            <div class="mt-10 space-y-12">
+              {c.blocks.map((b) => (
+                <div
+                  class:list={[
+                    b.emphasized
+                      ? "rounded-md border-2 border-murash-red/60 bg-murash-red/5 p-5 sm:p-6"
+                      : "",
+                  ]}
+                >
+                  {b.emphasized && (
+                    <span class="inline-flex items-center rounded-sm bg-murash-red px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-white">
+                      STORY
+                    </span>
+                  )}
+                  {b.title && (
+                    <h3
+                      class:list={[
+                        "flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl",
+                        b.emphasized ? "mt-3" : "",
+                      ]}
+                    >
+                      {!b.emphasized && (
+                        <span
+                          aria-hidden="true"
+                          class="inline-block h-4 w-1 shrink-0 rounded-full bg-murash-red"
+                        />
+                      )}
+                      {b.title}
+                    </h3>
+                  )}
+                  <div class={b.title ? "mt-3 space-y-5" : "space-y-5"}>
+                    {b.body.map((p) => (
+                      <p class="text-base leading-[2.0] text-[#e5e5e5] sm:text-lg">
+                        {markupSegments(p).map((seg) =>
+                          seg.bold ? (
+                            <strong class="font-semibold text-white">{seg.text}</strong>
+                          ) : (
+                            seg.text
+                          ),
+                        )}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <!-- エピローグ -->
+    <section class="mt-20 border-t border-white/10 pt-16 text-center">
+      <p class="font-display text-xs font-semibold tracking-[0.4em] text-murash-red sm:text-sm">
+        EPILOGUE
+      </p>
+      <h2 class="mt-4 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+        落選した挑戦者たちへ
+      </h2>
+
+      <div class="mx-auto mt-10 max-w-xl space-y-6 text-left text-base leading-[2.0] text-[#e5e5e5] sm:text-lg">
+        <p>250名の応募者から、選ばれたのは16名。</p>
+        <p>だが、このセレクションに挑戦したすべての人間が、ムラッシュFCの物語を作った。</p>
+        <p>
+          レベナンツとして最後まで戦い続けた者。<br />
+          合宿で涙を飲んだ者。<br />
+          3次セレクションで自ら辞退を選んだ者。
+        </p>
+        <p>その全員の覚悟と熱量が、新生ムラッシュFCの背中を押している。</p>
+      </div>
+
+      <div class="mx-auto mt-12 h-px w-24 bg-murash-red/60"></div>
+
+      <div class="mx-auto mt-12 max-w-xl space-y-4 text-base text-[#e5e5e5] sm:text-lg">
+        <p>次の戦いは、<strong class="text-white">2026年7月末</strong>。</p>
+        <p>イタリアで開催される<strong class="text-white">WCエキシビジョンマッチ</strong>。</p>
+        <p
+          class="rebirth-glow mt-6 font-display text-xl font-bold tracking-wide text-white sm:text-2xl"
+        >
+          新生ムラッシュFC、世界へ。
+        </p>
+      </div>
+    </section>
+
+    <!-- 情報源の注記 -->
+    <aside class="mt-16 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5">
+      <p class="text-xs leading-relaxed text-white/55 sm:text-sm">
+        ※本記事の内容は、MURASH FC公式YouTubeチャンネルの配信内容を元にまとめています。記憶違いや解釈の誤りがある可能性があります。
+      </p>
+    </aside>
+
+    <!-- 関連リンク -->
+    <div class="mt-10 flex flex-wrap gap-3 border-t border-white/10 pt-10">
+      <a
+        href="/players"
+        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+      >
+        選手名鑑（現メンバー）を見る
+        <span aria-hidden="true">→</span>
+      </a>
+      <a
+        href="/tournaments"
+        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+      >
+        大会の軌跡を見る
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  @keyframes rebirthGlow {
+    0%,
+    100% {
+      text-shadow: 0 0 18px rgba(230, 0, 18, 0.25);
+    }
+    50% {
+      text-shadow:
+        0 0 36px rgba(230, 0, 18, 0.55),
+        0 0 10px rgba(230, 0, 18, 0.4);
+    }
+  }
+  .rebirth-glow {
+    animation: rebirthGlow 4.5s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rebirth-glow {
+      animation: none;
+    }
+  }
+</style>

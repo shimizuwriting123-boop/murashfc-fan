@@ -33,7 +33,9 @@ const statusBadge =
     ? "準備中"
     : player.status === "past"
       ? "歴代メンバー"
-      : null;
+      : player.status === "staff"
+        ? "スタッフ"
+        : null;
 
 const hasCareer = !!(player.career && player.career.length > 0);
 const hasFeature = !!player.feature;
