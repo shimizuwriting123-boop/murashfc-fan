@@ -34,6 +34,7 @@ const meta = [
   ...(t.record ? [{ label: "戦績", value: t.record }] : []),
   ...(t.champion ? [{ label: "優勝", value: t.champion }] : []),
   { label: "開催地", value: detail.hostCountry },
+  ...(t.selectionMethod ? [{ label: "選出方式", value: t.selectionMethod }] : []),
 ];
 
 // **強調** をハンドリングしたセグメント
@@ -108,9 +109,11 @@ function markupSegments(text: string): { text: string; bold: boolean }[] {
         detail.sections.map((section) => (
           <section>
             <h2 class="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              <span aria-hidden="true" class="text-3xl">
-                {section.icon}
-              </span>
+              {section.icon && (
+                <span aria-hidden="true" class="text-3xl">
+                  {section.icon}
+                </span>
+              )}
               {section.title}
             </h2>
             <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
@@ -154,8 +157,15 @@ function markupSegments(text: string): { text: string; bold: boolean }[] {
       }
     </div>
 
+    <!-- 情報源の注記 -->
+    <aside class="mt-16 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5">
+      <p class="text-xs leading-relaxed text-white/55 sm:text-sm">
+        ※本記事の内容は、ムラッシュFC公式YouTubeチャンネルおよび加藤純一公式YouTubeチャンネルの配信内容を元にまとめています。記憶違いや解釈の誤りがある可能性があります。
+      </p>
+    </aside>
+
     <!-- 前後の大会ナビ -->
-    <nav class="mt-16 grid gap-3 border-t border-white/10 pt-8 sm:grid-cols-2">
+    <nav class="mt-10 grid gap-3 border-t border-white/10 pt-8 sm:grid-cols-2">
       {
         prev ? (
           prev.detail ? (
