@@ -19,6 +19,12 @@ export interface Player {
   hometown?: string;
   career?: string[];
   feature?: string;
+  /** 柿谷曜一朗（ダブルオーナー）からの選手評コメント */
+  kakitaniComment?: string;
+  /** 本人からのメッセージ */
+  playerMessage?: string;
+  instagramUrl?: string;
+  xUrl?: string;
 }
 
 export const players: Player[] = [
@@ -70,12 +76,29 @@ export const players: Player[] = [
   },
   {
     slug: "hako",
-    name: "箱崎裕也",
+    name: "箱﨑裕也",
     nameEn: "HAKO",
-    position: "DF",
+    position: "MF",
     number: 4,
-    status: "pending",
+    status: "confirmed",
     tournaments: ["brazil"],
+    nickname: "はこ",
+    birthdate: "1994年9月16日",
+    height: "172cm",
+    weight: "66kg",
+    career: [
+      "香川西高校（国体）",
+      "大阪学院大学（関西選抜）",
+      "ルート11",
+      "RAPAZ FUTSAL CLUB",
+      "VOLVER OSAKA",
+      "ソサイチ日本代表（2024アジアカップ、2025ブラジルW杯）",
+    ],
+    kakitaniComment:
+      "パスを出すタイミング、出すところのセンスがある。全てにおいて能力が高い。",
+    playerMessage:
+      "箱﨑裕也です！新たに発足するチームで皆さんとコミュニケーションをいっぱい取っていきたいと思っています。今まで築き上げてこられたムラッシュFCの歴史をより良くできるように、世界一だけを目指して魂で闘います。よろしくお願いします。",
+    instagramUrl: "https://instagram.com/yuya.hakozaki",
   },
   {
     slug: "nakamura",
@@ -106,6 +129,10 @@ export const players: Player[] = [
     ],
     feature:
       "背負った相手に対しての守備の強度が高い。落ち着いてボールを持てる、パスもできる。前もできる。",
+    kakitaniComment:
+      "背負った相手に対しての守備の強度が高い。落ち着いてボールを持てる、パスもできる。前もできる。",
+    playerMessage: "勝とう",
+    instagramUrl: "https://instagram.com/shohei_agata",
   },
   {
     slug: "yokoyama",
@@ -120,23 +147,44 @@ export const players: Player[] = [
     height: "174cm",
     weight: "72kg",
     career: [
-      "サンフレッチェ広島ユース",
-      "近畿大学",
-      "FC LAZO",
-      "VOLVER OSAKA（2025ソサイチブラジルW杯メンバー）",
+      "サンフレッチェ広島ユース（Jリーグ選抜）",
+      "近畿大学（新人賞、DENSO関西選抜）",
+      "FC LAZO（大阪府プラチナリーグ）",
+      "VOLVER OSAKA（ソサイチ関西1部、2025ソサイチブラジルW杯メンバー）",
       "MIKIHOUSE FC（フットサル）",
     ],
     feature:
       "守備の強度が高く何度も球に行ける、戦える。自身で運ぶドリブルもそつなくできる。キック精度もある。",
+    kakitaniComment:
+      "守備の強度が高く何度も球に行ける、戦える。自身で運ぶドリブルもそつなくできる。キック精度もある。",
+    playerMessage:
+      "初めまして、コウガです。見た目はちょっとあれですがめちゃめちゃ気さくなんで仲良くして下さい。皆さんと世界一獲れる様にチームの為にガンガン走って闘うんでよろしくお願いします",
+    instagramUrl: "https://instagram.com/kouga_960526",
   },
   {
     slug: "umezu",
     name: "梅津怜央",
     nameEn: "UMEZU",
-    position: "MF",
+    position: "FW",
     number: 8,
-    status: "pending",
+    status: "confirmed",
     tournaments: ["brazil"],
+    nickname: "れお",
+    birthdate: "1999年11月7日",
+    height: "165cm",
+    weight: "58kg",
+    career: [
+      "ベガルタ仙台ユースU-18（国体選抜）",
+      "東北学院大学",
+      "intel biloba tokyo",
+      "東京蹴球団（東京都社会人サッカーリーグ1部）",
+      "てくてくキッカーズ（ソサイチ関東リーグ1部）",
+    ],
+    kakitaniComment:
+      "1vs1で何度も相手を剥がしているシーンが見られた。取られない持ち方もできる。左利きも特徴。",
+    playerMessage:
+      "はじめまして！梅津怜央です。へいへい、漢の分も魂燃やして必死こいて頑張ります。よろしくお願いします！",
+    instagramUrl: "https://instagram.com/reeo1107",
   },
   {
     slug: "oda",
@@ -160,23 +208,32 @@ export const players: Player[] = [
     slug: "miyashita",
     name: "宮下豪也",
     nameEn: "MIYASHITA",
-    position: "FW",
+    position: "MF",
     number: 11,
     status: "confirmed",
     tournaments: ["italy", "france", "brazil"],
+    nickname: "としや",
     birthdate: "2003年2月22日",
     height: "188cm",
-    weight: "76kg",
+    weight: "78kg",
     hometown: "長野県松本市",
     career: [
       "日本ウェルネス長野高校",
-      "フウガドールすみだバッファローズ",
-      "フウガドールすみだ",
-      "バサジィ大分",
-      "FC.vinculo futsal",
+      "フウガドールすみだバッファローズ（2020年）",
+      "フウガドールすみだU20（2021年）",
+      "フットサル日本代表",
+      "バサジィ大分（2022年）",
+      "fc vinculo（フットサル）",
+      "N（ソサイチ）",
     ],
     feature:
       "2022年U-20日本代表（フットサル）。ピヴォ／アラのフットサル選手。サッカーからフットサルに転向し、現在のキャプテン候補。",
+    kakitaniComment:
+      "ドリブルの1vs1の能力はダントツで1番。世界を相手にも通用する1vs1の強さがある。後ろからのビルドアップもできるし1番前で背負ったプレーもできる。",
+    playerMessage:
+      "MURASHファミリー全員でキングスリーグを盛り上げていきましょう！僕も世界一を掴むために全力でチームに貢献します！よろしくお願いします！",
+    instagramUrl: "https://instagram.com/toshiya2003",
+    xUrl: "https://x.com/tosiya58",
   },
   {
     slug: "hayashida",
@@ -202,8 +259,14 @@ export const players: Player[] = [
     nameEn: "SHIGENOBU",
     position: "MF",
     number: 14,
-    status: "pending",
+    status: "confirmed",
     tournaments: ["brazil"],
+    nickname: "シゲ",
+    career: ["浦和西高校"],
+    kakitaniComment:
+      "なかしゅんが連れてきた、無名枠。左足のシュートが武器で、シュートレンジ（シュートが決めれる範囲）が広い。",
+    instagramUrl: "https://instagram.com/keisukeshige0901",
+    xUrl: "https://x.com/Shigesuke0901",
   },
   {
     slug: "tanida",
@@ -346,7 +409,19 @@ export const players: Player[] = [
     position: "GK",
     status: "past",
     tournaments: ["mexico", "italy", "brazil"],
-    nickname: "ゆーせい",
+    nickname: "ゆうせい、なり",
+    birthdate: "1999年12月29日",
+    height: "188cm",
+    weight: "83kg",
+    career: [
+      "JACPA東京FC",
+      "実践学園高校",
+      "國學院大學蹴球部",
+      "ラインメール青森FC",
+      "FC刈谷",
+      "品川CC",
+    ],
+    kakitaniComment: "左足のキック力、ビルドアップ能力",
   },
 
   // ----- イタリア大会出場者 -----
@@ -399,8 +474,23 @@ export const players: Player[] = [
     status: "past",
     tournaments: ["france", "brazil"],
     nickname: "リッキー",
+    birthdate: "1987年10月2日",
+    height: "186cm",
+    weight: "85kg",
+    career: [
+      "明秀学園日立高等学校",
+      "亜細亜大学",
+      "マルバFC（フットサル）",
+      "LAZO YOKOHAMA（ソサイチ）",
+      "ソサイチ日本代表（2017〜現在）",
+    ],
     feature:
       "ブラジル大会の3連敗が決まった瞬間「次なんてねえんだよ！」と号泣しながら激怒した熱血漢。",
+    kakitaniComment:
+      "ソサイチ歴がとても長くあのコートの大きさでのやり方を知り尽くしている。落ち着いたプレーができ、ベテランとしてチームの雰囲気にも貢献できる。",
+    playerMessage:
+      "日本代表するチームとして誇りとプライドを胸に闘いたいと思います。宜しく御願いいたします。",
+    instagramUrl: "https://instagram.com/rikiya_narita",
   },
   {
     slug: "masuda",
@@ -433,9 +523,28 @@ export const players: Player[] = [
     slug: "hamamoto",
     name: "濱本和希",
     nameEn: "HAMAMOTO",
-    position: "FW",
+    position: "MF",
     status: "past",
     tournaments: ["france", "brazil"],
+    nickname: "ハマ",
+    birthdate: "1998年5月30日",
+    height: "184cm",
+    weight: "80kg",
+    career: [
+      "京都橘高校",
+      "京都橘大学",
+      "リンドバロッサ京都（フットサル）",
+      "ヴィアベンテン滋賀（サッカー）",
+      "VOLVER大阪（ソサイチ）",
+      "日本代表（2025ブラジルW杯）",
+      "キングスリーグ 2025フランスW杯メンバー",
+    ],
+    kakitaniComment:
+      "相手を背負った時のボールを収める能力が高く、そこからの足裏を使ったパス、ドリブルもできる。",
+    playerMessage:
+      "よろしくお願いします！キングスを盛り上げていろんな人にもっと知ってもらいたいです。勝ちましょう！！",
+    instagramUrl: "https://instagram.com/ka5zu3ki0",
+    xUrl: "https://x.com/ka5zu3ki0",
   },
   {
     slug: "ujihashi",
@@ -465,19 +574,46 @@ export const players: Player[] = [
     position: "DF",
     status: "staff",
     tournaments: ["brazil"],
+    nickname: "ノザキ",
+    career: [
+      "浦和レッズユース",
+      "浦和レッズ",
+      "アビスパ福岡",
+      "ガイナーレ鳥取",
+      "スペインのチーム",
+    ],
     feature:
       "浦和レッズユース、浦和レッズ、アビスパ福岡、ガイナーレ鳥取などJリーグ複数クラブを経験。第4回ブラジル大会では選手として出場し、再スタート編からはマネージャーに転身。",
+    kakitaniComment:
+      "Jの複数クラブとスペインのチームを経験した、プロを知るベテラン。浦和レッズユースではなかしゅんの1つ上の先輩。",
+    instagramUrl: "https://instagram.com/nooooooza24",
+    xUrl: "https://x.com/pepyan23",
   },
   {
     slug: "tanabe",
     name: "田邉隆平",
     nameEn: "TANABE",
-    position: "MF",
+    position: "FW",
     status: "past",
     tournaments: ["brazil"],
-    nickname: "金ガム",
+    nickname: "たなべ・りゅうへい（通称：金ガム）",
+    birthdate: "1999年10月30日",
+    height: "165cm",
+    weight: "65kg",
+    career: [
+      "中京大中京高校",
+      "中京大学",
+      "東京23FC",
+      "TOKYO2020FC",
+      "FC.DIORIA",
+    ],
     feature:
       "ブラジルで金髪に染め、国歌斉唱中にガムを噛んでいたことで「金ガム」と呼ばれた。その後キーマンに成長。",
+    kakitaniComment:
+      "中盤でのターンなど細かい動きができる。また出した後の動きなど連動して動く事ができる。",
+    playerMessage:
+      "こんにちは！田邉隆平です！！！チームの勝利のために全力で戦います！！！！よろしくお願いします！！！！！！！！！！",
+    instagramUrl: "https://instagram.com/tanachan.gram_1030",
   },
   {
     slug: "matsumori",
@@ -486,6 +622,11 @@ export const players: Player[] = [
     position: "FW",
     status: "past",
     tournaments: ["brazil"],
+    nickname: "ケンセイ",
+    career: ["産業能率大学（関東2部リーグ）", "U-20関東大学選抜"],
+    kakitaniComment:
+      "得点能力に長け、強さと賢さを備え、両足も蹴れる。大学生ならではのアグレッシブさもある。チーム内得点王で10番を背負う。",
+    instagramUrl: "https://instagram.com/kensei_matsumori",
   },
   {
     slug: "pablo",
@@ -494,6 +635,22 @@ export const players: Player[] = [
     position: "FW",
     status: "past",
     tournaments: ["brazil"],
+    nickname: "パブロ",
+    birthdate: "1999年11月10日",
+    height: "171cm",
+    weight: "72kg",
+    career: [
+      "トナン前橋",
+      "栃木シティ",
+      "鴻巣シティ",
+      "BR7",
+      "FC DIORIA",
+      "TOMOSHIBI（2025クラブワールドカップ）",
+    ],
+    kakitaniComment:
+      "攻撃の1vs1の強さがありスピードもある。ズラした後の左足のシュートもパンチがある。",
+    playerMessage: "三浦パブロです！キングスリーグ世界一位を取りに行きます！！",
+    instagramUrl: "https://instagram.com/pablomiura_p7",
   },
 
   // ============================================================
