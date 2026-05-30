@@ -86,17 +86,78 @@ const results = [
   { no: "第3回", index: "03", name: "フランス大会", ym: "2025.6", record: null, result: "グループ敗退" },
   { no: "第4回", index: "04", name: "ブラジル大会", ym: "2026.1", record: "3連敗", result: "敗退" },
 ];
+
+const visualTimeline = [
+  {
+    no: "第1回",
+    label: "メキシコ大会",
+    image: "/images/infographics/mexico-2024.png",
+    href: "/tournaments/mexico-2024",
+    w: 2752,
+    h: 1536,
+    contain: false,
+  },
+  {
+    no: "第2回",
+    label: "イタリア大会",
+    image: "/images/infographics/italy-2025.png",
+    href: "/tournaments/italy-2025",
+    w: 2752,
+    h: 1536,
+    contain: false,
+  },
+  {
+    no: "第3回",
+    label: "フランス大会",
+    image: "/images/infographics/france-2025.png",
+    href: "/tournaments/france-2025",
+    w: 2752,
+    h: 1536,
+    contain: false,
+  },
+  {
+    no: "第4回",
+    label: "ブラジル大会",
+    image: "/images/infographics/brazil-2026.png",
+    href: "/tournaments/brazil-2026",
+    w: 2752,
+    h: 1536,
+    contain: false,
+  },
+  {
+    no: "特集",
+    label: "再スタート編",
+    image: "/images/infographics/rebirth.png",
+    href: "/rebirth",
+    w: 1536,
+    h: 2752,
+    contain: true,
+  },
+];
 ---
 
 <Layout>
   <!-- ヒーロー -->
   <section class="relative overflow-hidden border-b border-white/10">
-    <!-- 背景の装飾 -->
+    <!-- 背景：バナー画像 + 多層オーバーレイ -->
     <div class="absolute inset-0 -z-10">
-      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <img
+        src="/images/hero-banner.png"
+        alt="ムラッシュFC 円陣を組む選手たちと不死鳥"
+        width="1672"
+        height="941"
+        fetchpriority="high"
+        decoding="async"
+        loading="eager"
+        class="absolute inset-0 h-full w-full object-cover object-center opacity-90"
+      />
+      <!-- 黒系オーバーレイ：テキスト可読性を担保（左下を強めにしてCTA周りを読みやすく） -->
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-black/55 via-murash-black/30 to-murash-black/65"></div>
+      <!-- 既存の赤グロー -->
       <div class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-murash-red/20 blur-3xl"></div>
+      <!-- 既存のグリッド -->
       <div
-        class="grid-bg absolute inset-0 opacity-[0.04]"
+        class="grid-bg absolute inset-0 opacity-[0.035]"
         style="background-image: linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px); background-size: 48px 48px;"
       >
       </div>
@@ -284,6 +345,64 @@ const results = [
           </a>
         ))
       }
+    </div>
+  </section>
+
+  <!-- ビジュアル年表 -->
+  <section class="border-y border-white/10 bg-murash-black">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <div>
+        <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">
+          VISUAL TIMELINE
+        </p>
+        <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          ビジュアルで辿る軌跡
+        </h2>
+        <p class="mt-3 max-w-xl text-sm text-white/50">
+          4大会＋再スタート編の歩みを、AI生成のインフォグラフィックで一望。
+        </p>
+      </div>
+
+      <!-- モバイル/タブレット：横スクロール、lg+：5カラムグリッド -->
+      <ul class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:pb-0">
+        {
+          visualTimeline.map((v) => (
+            <li class="snap-start shrink-0 basis-[78%] sm:basis-[46%] md:basis-[31%] lg:basis-auto">
+              <a
+                href={v.href}
+                class="group flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal transition-colors hover:border-murash-red/50"
+              >
+                <div class="relative aspect-video overflow-hidden bg-black">
+                  <img
+                    src={v.image}
+                    alt={`${v.label} ビジュアルサマリー（インフォグラフィック）`}
+                    width={v.w}
+                    height={v.h}
+                    loading="lazy"
+                    decoding="async"
+                    class:list={[
+                      "h-full w-full transition-transform duration-500",
+                      v.contain ? "object-contain" : "object-cover group-hover:scale-105",
+                    ]}
+                  />
+                </div>
+                <div class="p-3 sm:p-4">
+                  <p class="font-display text-[10px] font-semibold tracking-[0.25em] text-murash-red">
+                    {v.no}
+                  </p>
+                  <p class="mt-1 font-display text-sm font-bold tracking-tight text-white sm:text-base">
+                    {v.label}
+                  </p>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-4 text-xs text-white/40">
+        ※インフォグラフィックはAI生成によるものです。一部表記揺れがある場合があります。
+      </p>
     </div>
   </section>
 

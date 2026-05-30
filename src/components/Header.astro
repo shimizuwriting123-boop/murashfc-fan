@@ -19,11 +19,15 @@ const isActive = (href: string) =>
 >
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
     <!-- ロゴ -->
-    <a href="/" class="group flex items-center gap-2">
-      <span
-        class="flex h-9 w-9 items-center justify-center rounded-sm bg-murash-red font-display text-lg font-bold text-white"
-        >M</span
-      >
+    <a href="/" class="group flex items-center gap-2.5">
+      <img
+        src="/images/emblem.png"
+        alt="ムラッシュFC ファンサイト エンブレム"
+        width="40"
+        height="40"
+        decoding="async"
+        class="emblem h-10 w-10"
+      />
       <span class="font-display text-lg font-bold tracking-wide text-white">
         MURASH FC
         <span class="block text-[10px] font-normal tracking-widest text-white/40"
@@ -89,6 +93,26 @@ const isActive = (href: string) =>
     </ul>
   </nav>
 </header>
+
+<style>
+  .emblem {
+    transition:
+      filter 0.3s ease,
+      transform 0.3s ease;
+  }
+  a:hover .emblem {
+    filter: drop-shadow(0 0 8px rgba(230, 0, 18, 0.65))
+      drop-shadow(0 0 2px rgba(230, 0, 18, 0.4));
+    transform: scale(1.05);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .emblem,
+    a:hover .emblem {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>
 
 <script>
   const toggle = document.getElementById("menu-toggle");
