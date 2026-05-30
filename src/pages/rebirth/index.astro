@@ -71,7 +71,7 @@ const chapters: Chapter[] = [
         title: "圓乘健介の決断",
         emphasized: true,
         body: [
-          "合否が即日発表されるシビアな第3次セレクションでは、海外挑戦の夢とキングスリーグへの思いの間で葛藤していた**圓乘健介**が、自ら辞退を申し出る決断を下した。",
+          "合否が即日発表されるシビアな第3次セレクションでは、海外挑戦の夢とキングスリーグへの思いの間で葛藤していた[圓乘健介](/wiki/kyou-mo-saikou)が、自ら辞退を申し出る決断を下した。",
           "「**中途半端な気持ちで来る場所じゃない**」",
           "メキシコ・イタリア・フランスと、3大会連続で日本代表を支え続けてきたレジェンドの引き際。",
           "怪我を抱えながらも強行出場し「自分の怪我ごときでミスミス逃すっていうのは、自分の中でも納得できなかった」と語る選手たちの執念も交錯し、ピッチ上は生き残りを懸けた異様な熱気に包まれていた。",
@@ -161,16 +161,23 @@ const chapters: Chapter[] = [
   },
 ];
 
-// **強調** をハンドリングしたセグメント
-function markupSegments(text: string): { text: string; bold: boolean }[] {
-  const parts = text.split(/(\*\*[^*]+\*\*)/);
-  return parts
-    .filter((p) => p !== "")
-    .map((p) =>
-      p.startsWith("**") && p.endsWith("**")
-        ? { text: p.slice(2, -2), bold: true }
-        : { text: p, bold: false },
-    );
+// **強調** と [text](url) リンク両対応
+interface Segment {
+  text: string;
+  bold?: boolean;
+  href?: string;
+}
+function markupSegments(text: string): Segment[] {
+  const re = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
+  const parts = text.split(re).filter((p) => p !== "");
+  return parts.map<Segment>((p) => {
+    if (p.startsWith("**") && p.endsWith("**")) {
+      return { text: p.slice(2, -2), bold: true };
+    }
+    const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (m) return { text: m[1], href: m[2] };
+    return { text: p };
+  });
 }
 ---
 
@@ -312,6 +319,13 @@ function markupSegments(text: string): { text: string; bold: boolean }[] {
                         {markupSegments(p).map((seg) =>
                           seg.bold ? (
                             <strong class="font-semibold text-white">{seg.text}</strong>
+                          ) : seg.href ? (
+                            <a
+                              href={seg.href}
+                              class="text-murash-red underline-offset-2 hover:underline"
+                            >
+                              {seg.text}
+                            </a>
                           ) : (
                             seg.text
                           ),

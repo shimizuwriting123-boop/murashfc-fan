@@ -1,0 +1,195 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import {
+  wikiEntries,
+  CATEGORY_STYLE,
+  getPlayerSlugByName,
+  segmentMarkup,
+  type WikiEntry,
+} from "../../data/wiki";
+
+export function getStaticPaths() {
+  return wikiEntries.map((e) => ({
+    params: { slug: e.slug },
+    props: { entry: e },
+  }));
+}
+
+interface Props {
+  entry: WikiEntry;
+}
+
+const { entry } = Astro.props;
+const style = CATEGORY_STYLE[entry.category];
+
+// 本文を改行で段落に分割
+const paragraphs = entry.content.split(/\n+/).filter((p) => p.trim() !== "");
+
+// 関連人物：選手名鑑にいれば詳細ページへリンク、いなければプレーン
+const people = entry.relatedPeople.map((name) => ({
+  name,
+  href: (() => {
+    const s = getPlayerSlugByName(name);
+    return s ? `/players/${s}` : null;
+  })(),
+}));
+---
+
+<Layout
+  title={`${entry.title} | Wiki | ムラッシュFC ファンサイト（非公認）`}
+  description={`${entry.title}（${entry.reading}）／${entry.category}。${entry.summary}`}
+>
+  <!-- ページヘッダー -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"
+      >
+      </div>
+      <div
+        class="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"
+      >
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-14">
+      <!-- パンくず -->
+      <nav
+        aria-label="パンくず"
+        class="flex flex-wrap items-center gap-2 text-xs text-white/50"
+      >
+        <a href="/wiki" class="hover:text-white">Wiki</a>
+        <span aria-hidden="true" class="text-white/30">/</span>
+        <span class="text-white/60">{entry.category}</span>
+        <span aria-hidden="true" class="text-white/30">/</span>
+        <span class="text-white/70">{entry.title}</span>
+      </nav>
+
+      <!-- 区分 -->
+      <div class="mt-6 flex flex-wrap items-center gap-2">
+        <span
+          class:list={[
+            "inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 font-display text-[10px] font-bold tracking-widest",
+            style.badge,
+          ]}
+        >
+          <span class:list={["inline-block h-2 w-2 rounded-full", style.dot]} />
+          {entry.category}
+        </span>
+        {
+          entry.tournament && (
+            <span class="rounded-sm border border-white/15 bg-white/5 px-2 py-0.5 font-display text-[10px] font-semibold tracking-wide text-white/60">
+              {entry.tournament}
+            </span>
+          )
+        }
+      </div>
+
+      <h1
+        class="mt-4 font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl"
+      >
+        {entry.title}
+      </h1>
+      <p class="mt-2 text-sm tracking-widest text-white/40">{entry.reading}</p>
+
+      <!-- 関連人物 -->
+      {
+        people.length > 0 && (
+          <div class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+              関係者
+            </span>
+            {people.map((p, i) => (
+              <span>
+                {p.href ? (
+                  <a
+                    href={p.href}
+                    class="text-murash-red underline-offset-2 hover:underline"
+                  >
+                    {p.name}
+                  </a>
+                ) : (
+                  <span class="text-white/80">{p.name}</span>
+                )}
+                {i < people.length - 1 && (
+                  <span class="text-white/30">,</span>
+                )}
+              </span>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- 本文 -->
+  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <!-- リード -->
+    <p
+      class="rounded-md border-l-2 border-murash-red/60 bg-murash-charcoal/80 p-5 text-base leading-[1.9] text-[#e5e5e5] sm:p-6 sm:text-lg"
+    >
+      {entry.summary}
+    </p>
+
+    <!-- 本文段落 -->
+    <div class="mt-8 space-y-6">
+      {
+        paragraphs.map((p) => (
+          <p class="text-base leading-[1.95] text-[#e5e5e5] sm:text-lg">
+            {segmentMarkup(p).map((seg) =>
+              seg.bold ? (
+                <strong class="font-semibold text-white">{seg.text}</strong>
+              ) : seg.href ? (
+                <a
+                  href={seg.href}
+                  class="text-murash-red underline-offset-2 hover:underline"
+                >
+                  {seg.text}
+                </a>
+              ) : (
+                seg.text
+              ),
+            )}
+          </p>
+        ))
+      }
+    </div>
+
+    <!-- タグ -->
+    {
+      entry.tags.length > 0 && (
+        <div class="mt-12 border-t border-white/10 pt-6">
+          <p class="font-display text-xs font-semibold tracking-wider text-white/40">
+            タグ
+          </p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            {entry.tags.map((tag) => (
+              <span class="rounded-sm border border-white/10 bg-white/5 px-2 py-1 text-xs font-medium tracking-wide text-white/60">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    <!-- 情報源の注記 -->
+    <aside
+      class="mt-10 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5"
+    >
+      <p class="text-xs leading-relaxed text-white/55 sm:text-sm">
+        ※本記事の内容は、MURASH FC公式YouTubeチャンネル・加藤純一公式YouTubeチャンネル・各種SNSなどの配信内容を元にまとめています。記憶違いや解釈の誤りがある可能性があります。
+      </p>
+    </aside>
+
+    <!-- 戻るリンク -->
+    <div class="mt-10">
+      <a
+        href="/wiki"
+        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+      >
+        <span aria-hidden="true">←</span> Wiki一覧に戻る
+      </a>
+    </div>
+  </article>
+</Layout>

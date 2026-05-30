@@ -37,16 +37,23 @@ const meta = [
   ...(t.selectionMethod ? [{ label: "選出方式", value: t.selectionMethod }] : []),
 ];
 
-// **強調** をハンドリングしたセグメント
-function markupSegments(text: string): { text: string; bold: boolean }[] {
-  const parts = text.split(/(\*\*[^*]+\*\*)/);
-  return parts
-    .filter((p) => p !== "")
-    .map((p) =>
-      p.startsWith("**") && p.endsWith("**")
-        ? { text: p.slice(2, -2), bold: true }
-        : { text: p, bold: false },
-    );
+// **強調** と [text](url) リンク両対応
+interface Segment {
+  text: string;
+  bold?: boolean;
+  href?: string;
+}
+function markupSegments(text: string): Segment[] {
+  const re = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
+  const parts = text.split(re).filter((p) => p !== "");
+  return parts.map<Segment>((p) => {
+    if (p.startsWith("**") && p.endsWith("**")) {
+      return { text: p.slice(2, -2), bold: true };
+    }
+    const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (m) return { text: m[1], href: m[2] };
+    return { text: p };
+  });
 }
 ---
 
@@ -180,6 +187,13 @@ function markupSegments(text: string): { text: string; bold: boolean }[] {
                         {markupSegments(p).map((seg) =>
                           seg.bold ? (
                             <strong class="font-semibold text-white">{seg.text}</strong>
+                          ) : seg.href ? (
+                            <a
+                              href={seg.href}
+                              class="text-murash-red underline-offset-2 hover:underline"
+                            >
+                              {seg.text}
+                            </a>
                           ) : (
                             seg.text
                           ),
