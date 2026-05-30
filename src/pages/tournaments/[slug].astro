@@ -1,0 +1,240 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { tournaments, type Tournament } from "../../data/tournaments";
+
+export function getStaticPaths() {
+  return tournaments
+    .filter((t) => !!t.detail)
+    .map((t) => {
+      const idx = tournaments.findIndex((x) => x.urlSlug === t.urlSlug);
+      return {
+        params: { slug: t.urlSlug },
+        props: {
+          tournament: t,
+          prev: tournaments[idx - 1] ?? null,
+          next: tournaments[idx + 1] ?? null,
+        },
+      };
+    });
+}
+
+interface Props {
+  tournament: Tournament;
+  prev: Tournament | null;
+  next: Tournament | null;
+}
+
+const { tournament: t, prev, next } = Astro.props;
+const detail = t.detail!;
+
+// 概要メタ
+const meta = [
+  { label: "形態", value: t.format },
+  { label: "結果", value: t.result },
+  ...(t.record ? [{ label: "戦績", value: t.record }] : []),
+  ...(t.champion ? [{ label: "優勝", value: t.champion }] : []),
+  { label: "開催地", value: detail.hostCountry },
+];
+
+// **強調** をハンドリングしたセグメント
+function markupSegments(text: string): { text: string; bold: boolean }[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  return parts
+    .filter((p) => p !== "")
+    .map((p) =>
+      p.startsWith("**") && p.endsWith("**")
+        ? { text: p.slice(2, -2), bold: true }
+        : { text: p, bold: false },
+    );
+}
+---
+
+<Layout
+  title={`${t.no} ${t.name}（${t.date}）| 大会の軌跡 | ムラッシュFC ファンサイト（非公認）`}
+  description={`${t.no} ${t.name}（${t.date}・${detail.hostCountry}）の詳細レポート。試合の名場面、舞台裏、個性派メンバー＆スタッフ列伝までファン目線で振り返ります。`}
+>
+  <!-- ページヘッダー -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
+      <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-murash-red/20 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+      <!-- パンくず -->
+      <nav aria-label="パンくず" class="flex flex-wrap items-center gap-2 text-xs text-white/50">
+        <a href="/tournaments" class="hover:text-white">大会の軌跡</a>
+        <span aria-hidden="true" class="text-white/30">/</span>
+        <span class="text-white/70">{t.name}</span>
+      </nav>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <span
+          class="rounded-sm bg-murash-red px-2.5 py-1 font-display text-sm font-bold tracking-wide text-white"
+        >
+          {t.no}
+        </span>
+        <span class="font-display text-sm font-semibold tracking-wider text-white/40">
+          {t.date}
+        </span>
+      </div>
+
+      <h1
+        class="mt-4 font-display text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl"
+      >
+        {t.name}
+      </h1>
+
+      <!-- 概要メタ -->
+      <dl class="mt-6 space-y-2 text-sm">
+        {
+          meta.map((m) => (
+            <div class="flex gap-3">
+              <dt class="w-14 shrink-0 pt-0.5 font-display text-xs font-semibold tracking-wider text-white/40">
+                {m.label}
+              </dt>
+              <dd class="leading-relaxed text-[#e5e5e5]">{m.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- 本文 -->
+  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div class="space-y-16">
+      {
+        detail.sections.map((section) => (
+          <section>
+            <h2 class="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <span aria-hidden="true" class="text-3xl">
+                {section.icon}
+              </span>
+              {section.title}
+            </h2>
+            <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+
+            <div class="mt-7 space-y-10">
+              {section.items.map((item) => (
+                <div>
+                  {item.title && (
+                    <h3 class="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                      <span
+                        aria-hidden="true"
+                        class="inline-block h-4 w-1 shrink-0 rounded-full bg-murash-red"
+                      />
+                      {item.title}
+                    </h3>
+                  )}
+                  <div class={item.title ? "mt-3 space-y-5" : "space-y-5"}>
+                    {item.body.map((p) => (
+                      <p class="text-base leading-[1.95] text-[#e5e5e5] sm:text-lg">
+                        {markupSegments(p).map((seg) =>
+                          seg.bold ? (
+                            <strong class="font-semibold text-white">{seg.text}</strong>
+                          ) : (
+                            seg.text
+                          ),
+                        )}
+                      </p>
+                    ))}
+                  </div>
+                  {item.note && (
+                    <p class="mt-3 inline-flex items-start gap-2 rounded-sm border border-white/10 bg-white/5 px-3 py-2 text-xs italic text-white/45">
+                      <span class="font-display not-italic text-murash-red">TBD</span>
+                      {item.note}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <!-- 前後の大会ナビ -->
+    <nav class="mt-16 grid gap-3 border-t border-white/10 pt-8 sm:grid-cols-2">
+      {
+        prev ? (
+          prev.detail ? (
+            <a
+              href={`/tournaments/${prev.urlSlug}`}
+              class="group rounded-md border border-white/10 bg-murash-charcoal p-4 transition-colors hover:border-murash-red/50"
+            >
+              <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                ← 前の大会
+              </span>
+              <p class="mt-1.5 font-display text-sm font-bold text-white transition-colors group-hover:text-murash-red">
+                {prev.no} {prev.name}
+              </p>
+            </a>
+          ) : (
+            <div class="rounded-md border border-dashed border-white/15 bg-white/5 p-4">
+              <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                ← 前の大会
+              </span>
+              <p class="mt-1.5 flex items-center gap-2 font-display text-sm font-bold text-white/60">
+                {prev.no} {prev.name}
+                <span class="rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                  準備中
+                </span>
+              </p>
+            </div>
+          )
+        ) : (
+          <span class="hidden sm:block" />
+        )
+      }
+      {
+        next ? (
+          next.detail ? (
+            <a
+              href={`/tournaments/${next.urlSlug}`}
+              class="group rounded-md border border-white/10 bg-murash-charcoal p-4 text-right transition-colors hover:border-murash-red/50"
+            >
+              <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                次の大会 →
+              </span>
+              <p class="mt-1.5 font-display text-sm font-bold text-white transition-colors group-hover:text-murash-red">
+                {next.no} {next.name}
+              </p>
+            </a>
+          ) : (
+            <div class="rounded-md border border-dashed border-white/15 bg-white/5 p-4 text-right">
+              <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                次の大会 →
+              </span>
+              <p class="mt-1.5 flex items-center justify-end gap-2 font-display text-sm font-bold text-white/60">
+                {next.no} {next.name}
+                <span class="rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                  準備中
+                </span>
+              </p>
+            </div>
+          )
+        ) : (
+          <span class="hidden sm:block" />
+        )
+      }
+    </nav>
+
+    <!-- 関連リンク -->
+    <div class="mt-10 flex flex-wrap gap-3 border-t border-white/10 pt-8">
+      <a
+        href={`/players?filter=${t.slug}`}
+        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+      >
+        この大会のメンバーを見る
+        <span aria-hidden="true">→</span>
+      </a>
+      <a
+        href="/tournaments"
+        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+      >
+        <span aria-hidden="true">←</span> 大会の軌跡へ戻る
+      </a>
+    </div>
+  </article>
+</Layout>

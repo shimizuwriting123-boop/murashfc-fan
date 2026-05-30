@@ -1,92 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import type { TournamentSlug } from "../../data/players";
-
-interface Feature {
-  title: string;
-  body: string;
-}
-
-interface Tournament {
-  slug: TournamentSlug;
-  no: string;
-  name: string;
-  date: string;
-  format: string;
-  result: string;
-  record?: string;
-  champion?: string;
-  highlight: string;
-  episodeTitle?: string;
-  episodes?: string[];
-  feature?: Feature;
-}
-
-const tournaments: Tournament[] = [
-  {
-    slug: "mexico",
-    no: "第1回",
-    name: "メキシコ大会",
-    date: "2024年5〜6月",
-    format: "ムラッシュFC（クラブチーム・初参戦）",
-    result: "1勝2敗・ベスト32敗退",
-    record: "vs Raniza FC 敗北 → vs UA Steel 勝利 → vs Limon FC 敗北",
-    highlight:
-      "加藤純一がPKキッカーとしてピッチに立ちゴールを決めたシーンが世界中で話題に。",
-    episodeTitle: "エピソード",
-    episodes: [
-      "セレクションがカオス。参加フォームにマイナンバーを要求、「1週間後に開催」という突然の告知、サッカー未経験者もトライアウトに来るなど前代未聞の混乱ぶりだった。",
-      "那須大亮が監督として参加。頼もしい存在だったが試合中にレッドカードで退場するひと幕も。",
-      "「こじろう」こと金武航二朗がヘイトタンクとして独自の立ち位置を確立。USスチール戦では神シュートを決め会場を沸かせた。",
-      "初戦はバスが渋滞で選手が15分走って会場入り。到着後は機材トラブルで試合が翌日に延期になるなど運営もカオスだった。",
-    ],
-  },
-  {
-    slug: "italy",
-    no: "第2回",
-    name: "イタリア大会",
-    date: "2025年1月",
-    format: "日本代表（国別対抗戦）",
-    result: "ラストチャンスラウンド敗退",
-    highlight:
-      "開催地イタリアとの開幕戦。「日本なんか相手にならない」という雰囲気を覆しまさかの勝利。「ピザがしなしなになった」と加藤純一が配信で大はしゃぎした名場面。GK深谷圭佑が「日本の壁」と称賛される活躍。",
-    episodeTitle: "エピソード",
-    episodes: ["その後モロッコに敗れグループリーグ敗退。"],
-  },
-  {
-    slug: "france",
-    no: "第3回",
-    name: "フランス大会",
-    date: "2025年6月",
-    format: "ムラッシュFC（クラブチーム）",
-    result: "グループリーグ敗退",
-    champion: "Los Troncos FC（スペイン）",
-    highlight: "柿谷曜一朗、杉本竜士など元Jリーガーを招集し本格強化を図った大会。",
-    episodeTitle: "エピソード・宮島事件",
-    feature: {
-      title: "宮島事件",
-      body: "練習中、柿谷曜一朗がアキレス腱負傷により出場不可となることをメンバー全員の前で告白。初めて聞いた杉本竜士はショックのあまりその場を離脱し、宮島行きのチケットを即購入・空港へ向かった。チェックイン直前に父親からの電話で引き留められ戻ってくることに。その後加藤純一に喫煙所に呼び出され「社会人なめんじゃねえよ」と本気で叱られた。これが伝説の「宮島事件」である。",
-    },
-  },
-  {
-    slug: "brazil",
-    no: "第4回",
-    name: "ブラジル大会",
-    date: "2026年1月",
-    format: "日本代表（国別対抗戦）",
-    result: "3連敗・グループリーグ敗退",
-    highlight:
-      "過去最高の気合いで臨んだ大会。安間TVでの特集・生配信で知名度も急上昇。しかし3連敗で帰国することに。この結果がロスター完全リセット・常設チーム化への決断につながった。",
-    episodeTitle: "エピソード",
-    episodes: [
-      "監督交代劇：中井健介監督が運営側の事情で外され、中村俊輔が新監督に就任。柿谷曜一朗はアンバサダーとしてサポート役で帯同。",
-      "金ガム田邉：田邉隆平がブラジルで金髪に染め、国歌斉唱中にガムを噛んでいる姿が放送されてプチ炎上。「金ガム」と呼ばれることに。しかしその後キーマンに成長し、不敵な笑みを浮かべる個性的なキャラとして確立した。",
-      "魂の説教：1試合目後、本気になれていない選手たちを見抜いた加藤純一が全員を集めて「お前ら本気でやってんのか」と熱く語りかける。これが効いて2試合目は大接戦に。",
-      "リッキーの号泣：3連敗が決まった瞬間、キャプテン宮下が「次いこ！」と声をかけたところ、第2GKの成田リッキーが「次なんてねえんだよ！」と号泣しながら激怒。一度も試合に出られなかった分の熱さが爆発した。",
-      "縣の名言：普段寡黙なDF縣翔平が「俺らディフェンス命かけてんだから前で点取れよ」と激昂。静かな選手だったからこそ全員に刺さった一言だった。",
-    ],
-  },
-];
+import { tournaments } from "../../data/tournaments";
 ---
 
 <Layout
@@ -220,16 +134,42 @@ const tournaments: Tournament[] = [
                       </div>
                     )}
 
-                    {/* この大会のメンバーを見るリンク */}
-                    <a
-                      href={`/players?filter=${t.slug}`}
-                      class="group inline-flex items-center gap-2 border-t border-white/10 pt-5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-murash-red"
-                    >
-                      この大会のメンバーを見る
-                      <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">
-                        →
-                      </span>
-                    </a>
+                    {/* アクションリンク */}
+                    <div class="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-white/10 pt-5">
+                      {t.detail ? (
+                        <a
+                          href={`/tournaments/${t.urlSlug}`}
+                          class="group inline-flex items-center gap-2 rounded-sm bg-murash-red px-4 py-2 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+                        >
+                          詳しく読む
+                          <span
+                            aria-hidden="true"
+                            class="transition-transform group-hover:translate-x-1"
+                          >
+                            →
+                          </span>
+                        </a>
+                      ) : (
+                        <span class="inline-flex items-center gap-2 rounded-sm border border-white/15 bg-white/5 px-4 py-2 font-display text-sm font-semibold tracking-wide text-white/40">
+                          詳しく読む
+                          <span class="rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                            準備中
+                          </span>
+                        </span>
+                      )}
+                      <a
+                        href={`/players?filter=${t.slug}`}
+                        class="group inline-flex items-center gap-2 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-murash-red"
+                      >
+                        この大会のメンバーを見る
+                        <span
+                          aria-hidden="true"
+                          class="transition-transform group-hover:translate-x-1"
+                        >
+                          →
+                        </span>
+                      </a>
+                    </div>
                   </div>
                 </article>
               </li>
