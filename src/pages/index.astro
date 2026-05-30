@@ -223,31 +223,73 @@ const visualTimeline = [
 
   <!-- NEXT MATCH カウントダウン -->
   <section id="next-match" class="relative overflow-hidden border-b border-white/10 bg-murash-black">
-    <div class="pointer-events-none absolute -left-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-murash-red/10 blur-3xl"></div>
+    <!-- 背景演出：斜めの赤ライン + 赤グロー -->
+    <div class="pointer-events-none absolute inset-0 -z-0">
+      <div
+        class="absolute inset-0 opacity-[0.05]"
+        style="background-image: repeating-linear-gradient(135deg, transparent 0, transparent 64px, rgba(230,0,18,1) 64px, rgba(230,0,18,1) 65px);"
+      >
+      </div>
+      <div class="absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-murash-red/15 blur-3xl"></div>
+      <div class="absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-murash-red/10 blur-3xl"></div>
+    </div>
 
-    <div class="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
-      <div class="flex items-center gap-3">
-        <span class="h-4 w-1.5 rounded-full bg-murash-red"></span>
-        <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">NEXT MATCH</p>
+    <div class="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+      <!-- セクション見出し -->
+      <div class="flex items-center justify-center gap-3">
+        <span class="h-5 w-1.5 rounded-full bg-murash-red"></span>
+        <p class="font-display text-base font-bold tracking-[0.45em] text-murash-red sm:text-lg">
+          NEXT MATCH
+        </p>
+        <span class="h-5 w-1.5 rounded-full bg-murash-red"></span>
       </div>
 
-      <div class="mt-6 overflow-hidden rounded-lg border border-murash-red/30 bg-gradient-to-br from-murash-charcoal to-murash-black p-6 sm:p-8">
-        <h2 class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+      <!-- 試合情報カード -->
+      <div
+        class="next-match-card mt-8 overflow-hidden rounded-lg border border-murash-red/30 bg-gradient-to-br from-murash-charcoal/90 to-murash-black/95 p-6 sm:mt-10 sm:p-12"
+      >
+        <h2
+          class="text-center font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl"
+        >
           {NEXT_MATCH.name}
         </h2>
-        <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-white/60">
-          <span class="inline-flex items-center gap-1.5">
-            <span aria-hidden="true">📍</span>{NEXT_MATCH.location}
+
+        <div
+          class="mt-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-base text-white/85 sm:text-lg"
+        >
+          <span class="inline-flex items-center gap-2">
+            <span aria-hidden="true" class="text-2xl leading-none">🇮🇹</span>
+            {NEXT_MATCH.location}
           </span>
-          <span class="inline-flex items-center gap-1.5">
-            <span aria-hidden="true">🗓</span>{NEXT_MATCH.dateLabel}
+          <span class="inline-flex items-center gap-2">
+            <span aria-hidden="true" class="text-lg leading-none">🗓</span>
+            {NEXT_MATCH.dateLabel}
           </span>
         </div>
 
-        <p class="mt-8 font-display text-xs font-semibold tracking-[0.25em] text-white/40">
-          KICK OFF まで
-        </p>
-        <div id="countdown" data-target={NEXT_MATCH.iso} class="mt-3 grid grid-cols-4 gap-2 sm:gap-4">
+        <!-- KICK OFF ラベル -->
+        <div class="mt-12 flex items-center justify-center gap-3 sm:mt-16">
+          <span
+            aria-hidden="true"
+            class="h-px w-16 bg-gradient-to-r from-transparent to-murash-red/70 sm:w-24"
+          ></span>
+          <p
+            class="font-display text-sm font-bold tracking-[0.4em] text-murash-red sm:text-base"
+          >
+            ⚡ KICK OFF まで
+          </p>
+          <span
+            aria-hidden="true"
+            class="h-px w-16 bg-gradient-to-l from-transparent to-murash-red/70 sm:w-24"
+          ></span>
+        </div>
+
+        <!-- カウントダウン -->
+        <div
+          id="countdown"
+          data-target={NEXT_MATCH.iso}
+          class="countdown-pulse mt-8 grid grid-cols-4 gap-2 rounded-lg p-2 sm:mt-10 sm:gap-4 sm:p-3"
+        >
           {
             [
               { id: "cd-days", label: "日" },
@@ -255,21 +297,37 @@ const visualTimeline = [
               { id: "cd-mins", label: "分" },
               { id: "cd-secs", label: "秒" },
             ].map((u) => (
-              <div class="rounded-md border border-white/10 bg-black/40 py-4 text-center">
+              <div class="countdown-cell group relative flex flex-col items-center justify-center rounded-md border border-white/10 bg-black/55 px-1 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-murash-red/50 hover:bg-black/70 sm:py-7">
                 <div
                   id={u.id}
-                  class="font-display text-3xl font-bold tabular-nums text-white sm:text-5xl"
+                  class="cd-num font-display text-5xl font-black tabular-nums leading-none text-white sm:text-7xl lg:text-8xl"
+                  style="text-shadow: 0 0 32px rgba(230,0,18,0.35), 0 0 10px rgba(230,0,18,0.25);"
                 >
                   --
                 </div>
-                <div class="mt-1 font-display text-[10px] tracking-widest text-white/40 sm:text-xs">
+                <span
+                  aria-hidden="true"
+                  class="mx-auto mt-3 block h-0.5 w-8 bg-gradient-to-r from-transparent via-murash-red to-transparent transition-all group-hover:w-14 sm:w-12"
+                />
+                <div class="mt-2 font-display text-[11px] font-semibold tracking-[0.25em] text-white/55 sm:text-xs">
                   {u.label}
                 </div>
               </div>
             ))
           }
         </div>
-        <p id="cd-note" class="mt-4 text-xs text-white/30">※日時は仮です。決定次第更新します。</p>
+
+        <p
+          id="cd-note"
+          class="mt-6 text-center text-xs text-white/35 sm:mt-8"
+        >
+          ※日時は仮です。決定次第更新します。
+        </p>
+        <p
+          class="mt-2 text-center font-display text-sm font-semibold tracking-wide text-murash-red/85"
+        >
+          ── ムラッシュFCの次の戦いを見逃すな ──
+        </p>
       </div>
     </div>
   </section>
@@ -529,6 +587,29 @@ const visualTimeline = [
       opacity: 1;
     }
   }
+  @keyframes countdownBreath {
+    0%,
+    100% {
+      box-shadow:
+        0 0 30px -8px rgba(230, 0, 18, 0.25),
+        inset 0 0 0 1px rgba(230, 0, 18, 0.05);
+    }
+    50% {
+      box-shadow:
+        0 0 60px -8px rgba(230, 0, 18, 0.55),
+        inset 0 0 0 1px rgba(230, 0, 18, 0.2);
+    }
+  }
+  @keyframes cdTick {
+    0% {
+      opacity: 0.4;
+      transform: translateY(-4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   .grid-bg {
     animation: gridDrift 18s linear infinite;
@@ -539,11 +620,19 @@ const visualTimeline = [
   .scroll-arrow {
     animation: bounceDown 1.8s ease-in-out infinite;
   }
+  .countdown-pulse {
+    animation: countdownBreath 3.5s ease-in-out infinite;
+  }
+  .cd-num.cd-tick {
+    animation: cdTick 0.35s ease-out;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .grid-bg,
     .glow-text,
-    .scroll-arrow {
+    .scroll-arrow,
+    .countdown-pulse,
+    .cd-num.cd-tick {
       animation: none;
     }
   }
@@ -560,23 +649,39 @@ const visualTimeline = [
     const note = document.getElementById("cd-note");
     const pad = (n: number) => String(n).padStart(2, "0");
 
+    // 数字が変わったときだけ「cd-tick」をフラッシュしてフェードイン
+    const setNum = (
+      target: HTMLElement | null,
+      value: string,
+      animate: boolean,
+    ) => {
+      if (!target || target.textContent === value) return;
+      target.textContent = value;
+      if (!animate) return;
+      target.classList.remove("cd-tick");
+      // 強制リフロー：同名アニメを連続トリガするため
+      void target.offsetWidth;
+      target.classList.add("cd-tick");
+    };
+
     let timer: ReturnType<typeof setInterval>;
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) {
-        if (dd) dd.textContent = "0";
-        if (hh) hh.textContent = "00";
-        if (mm) mm.textContent = "00";
-        if (ss) ss.textContent = "00";
+        setNum(dd, "0", true);
+        setNum(hh, "00", true);
+        setNum(mm, "00", true);
+        setNum(ss, "00", false);
         if (note) note.textContent = "まもなくキックオフ！";
         clearInterval(timer);
         return;
       }
       const s = Math.floor(diff / 1000);
-      if (dd) dd.textContent = String(Math.floor(s / 86400));
-      if (hh) hh.textContent = pad(Math.floor((s % 86400) / 3600));
-      if (mm) mm.textContent = pad(Math.floor((s % 3600) / 60));
-      if (ss) ss.textContent = pad(s % 60);
+      // 日・時間・分はアニメ、秒は静かに更新（うるさくならないように）
+      setNum(dd, String(Math.floor(s / 86400)), true);
+      setNum(hh, pad(Math.floor((s % 86400) / 3600)), true);
+      setNum(mm, pad(Math.floor((s % 3600) / 60)), true);
+      setNum(ss, pad(s % 60), false);
     };
 
     tick();
