@@ -4,6 +4,9 @@ import Layout from "../../layouts/Layout.astro";
 interface Section {
   no: string;
   title: string;
+  enLabel: string;
+  image: string;
+  imageAlt: string;
   body: string[];
   note?: string;
   bodyAfter?: string[];
@@ -13,6 +16,9 @@ const sections: Section[] = [
   {
     no: "01",
     title: "キングスリーグとは？",
+    enLabel: "KINGS LEAGUE",
+    image: "/images/about/01-kings-league.png",
+    imageAlt: "キングスリーグの試合風景を象徴するシネマチックなイメージ",
     body: [
       "2022年、元スペイン代表DFジェラール・ピケが立ち上げた7人制サッカーの新リーグ。従来のサッカーより試合時間が短く、得点が入りやすい独自ルールと、インフルエンサーや元プロ選手がオーナーとして参加するエンターテインメント性の高さが特徴。ネイマール、ロナウジーニョといったレジェンドも関わり、世界中で急速に広まっている。",
     ],
@@ -20,6 +26,9 @@ const sections: Section[] = [
   {
     no: "02",
     title: "ムラッシュFCとは？",
+    enLabel: "MURASH FC",
+    image: "/images/about/02-murash-fc.png",
+    imageAlt: "ムラッシュFCのチームを象徴するシネマチックなイメージ",
     body: [
       "ムラッシュFCは、人気ゲーム配信者・加藤純一がオーナーを務めるキングスリーグの日本チーム。「加藤純一がサッカーをやる」のではなく、加藤純一がチームを率いて世界に挑む、というスタイルだ。",
       "チームには2つの形態がある。大会によって「ムラッシュFC（クラブチーム）」として出場する場合と、「日本代表」として国別対抗戦に出場する場合がある。どちらも加藤純一がプレジデント（オーナー）として指揮を執る。",
@@ -28,6 +37,9 @@ const sections: Section[] = [
   {
     no: "03",
     title: "なぜ加藤純一がオーナーに？",
+    enLabel: "ORIGIN STORY",
+    image: "/images/about/03-kato-owner.png",
+    imageAlt: "加藤純一とピケのオーナー就任エピソードを象徴するシネマチックなイメージ",
     body: [
       "きっかけは2023年12月、加藤純一のXにピケから突然リプが届いたことだった。",
       "その後、加藤純一はピケとオンライン会議を行うことになるが、本人いわく「俺サッカーわかんねぇし、できねぇよ」と断るつもりだったという。しかしピケから「お前がやらないなら正直日本からは選ばない」と言われ、「それはちょっと勿体ねぇなと思って」引き受けることを決めた。",
@@ -37,6 +49,9 @@ const sections: Section[] = [
   {
     no: "04",
     title: "世界への挑戦と常設チーム化",
+    enLabel: "WORLD CHALLENGE",
+    image: "/images/about/04-tournaments.png",
+    imageAlt: "世界大会への挑戦と常設チーム化を象徴するシネマチックなイメージ",
     body: [
       "2024年のメキシコ大会を皮切りに、イタリア、フランス、ブラジルと4大会に参加。しかし結果は振るわず、7連敗という苦しい時期も続いた。",
       "課題は明確だった。ヨーロッパや南米の強豪国は国内にキングスリーグが存在し、日常的にチームとして活動している。対して日本は大会のたびにメンバーを招集する「都度編成」。この差は埋められなかった。",
@@ -46,6 +61,9 @@ const sections: Section[] = [
   {
     no: "05",
     title: "新生ムラッシュFC誕生",
+    enLabel: "REBORN",
+    image: "/images/about/05-new-murash.png",
+    imageAlt: "新生ムラッシュFCの誕生を象徴するシネマチックなイメージ",
     body: [
       "2026年、大規模なセレクションが実施された。書類選考から始まり、1次・2次・3次・4次と絞り込みが続き、250名以上の応募者から最終的に16名の常設メンバーが選ばれた。",
     ],
@@ -80,21 +98,44 @@ const sections: Section[] = [
   </section>
 
   <!-- 本文 -->
-  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-    <div class="space-y-16">
+  <article class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+    <div class="space-y-20">
       {
         sections.map((s) => (
-          <section class="relative scroll-mt-24">
-            <div class="flex items-baseline gap-4">
-              <span class="font-display text-3xl font-bold leading-none text-white/15 sm:text-4xl">
-                {s.no}
-              </span>
-              <h2 class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                {s.title}
-              </h2>
-            </div>
+          <section class="scroll-mt-24">
+            {/* シネマチックなチャプターヒーロー：16:9 画像 + 下部グラデにラベル＋h2 をオーバーレイ */}
+            <figure class="group relative overflow-hidden rounded-lg shadow-[0_18px_60px_-18px_rgba(230,0,18,0.4)] ring-1 ring-white/5">
+              <img
+                src={s.image}
+                alt={s.imageAlt}
+                width="1672"
+                height="941"
+                loading="lazy"
+                decoding="async"
+                class="aspect-video h-auto w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+              />
+              {/* 下から立ち上がる黒グラデ：テキスト可読性確保 */}
+              <div
+                aria-hidden="true"
+                class="absolute inset-0 bg-gradient-to-t from-murash-black via-murash-black/70 to-transparent"
+              />
+              {/* チャプターラベル + 大見出し */}
+              <figcaption class="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-10">
+                <p class="flex items-center gap-2 font-display text-[10px] font-bold tracking-[0.4em] text-murash-red sm:text-xs">
+                  <span aria-hidden="true" class="inline-block h-3 w-1 rounded-full bg-murash-red" />
+                  {s.no} / {s.enLabel}
+                </p>
+                <h2 class="mt-2 font-display text-2xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] sm:text-4xl lg:text-5xl">
+                  {s.title}
+                </h2>
+              </figcaption>
+            </figure>
 
-            <div class="mt-5 space-y-6 border-l-2 border-murash-red/40 pl-5 sm:pl-6">
+            <p class="mt-3 text-xs text-white/40">
+              ⚠️ AIで生成したイメージ画像です
+            </p>
+
+            <div class="mt-8 space-y-6 border-l-2 border-murash-red/40 pl-5 sm:pl-6">
               {s.body.map((p) => (
                 <p class="text-base leading-[1.9] text-[#e5e5e5] sm:text-lg">{p}</p>
               ))}
