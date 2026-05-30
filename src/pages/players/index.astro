@@ -2,12 +2,12 @@
 import Layout from "../../layouts/Layout.astro";
 import { players, TOURNAMENTS, type Position, type TournamentSlug } from "../../data/players";
 
-// 現メンバー（confirmed + pending）と歴代メンバー（past）に分離
+// 全選手を一つのグリッドに描画：現メンバー（背番号順）→ 歴代メンバー（データ定義順）
 const current = players
   .filter((p) => p.status !== "past")
   .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
-
 const past = players.filter((p) => p.status === "past");
+const allPlayers = [...current, ...past];
 
 // 現メンバーのポジション別カウント
 const order: Position[] = ["GK", "DF", "MF", "FW"];
@@ -16,7 +16,7 @@ const countByPosition = order.map((pos) => ({
   count: current.filter((p) => p.position === pos).length,
 }));
 
-// 歴代メンバーの大会別カウント
+// 歴代メンバーの大会別カウント（歴代タブのフィルターチップ用）
 const tournamentOrder: TournamentSlug[] = ["mexico", "italy", "france", "brazil"];
 const pastCountByTournament = tournamentOrder.map((t) => ({
   t,
@@ -47,33 +47,60 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
     </div>
   </section>
 
-  <!-- タブ -->
   <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <div role="tablist" aria-label="メンバー切り替え" class="flex flex-wrap gap-2">
-      <button
-        type="button"
-        role="tab"
-        data-tab="current"
-        aria-selected="true"
-        class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
-      >
-        現メンバー（{current.length}名）
-      </button>
-      <button
-        type="button"
-        role="tab"
-        data-tab="past"
-        aria-selected="false"
-        class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
-      >
-        歴代メンバー（{past.length}名）
-      </button>
+    <!-- フィルターモード見出し（URL ?filter=... 時にJSで表示） -->
+    <div
+      id="filter-mode-banner"
+      class="rounded-md border border-murash-red/30 bg-murash-red/5 p-5 sm:p-6"
+      hidden
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="font-display text-xs font-semibold tracking-[0.3em] text-murash-red">
+            FILTERED BY TOURNAMENT
+          </p>
+          <h2 class="mt-1 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            <span id="filter-mode-title">大会 出場メンバー</span>
+            <span class="font-display text-base font-semibold text-white/50">
+              （<span id="filter-mode-count">0</span>名）
+            </span>
+          </h2>
+        </div>
+        <button
+          id="filter-clear"
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-sm border border-white/20 bg-white/5 px-3 py-2 font-display text-xs font-semibold tracking-wide text-white/70 transition-colors hover:border-murash-red/40 hover:text-white"
+        >
+          <span aria-hidden="true" class="text-base leading-none">×</span> フィルター解除
+        </button>
+      </div>
     </div>
 
-    <!-- 現メンバー パネル -->
-    <div id="panel-current" role="tabpanel" class="mt-8">
-      <!-- ポジション別サマリー -->
-      <div class="flex flex-wrap gap-3">
+    <!-- タブモード（クエリ無しのデフォルト表示） -->
+    <div id="tab-mode-container">
+      <div role="tablist" aria-label="メンバー切り替え" class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          role="tab"
+          data-tab="current"
+          aria-selected="true"
+          class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
+        >
+          現メンバー（{current.length}名）
+        </button>
+        <button
+          type="button"
+          role="tab"
+          data-tab="past"
+          aria-selected="false"
+          class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
+        >
+          歴代メンバー（{past.length}名）
+        </button>
+      </div>
+
+      <!-- 現メンバータブ用：ポジション別サマリー -->
+      <div id="current-toolbar" class="mt-8 flex flex-wrap gap-3">
         {
           countByPosition.map(({ pos, count }) => (
             <div class="flex items-center gap-2 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5">
@@ -86,56 +113,8 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
         }
       </div>
 
-      <ul class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {
-          current.map((player) => (
-            <li>
-              <a
-                href={`/players/${player.slug}`}
-                class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
-              >
-                <span
-                  aria-hidden="true"
-                  class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
-                >
-                  {player.number}
-                </span>
-
-                <div class="relative flex items-center gap-2">
-                  <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
-                    {player.position}
-                  </span>
-                  <span class="font-display text-xs font-semibold tracking-wider text-white/40">
-                    No.{player.number}
-                  </span>
-                  {player.status === "pending" && (
-                    <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
-                      準備中
-                    </span>
-                  )}
-                </div>
-
-                <h2 class="relative mt-8 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
-                  {player.name}
-                </h2>
-
-                <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
-                  詳細を見る
-                  <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">
-                    →
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-
-    <!-- 歴代メンバー パネル -->
-    <div id="panel-past" role="tabpanel" class="mt-8" hidden>
-      <!-- 大会フィルター -->
-      <div class="flex flex-wrap gap-2">
+      <!-- 歴代メンバータブ用：大会フィルター -->
+      <div id="past-toolbar" class="mt-8 flex flex-wrap gap-2" hidden>
         <button
           type="button"
           data-filter="all"
@@ -159,32 +138,57 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
           ))
         }
       </div>
+    </div>
 
-      <ul
-        id="past-list"
-        class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-      >
-        {
-          past.map((player) => (
-            <li data-tournaments={(player.tournaments ?? []).join(",")}>
-              <a
-                href={`/players/${player.slug}`}
-                class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
-              >
-                <div class="relative flex items-center gap-2">
-                  <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
-                    {player.position}
+    <!-- 単一のグリッド（全42名。JSで個別 li.hidden を制御） -->
+    <ul id="player-grid" class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      {
+        allPlayers.map((player) => (
+          <li
+            data-status={player.status}
+            data-tournaments={(player.tournaments ?? []).join(",")}
+          >
+            <a
+              href={`/players/${player.slug}`}
+              class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
+            >
+              {player.status !== "past" && player.number !== undefined && (
+                <span
+                  aria-hidden="true"
+                  class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+                >
+                  {player.number}
+                </span>
+              )}
+
+              <div class="relative flex items-center gap-2">
+                <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                  {player.position}
+                </span>
+                {player.status !== "past" && player.number !== undefined && (
+                  <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                    No.{player.number}
                   </span>
+                )}
+                {player.status === "pending" && (
+                  <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
+                    準備中
+                  </span>
+                )}
+                {player.status === "past" && (
                   <span class="ml-auto rounded-sm border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/50">
                     歴代
                   </span>
-                </div>
+                )}
+              </div>
 
-                <h2 class="relative mt-6 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
-                  {player.name}
-                </h2>
+              <h2 class="relative mt-6 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                {player.name}
+              </h2>
 
-                {player.tournaments && player.tournaments.length > 0 && (
+              {player.status === "past" &&
+                player.tournaments &&
+                player.tournaments.length > 0 && (
                   <div class="relative mt-3 flex flex-wrap gap-1">
                     {player.tournaments.map((t) => (
                       <span class="rounded-sm border border-murash-red/30 bg-murash-red/5 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-murash-red">
@@ -194,24 +198,23 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
                   </div>
                 )}
 
-                <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
-                  詳細を見る
-                  <span
-                    aria-hidden="true"
-                    class="transition-transform group-hover:translate-x-0.5"
-                  >
-                    →
-                  </span>
+              <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
+                詳細を見る
+                <span
+                  aria-hidden="true"
+                  class="transition-transform group-hover:translate-x-0.5"
+                >
+                  →
                 </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <p id="past-empty" class="mt-6 hidden text-sm text-white/40">
-        該当する選手が見つかりませんでした。
-      </p>
-    </div>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p id="empty-msg" class="mt-6 text-sm text-white/40" hidden>
+      該当する選手が見つかりませんでした。
+    </p>
 
     <!-- 注意書き -->
     <p class="mt-10 text-xs leading-relaxed text-white/40">
@@ -237,37 +240,115 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
 </style>
 
 <script>
-  // タブ切り替え
-  const tabs = document.querySelectorAll<HTMLButtonElement>("[data-tab]");
-  const panelCurrent = document.getElementById("panel-current");
-  const panelPast = document.getElementById("panel-past");
+  const TOURNAMENT_LABEL: Record<string, string> = {
+    mexico: "メキシコ",
+    italy: "イタリア",
+    france: "フランス",
+    brazil: "ブラジル",
+  };
+  const VALID_TOURNAMENTS = ["mexico", "italy", "france", "brazil"];
 
-  tabs.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const tab = btn.dataset.tab;
-      tabs.forEach((b) => b.setAttribute("aria-selected", String(b === btn)));
-      if (panelCurrent) panelCurrent.hidden = tab !== "current";
-      if (panelPast) panelPast.hidden = tab !== "past";
-    });
-  });
-
-  // 大会フィルター
+  const tabContainer = document.getElementById("tab-mode-container");
+  const filterBanner = document.getElementById("filter-mode-banner");
+  const filterTitle = document.getElementById("filter-mode-title");
+  const filterCount = document.getElementById("filter-mode-count");
+  const filterClear = document.getElementById("filter-clear");
+  const currentToolbar = document.getElementById("current-toolbar");
+  const pastToolbar = document.getElementById("past-toolbar");
+  const grid = document.getElementById("player-grid");
+  const empty = document.getElementById("empty-msg");
+  const items = grid
+    ? Array.from(grid.querySelectorAll<HTMLLIElement>("li"))
+    : [];
+  const tabBtns = document.querySelectorAll<HTMLButtonElement>("[data-tab]");
   const filterBtns = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
-  const pastItems = document.querySelectorAll<HTMLLIElement>("#past-list > li[data-tournaments]");
-  const empty = document.getElementById("past-empty");
 
-  filterBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const f = btn.dataset.filter ?? "all";
-      filterBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  // ステート
+  let currentTab: "current" | "past" = "current";
+  let pastFilter = "all";
+
+  function tournamentsOf(li: HTMLLIElement) {
+    return (li.dataset.tournaments ?? "").split(",").filter(Boolean);
+  }
+
+  function apply() {
+    const params = new URLSearchParams(location.search);
+    const filter = params.get("filter");
+    const inFilterMode = !!filter && VALID_TOURNAMENTS.includes(filter);
+
+    if (inFilterMode && filter) {
+      // フィルターモード
+      if (tabContainer) tabContainer.hidden = true;
+      if (filterBanner) filterBanner.hidden = false;
+      if (filterTitle)
+        filterTitle.textContent = `${TOURNAMENT_LABEL[filter]}大会 出場メンバー`;
       let visible = 0;
-      pastItems.forEach((li) => {
-        const ts = (li.dataset.tournaments ?? "").split(",").filter(Boolean);
-        const show = f === "all" || ts.includes(f);
+      items.forEach((li) => {
+        const ts = tournamentsOf(li);
+        const show = ts.includes(filter);
+        li.hidden = !show;
+        if (show) visible++;
+      });
+      if (filterCount) filterCount.textContent = String(visible);
+      if (empty) empty.hidden = visible !== 0;
+    } else {
+      // タブモード
+      if (tabContainer) tabContainer.hidden = false;
+      if (filterBanner) filterBanner.hidden = true;
+      if (currentToolbar) currentToolbar.hidden = currentTab !== "current";
+      if (pastToolbar) pastToolbar.hidden = currentTab !== "past";
+
+      let visible = 0;
+      items.forEach((li) => {
+        const isPast = li.dataset.status === "past";
+        let show: boolean;
+        if (currentTab === "current") {
+          show = !isPast;
+        } else {
+          const ts = tournamentsOf(li);
+          const chipMatch = pastFilter === "all" || ts.includes(pastFilter);
+          show = isPast && chipMatch;
+        }
         li.hidden = !show;
         if (show) visible++;
       });
       if (empty) empty.hidden = visible !== 0;
+    }
+  }
+
+  // タブ切り替え
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach((b) =>
+        b.setAttribute("aria-selected", String(b === btn)),
+      );
+      currentTab = (btn.dataset.tab as "current" | "past") ?? "current";
+      apply();
     });
   });
+
+  // 大会フィルター（歴代タブのチップ）
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach((b) =>
+        b.setAttribute("aria-pressed", String(b === btn)),
+      );
+      pastFilter = btn.dataset.filter ?? "all";
+      apply();
+    });
+  });
+
+  // フィルター解除：URL からクエリを外してタブモードに戻す
+  if (filterClear) {
+    filterClear.addEventListener("click", () => {
+      history.pushState({}, "", "/players");
+      apply();
+    });
+  }
+
+  // 戻る／進むに反応
+  window.addEventListener("popstate", apply);
+
+  // 初期適用
+  apply();
 </script>

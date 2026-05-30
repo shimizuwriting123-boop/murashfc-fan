@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import type { TournamentSlug } from "../../data/players";
 
 interface Feature {
   title: string;
@@ -7,6 +8,7 @@ interface Feature {
 }
 
 interface Tournament {
+  slug: TournamentSlug;
   no: string;
   name: string;
   date: string;
@@ -22,6 +24,7 @@ interface Tournament {
 
 const tournaments: Tournament[] = [
   {
+    slug: "mexico",
     no: "第1回",
     name: "メキシコ大会",
     date: "2024年5〜6月",
@@ -39,6 +42,7 @@ const tournaments: Tournament[] = [
     ],
   },
   {
+    slug: "italy",
     no: "第2回",
     name: "イタリア大会",
     date: "2025年1月",
@@ -50,6 +54,7 @@ const tournaments: Tournament[] = [
     episodes: ["その後モロッコに敗れグループリーグ敗退。"],
   },
   {
+    slug: "france",
     no: "第3回",
     name: "フランス大会",
     date: "2025年6月",
@@ -64,6 +69,7 @@ const tournaments: Tournament[] = [
     },
   },
   {
+    slug: "brazil",
     no: "第4回",
     name: "ブラジル大会",
     date: "2026年1月",
@@ -207,6 +213,17 @@ const tournaments: Tournament[] = [
                         )}
                       </div>
                     )}
+
+                    {/* この大会のメンバーを見るリンク */}
+                    <a
+                      href={`/players?filter=${t.slug}`}
+                      class="group inline-flex items-center gap-2 border-t border-white/10 pt-5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-murash-red"
+                    >
+                      この大会のメンバーを見る
+                      <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">
+                        →
+                      </span>
+                    </a>
                   </div>
                 </article>
               </li>
