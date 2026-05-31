@@ -1,6 +1,7 @@
 export type Position = "GK" | "DF" | "MF" | "FW";
 export type PlayerStatus = "confirmed" | "pending" | "past" | "staff";
 export type TournamentSlug = "mexico" | "italy" | "france" | "brazil";
+export type DominantFoot = "right" | "left" | "both";
 
 export interface Player {
   slug: string;
@@ -17,6 +18,8 @@ export interface Player {
   height?: string;
   weight?: string;
   hometown?: string;
+  /** 利き足 */
+  dominantFoot?: DominantFoot;
   career?: string[];
   feature?: string;
   /** 柿谷曜一朗（ダブルオーナー）からの選手評コメント */
@@ -27,6 +30,11 @@ export interface Player {
   xUrl?: string;
   /** スタッフ用の役職（監督 / コーチ / マネージャー など）。staff バッジに表示される */
   role?: string;
+  /**
+   * 公式サイトではなく、本人公開情報・各クラブ公式発表・Wikipedia 等から
+   * リサーチして集めたプロフィール。詳細ページのフッター注記の出し分けに使う。
+   */
+  researchedProfile?: boolean;
 }
 
 export const players: Player[] = [
@@ -62,19 +70,43 @@ export const players: Player[] = [
     slug: "miyauchi",
     name: "宮内俊輔",
     nameEn: "MIYAUCHI",
-    position: "DF",
+    position: "MF",
     number: 2,
-    status: "pending",
+    status: "confirmed",
     tournaments: [],
+    birthdate: "2003年7月14日",
+    height: "172cm",
+    weight: "60kg",
+    career: ["フォルトゥナU-15", "帝京大可児高校"],
+    feature:
+      "2003年生まれの若手MF。フォルトゥナU-15から帝京大可児高校でプレー。",
+    researchedProfile: true,
   },
   {
     slug: "kido",
     name: "木戸皓貴",
     nameEn: "KIDO",
-    position: "DF",
+    position: "FW",
     number: 3,
-    status: "pending",
+    status: "confirmed",
     tournaments: [],
+    birthdate: "1995年6月28日",
+    height: "176cm",
+    weight: "75kg",
+    hometown: "熊本県益城町",
+    dominantFoot: "right",
+    career: [
+      "熊本ユナイテッドSC",
+      "東福岡高校",
+      "明治大学",
+      "アビスパ福岡（2018-2020）",
+      "モンテディオ山形（2021-2022）",
+      "ラインメール青森FC（2023）",
+      "ヴィアティン三重（2024）",
+    ],
+    feature:
+      "J2リーグ通算105試合6得点を記録した元プロサッカー選手。東福岡高校時代には全国高校サッカー選手権大会の優秀選手に選出。明治大学時代にはユニバーシアード日本代表にも選出された実力派FW。",
+    researchedProfile: true,
   },
   {
     slug: "hako",
@@ -203,8 +235,25 @@ export const players: Player[] = [
     nameEn: "EGAWA",
     position: "FW",
     number: 10,
-    status: "pending",
+    status: "confirmed",
     tournaments: [],
+    birthdate: "1996年8月29日",
+    height: "172cm",
+    weight: "68kg",
+    hometown: "神奈川県",
+    dominantFoot: "left",
+    career: [
+      "FCトッカーノ",
+      "湘南ベルマーレ小田原",
+      "桐蔭学園高等学校",
+      "FKスティエスカ・ニクシッチ（モンテネグロ1部 / 2016年7月〜）",
+      "IFKヴェルナモ（スウェーデン）",
+      "エリース東京",
+      "厚木はやぶさFC",
+    ],
+    feature:
+      "モンテネグロ・スウェーデンと欧州キャリアを持つ左利きアタッカー。モンテネグロ・プルヴァで6試合出場、スウェーデン・スーペルエッタンで6試合出場1得点の記録を残している。",
+    researchedProfile: true,
   },
   {
     slug: "miyashita",
@@ -243,17 +292,30 @@ export const players: Player[] = [
     nameEn: "HAYASHIDA",
     position: "FW",
     number: 12,
-    status: "pending",
+    status: "confirmed",
     tournaments: [],
+    feature: "現時点で公開されている情報が少ない選手。今後の活躍に期待。",
   },
   {
     slug: "shiraishi",
     name: "白石郁哉",
     nameEn: "SHIRAISHI",
-    position: "FW",
+    position: "MF",
     number: 13,
-    status: "pending",
+    status: "confirmed",
     tournaments: [],
+    birthdate: "2001年8月30日",
+    height: "174cm",
+    weight: "63kg",
+    career: [
+      "FC東京U-15むさし",
+      "前橋育英高校",
+      "フロリダ国際大学",
+      "ミズーリ州立大学（NCAA D1）",
+    ],
+    feature:
+      "アメリカNCAA D1屈指の強豪・ミズーリ州立大学でプレー中の現役大学生プレーヤー。シーズン開幕戦で4ゴールを記録し、MVCカンファレンス週間最優秀選手・週間ベストイレブンに選出されたチーム攻撃の核。卒業後のプロ入りを目指している。",
+    researchedProfile: true,
   },
   {
     slug: "shigenobu",
@@ -276,8 +338,20 @@ export const players: Player[] = [
     nameEn: "TANIDA",
     position: "MF",
     number: 15,
-    status: "pending",
+    status: "confirmed",
     tournaments: [],
+    birthdate: "1997年4月17日",
+    height: "168cm",
+    weight: "60kg",
+    career: [
+      "聖和学園高校",
+      "新潟医療福祉大学",
+      "Musan Salama（フィンランド・プロ）",
+      "FCカラスト埼玉南西（社会人・背番号10）",
+    ],
+    feature:
+      "フィンランドのプロチーム「Musan Salama」でプレーした経験を持つ攻撃的MF。前十字靭帯断裂を機にプロサッカーから一度離れ、IT企業「株式会社ソシアス」にエンジニアとして就職。現在はエンジニアとして働きながら、社会人チーム「FCカラスト埼玉南西」で背番号10を背負いプレーするユニークなキャリアの持ち主。",
+    researchedProfile: true,
   },
   {
     slug: "fukaya",
@@ -667,8 +741,27 @@ export const players: Player[] = [
     status: "staff",
     tournaments: [],
     role: "監督",
+    birthdate: "1987年7月23日",
+    height: "179cm",
+    weight: "78kg",
+    hometown: "東京都町田市",
+    dominantFoot: "left",
+    career: [
+      "麻布大学附属渕野辺高校",
+      "横浜FC",
+      "清水エスパルス",
+      "FC東京",
+      "フィテッセ（オランダ1部）",
+      "名古屋グランパス",
+      "パース・グローリーFC（オーストラリア）",
+      "FC町田ゼルビア",
+      "2023年限りで現役引退",
+      "2024年〜 FC町田ゼルビア アンバサダー",
+      "2026年〜 ムラッシュFC 監督就任",
+    ],
     feature:
-      "元日本代表DF。FC東京・清水エスパルス・横浜FCなどで活躍した左サイドバック。2026年、再スタート編からムラッシュFCの新監督に就任。",
+      "左足からの高精度クロスとフリーキックを武器とする元日本代表DF。2014年・2015年にJリーグベストイレブンを受賞、日本代表として国際Aマッチ7試合に出場した実績を持つ。座右の銘は「自信と過信は紙一重」── これは横浜FC退団時に三浦淳寛から贈られた言葉。プロデビュー戦では経験のない右サイドバックで出場し、極度の緊張に襲われたという逸話も。2023年限りで現役を引退し、2026年よりムラッシュFCの新監督に就任。",
+    researchedProfile: true,
   },
   {
     slug: "hasegawa",
@@ -678,8 +771,28 @@ export const players: Player[] = [
     status: "staff",
     tournaments: [],
     role: "コーチ",
+    birthdate: "1988年10月29日",
+    height: "186cm",
+    weight: "74kg",
+    hometown: "埼玉県鶴ヶ島市",
+    dominantFoot: "right",
+    career: [
+      "横浜F・マリノスユース",
+      "横浜F・マリノス",
+      "FC東京",
+      "セレッソ大阪",
+      "レアル・サラゴサ（スペイン2部）",
+      "湘南ベルマーレ",
+      "大宮アルディージャ",
+      "名古屋グランパス",
+      "FC町田ゼルビア",
+      "ガイナーレ鳥取（2023-2024）",
+      "2025年〜 ガイナーレ鳥取 アンバサダー",
+      "2026年〜 ムラッシュFC コーチ就任",
+    ],
     feature:
-      "元日本代表MF。横浜F・マリノス・名古屋グランパス・FC東京などで活躍した攻撃的MF。2026年、再スタート編からムラッシュFCのコーチに就任。",
+      "J1リーグ通算251試合17得点を記録した元日本代表MF。イラン人の父と日本人の母を持つハーフで、186cmの長身から繰り出される的確なパスとビルドアップが武器。FC東京時代の2013年9月にはJリーグ月間MVPを受賞、2012年には日本代表にも選出された（出場なし）。妻は元グラビアアイドルの滝川綾（モーニング娘。の生田衣梨奈のいとこ）。ランコ・ポポヴィッチ監督の下でFC東京・C大阪・サラゴサ・町田の4クラブを共にし、戦術を体現する選手として絶大な信頼を獲得していた。2026年よりムラッシュFCの新コーチに就任。",
+    researchedProfile: true,
   },
 ];
 

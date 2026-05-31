@@ -1,6 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { players, TOURNAMENTS, type Player } from "../../data/players";
+import {
+  players,
+  TOURNAMENTS,
+  type DominantFoot,
+  type Player,
+} from "../../data/players";
 
 export function getStaticPaths() {
   return players.map((player) => ({
@@ -15,7 +20,14 @@ interface Props {
 
 const { player } = Astro.props;
 
-// 基本情報（存在する項目のみ表示。past は背番号を出さない）
+const FOOT_LABEL: Record<DominantFoot, string> = {
+  right: "右",
+  left: "左",
+  both: "両",
+};
+
+// 基本情報（存在する項目のみ表示。past は背番号を出さない）。
+// 順序：ポジション → 背番号 → ニックネーム → 生年月日 → 出身 → 身長 → 体重 → 利き足
 const profile = [
   { label: "ポジション", value: player.position },
   ...(player.status !== "past" && player.number !== undefined
@@ -23,18 +35,24 @@ const profile = [
     : []),
   ...(player.nickname ? [{ label: "ニックネーム", value: player.nickname }] : []),
   ...(player.birthdate ? [{ label: "生年月日", value: player.birthdate }] : []),
+  ...(player.hometown ? [{ label: "出身", value: player.hometown }] : []),
   ...(player.height ? [{ label: "身長", value: player.height }] : []),
   ...(player.weight ? [{ label: "体重", value: player.weight }] : []),
-  ...(player.hometown ? [{ label: "出身", value: player.hometown }] : []),
+  ...(player.dominantFoot
+    ? [{ label: "利き足", value: FOOT_LABEL[player.dominantFoot] }]
+    : []),
 ];
 
-const statusBadge =
-  player.status === "pending"
+// role がある場合は大バッジで表示するので、ヘッダーの小バッジは出さない（重複回避）
+const hasRole = !!player.role;
+const statusBadge = hasRole
+  ? null
+  : player.status === "pending"
     ? "準備中"
     : player.status === "past"
       ? "歴代メンバー"
       : player.status === "staff"
-        ? (player.role ?? "スタッフ")
+        ? "スタッフ"
         : null;
 
 const hasCareer = !!(player.career && player.career.length > 0);
@@ -94,6 +112,13 @@ const showPendingNote =
         >
           {player.position}
         </span>
+        {
+          hasRole && (
+            <span class="rounded-sm border border-murash-red bg-murash-red/15 px-3 py-1 font-display text-sm font-bold tracking-wider text-murash-red">
+              {player.role}
+            </span>
+          )
+        }
         {
           player.number !== undefined && player.status !== "past" && (
             <span class="font-display text-sm font-semibold tracking-wider text-white/40">
@@ -352,7 +377,7 @@ const showPendingNote =
     </div>
 
     {
-      hasOfficialData && (
+      hasOfficialData ? (
         <aside class="mt-8 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5">
           <p class="text-xs leading-relaxed text-white/55 sm:text-sm">
             ※プロフィール情報の一部はムラッシュFC公式サイト（
@@ -367,7 +392,13 @@ const showPendingNote =
             ）から引用しています。
           </p>
         </aside>
-      )
+      ) : player.researchedProfile ? (
+        <aside class="mt-8 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5">
+          <p class="text-xs leading-relaxed text-white/55 sm:text-sm">
+            ※プロフィール情報は本人公開情報、各クラブ公式発表、Wikipedia 等を参照しています。
+          </p>
+        </aside>
+      ) : null
     }
   </div>
 </Layout>
