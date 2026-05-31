@@ -50,6 +50,27 @@ const {
     />
 
     <title>{title}</title>
+
+    {/* Google Analytics (gtag.js) — 本番ビルドでのみ出力（ローカル開発のアクセスは送信しない） */}
+    {
+      import.meta.env.PROD && (
+        <>
+          <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-HMFVVLCKCL"
+          />
+          <script
+            is:inline
+            set:html={`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-HMFVVLCKCL');
+            `}
+          />
+        </>
+      )
+    }
   </head>
   <body class="flex min-h-screen flex-col">
     <Header />
