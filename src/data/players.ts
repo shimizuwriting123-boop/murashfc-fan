@@ -25,6 +25,8 @@ export interface Player {
   playerMessage?: string;
   instagramUrl?: string;
   xUrl?: string;
+  /** スタッフ用の役職（監督 / コーチ / マネージャー など）。staff バッジに表示される */
+  role?: string;
 }
 
 export const players: Player[] = [
@@ -574,6 +576,7 @@ export const players: Player[] = [
     position: "DF",
     status: "staff",
     tournaments: ["brazil"],
+    role: "マネージャー",
     nickname: "ノザキ",
     career: [
       "浦和レッズユース",
@@ -663,7 +666,7 @@ export const players: Player[] = [
     position: "DF",
     status: "staff",
     tournaments: [],
-    nickname: "監督",
+    role: "監督",
     feature:
       "元日本代表DF。FC東京・清水エスパルス・横浜FCなどで活躍した左サイドバック。2026年、再スタート編からムラッシュFCの新監督に就任。",
   },
@@ -674,7 +677,7 @@ export const players: Player[] = [
     position: "MF",
     status: "staff",
     tournaments: [],
-    nickname: "コーチ",
+    role: "コーチ",
     feature:
       "元日本代表MF。横浜F・マリノス・名古屋グランパス・FC東京などで活躍した攻撃的MF。2026年、再スタート編からムラッシュFCのコーチに就任。",
   },

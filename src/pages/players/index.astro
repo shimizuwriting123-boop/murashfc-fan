@@ -16,11 +16,13 @@ const countByPosition = order.map((pos) => ({
   count: current.filter((p) => p.position === pos).length,
 }));
 
-// 歴代メンバーの大会別カウント（歴代タブのフィルターチップ用）
+// 大会別カウント（チップに表示）。
+// 大会フィルターは現メンバー・歴代・スタッフを横断して全出場者を対象にするため、
+// allPlayers を母集合にして数える。
 const tournamentOrder: TournamentSlug[] = ["mexico", "italy", "france", "brazil"];
-const pastCountByTournament = tournamentOrder.map((t) => ({
+const tournamentCount = tournamentOrder.map((t) => ({
   t,
-  count: past.filter((p) => p.tournaments?.includes(t)).length,
+  count: allPlayers.filter((p) => p.tournaments?.includes(t)).length,
 }));
 ---
 
@@ -113,30 +115,35 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
         }
       </div>
 
-      <!-- 歴代メンバータブ用：大会フィルター -->
-      <div id="past-toolbar" class="mt-8 flex flex-wrap gap-2" hidden>
-        <button
-          type="button"
-          data-filter="all"
-          aria-pressed="true"
-          class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
-        >
-          すべて
-          <span class="text-white/40">{past.length}</span>
-        </button>
-        {
-          pastCountByTournament.map(({ t, count }) => (
-            <button
-              type="button"
-              data-filter={t}
-              aria-pressed="false"
-              class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
-            >
-              {TOURNAMENTS[t].short}
-              <span class="text-white/40">{count}</span>
-            </button>
-          ))
-        }
+      <!-- 歴代メンバータブ用：大会フィルター（チップを押すと「全選手×大会」モードへ遷移） -->
+      <div id="past-toolbar" class="mt-8 space-y-2.5" hidden>
+        <p class="font-display text-[11px] font-semibold tracking-[0.25em] text-white/40">
+          大会で絞り込む（現メンバー・歴代・スタッフを横断）
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            data-filter="all"
+            aria-pressed="true"
+            class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
+          >
+            すべて
+            <span class="text-white/40">{past.length}</span>
+          </button>
+          {
+            tournamentCount.map(({ t, count }) => (
+              <button
+                type="button"
+                data-filter={t}
+                aria-pressed="false"
+                class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
+              >
+                {TOURNAMENTS[t].short}
+                <span class="text-white/40">{count}</span>
+              </button>
+            ))
+          }
+        </div>
       </div>
     </div>
 
@@ -182,7 +189,7 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
                 )}
                 {player.status === "staff" && (
                   <span class="ml-auto rounded-sm border border-murash-red/40 bg-murash-red/10 px-1.5 py-0.5 text-[10px] font-semibold text-murash-red">
-                    スタッフ
+                    {player.role ?? "スタッフ"}
                   </span>
                 )}
               </div>
@@ -272,6 +279,8 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
   // ステート
   let currentTab: "current" | "past" = "current";
   let pastFilter = "all";
+  // 大会フィルターモードに入る直前のタブ。解除時にここへ戻す。
+  let savedTabBeforeFilter: "current" | "past" | null = null;
 
   function tournamentsOf(li: HTMLLIElement) {
     return (li.dataset.tournaments ?? "").split(",").filter(Boolean);
@@ -334,19 +343,51 @@ const pastCountByTournament = tournamentOrder.map((t) => ({
   });
 
   // 大会フィルター（歴代タブのチップ）
+  // 大会名チップ → URL ?filter=xxx でフィルターモードに遷移し、
+  // 現メンバー・歴代・スタッフを横断したその大会の全出場者を表示する。
+  // 「すべて」チップ → 通常のタブモードへ戻す。
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      filterBtns.forEach((b) =>
-        b.setAttribute("aria-pressed", String(b === btn)),
-      );
-      pastFilter = btn.dataset.filter ?? "all";
-      apply();
+      const f = btn.dataset.filter ?? "all";
+      if (f === "all" || !VALID_TOURNAMENTS.includes(f)) {
+        pastFilter = "all";
+        filterBtns.forEach((b) =>
+          b.setAttribute("aria-pressed", String(b === btn)),
+        );
+        if (location.search) {
+          history.pushState({}, "", "/players");
+        }
+        apply();
+      } else {
+        savedTabBeforeFilter = currentTab;
+        history.pushState({}, "", `/players?filter=${f}`);
+        apply();
+      }
     });
   });
 
-  // フィルター解除：URL からクエリを外してタブモードに戻す
+  // フィルター解除：URL からクエリを外し、フィルター開始時のタブへ戻す
   if (filterClear) {
     filterClear.addEventListener("click", () => {
+      if (savedTabBeforeFilter) {
+        currentTab = savedTabBeforeFilter;
+        tabBtns.forEach((b) =>
+          b.setAttribute(
+            "aria-selected",
+            String(b.dataset.tab === currentTab),
+          ),
+        );
+        if (currentTab === "past") {
+          pastFilter = "all";
+          filterBtns.forEach((b) =>
+            b.setAttribute(
+              "aria-pressed",
+              String((b.dataset.filter ?? "all") === "all"),
+            ),
+          );
+        }
+        savedTabBeforeFilter = null;
+      }
       history.pushState({}, "", "/players");
       apply();
     });

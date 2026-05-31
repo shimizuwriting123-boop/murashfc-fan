@@ -34,7 +34,7 @@ const statusBadge =
     : player.status === "past"
       ? "歴代メンバー"
       : player.status === "staff"
-        ? "スタッフ"
+        ? (player.role ?? "スタッフ")
         : null;
 
 const hasCareer = !!(player.career && player.career.length > 0);
