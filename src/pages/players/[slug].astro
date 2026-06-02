@@ -8,6 +8,7 @@ import {
   type DominantFoot,
   type Player,
 } from "../../data/players";
+import { renderRichText } from "../../utils/autoLink";
 
 export function getStaticPaths() {
   return players.map((player) => ({
@@ -57,6 +58,7 @@ const statusBadge = hasRole
         ? "スタッフ"
         : null;
 
+const SELF_URL = `/players/${player.slug}`;
 const hasCareer = !!(player.career && player.career.length > 0);
 const hasKakitani = !!player.kakitaniComment;
 const hasMessage = !!player.playerMessage;
@@ -320,7 +322,11 @@ const showPendingNote =
               <span class="select-none font-display text-2xl leading-none text-murash-red/60">
                 「
               </span>
-              {player.kakitaniComment}
+              <span
+                set:html={renderRichText(player.kakitaniComment!, {
+                  excludeUrl: SELF_URL,
+                })}
+              />
               <span class="select-none font-display text-2xl leading-none text-murash-red/60">
                 」
               </span>
@@ -342,9 +348,12 @@ const showPendingNote =
           </h2>
           <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
           <figure class="mt-5 rounded-md border border-white/10 bg-gradient-to-br from-murash-red/[0.06] to-murash-charcoal p-5 sm:p-6">
-            <blockquote class="text-sm leading-[1.95] text-[#e5e5e5] sm:text-base">
-              {player.playerMessage}
-            </blockquote>
+            <blockquote
+              class="text-sm leading-[1.95] text-[#e5e5e5] sm:text-base"
+              set:html={renderRichText(player.playerMessage!, {
+                excludeUrl: SELF_URL,
+              })}
+            />
             <figcaption class="mt-3 font-display text-xs font-semibold tracking-[0.2em] text-white/40">
               ── {player.name}
             </figcaption>
@@ -361,9 +370,10 @@ const showPendingNote =
             特徴
           </h2>
           <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
-          <p class="mt-5 rounded-md border-l-2 border-murash-red/50 bg-murash-charcoal p-5 text-sm leading-[1.9] text-[#e5e5e5] sm:text-base">
-            {player.feature}
-          </p>
+          <p
+            class="mt-5 rounded-md border-l-2 border-murash-red/50 bg-murash-charcoal p-5 text-sm leading-[1.9] text-[#e5e5e5] sm:text-base"
+            set:html={renderRichText(player.feature!, { excludeUrl: SELF_URL })}
+          />
         </section>
       )
     }

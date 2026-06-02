@@ -4,9 +4,9 @@ import {
   wikiEntries,
   CATEGORY_STYLE,
   getPlayerSlugByName,
-  segmentMarkup,
   type WikiEntry,
 } from "../../data/wiki";
+import { renderRichText } from "../../utils/autoLink";
 
 export function getStaticPaths() {
   return wikiEntries.map((e) => ({
@@ -22,8 +22,11 @@ interface Props {
 const { entry } = Astro.props;
 const style = CATEGORY_STYLE[entry.category];
 
+const SELF_URL = `/wiki/${entry.slug}`;
 // 本文を改行で段落に分割
 const paragraphs = entry.content.split(/\n+/).filter((p) => p.trim() !== "");
+// 同セクション内の重複は最初の1回のみリンク化
+const wikiSeen = new Set<string>();
 
 // 関連人物：選手名鑑にいれば詳細ページへリンク、いなければプレーン
 const people = entry.relatedPeople.map((name) => ({
@@ -127,30 +130,23 @@ const people = entry.relatedPeople.map((name) => ({
     <!-- リード -->
     <p
       class="rounded-md border-l-2 border-murash-red/60 bg-murash-charcoal/80 p-5 text-base leading-[1.9] text-[#e5e5e5] sm:p-6 sm:text-lg"
-    >
-      {entry.summary}
-    </p>
+      set:html={renderRichText(entry.summary, {
+        excludeUrl: SELF_URL,
+        seenTerms: wikiSeen,
+      })}
+    />
 
     <!-- 本文段落 -->
     <div class="mt-8 space-y-6">
       {
         paragraphs.map((p) => (
-          <p class="text-base leading-[1.95] text-[#e5e5e5] sm:text-lg">
-            {segmentMarkup(p).map((seg) =>
-              seg.bold ? (
-                <strong class="font-semibold text-white">{seg.text}</strong>
-              ) : seg.href ? (
-                <a
-                  href={seg.href}
-                  class="text-murash-red underline-offset-2 hover:underline"
-                >
-                  {seg.text}
-                </a>
-              ) : (
-                seg.text
-              ),
-            )}
-          </p>
+          <p
+            class="text-base leading-[1.95] text-[#e5e5e5] sm:text-lg"
+            set:html={renderRichText(p, {
+              excludeUrl: SELF_URL,
+              seenTerms: wikiSeen,
+            })}
+          />
         ))
       }
     </div>

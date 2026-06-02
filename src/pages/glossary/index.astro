@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { renderRichText } from "../../utils/autoLink";
 
 interface Term {
   id: string;
@@ -332,7 +333,11 @@ const categories: Category[] = [
                       {t.term}
                     </a>
                   </dt>
-                  <dd class="mt-1.5 text-sm leading-[1.8] text-[#e5e5e5]">{t.definition}</dd>
+                  <dd
+                    class="mt-1.5 text-sm leading-[1.8] text-[#e5e5e5]"
+                    set:html={renderRichText(t.definition)}
+                  />
+
                 </div>
               ))}
             </dl>

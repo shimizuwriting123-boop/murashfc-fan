@@ -6,6 +6,7 @@ import {
   TOURNAMENT_URLSLUG_TO_VIDEO_CATEGORY,
 } from "../../data/videos";
 import VideoSection from "../../components/VideoSection.astro";
+import { renderRichText } from "../../utils/autoLink";
 
 export function getStaticPaths() {
   return tournaments
@@ -35,6 +36,13 @@ const detail = t.detail!;
 const videoCategory = TOURNAMENT_URLSLUG_TO_VIDEO_CATEGORY[t.urlSlug];
 const videos = videoCategory ? getVideosFor(videoCategory) : [];
 
+// この大会自身へのリンクは抑止（自リンク回避）
+const SELF_URL = `/tournaments/${t.urlSlug}`;
+// 同セクション内の重複は最初の1回のみリンク化（章単位で seen を共有）
+function makeSeen(): Set<string> {
+  return new Set<string>();
+}
+
 // 概要メタ
 const meta = [
   { label: "形態", value: t.format },
@@ -45,24 +53,6 @@ const meta = [
   ...(t.selectionMethod ? [{ label: "選出方式", value: t.selectionMethod }] : []),
 ];
 
-// **強調** と [text](url) リンク両対応
-interface Segment {
-  text: string;
-  bold?: boolean;
-  href?: string;
-}
-function markupSegments(text: string): Segment[] {
-  const re = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
-  const parts = text.split(re).filter((p) => p !== "");
-  return parts.map<Segment>((p) => {
-    if (p.startsWith("**") && p.endsWith("**")) {
-      return { text: p.slice(2, -2), bold: true };
-    }
-    const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (m) return { text: m[1], href: m[2] };
-    return { text: p };
-  });
-}
 ---
 
 <Layout
@@ -156,79 +146,74 @@ function markupSegments(text: string): Segment[] {
   <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
     <div class="space-y-16">
       {
-        detail.sections.map((section) => (
-          <section>
-            <h2 class="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              {section.icon && (
-                <span aria-hidden="true" class="text-3xl">
-                  {section.icon}
-                </span>
-              )}
-              {section.title}
-            </h2>
-            <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+        detail.sections.map((section) => {
+          // 章単位で seen を共有し、同じ用語は最初の1回だけリンク化
+          const seenTerms = makeSeen();
+          return (
+            <section>
+              <h2 class="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {section.icon && (
+                  <span aria-hidden="true" class="text-3xl">
+                    {section.icon}
+                  </span>
+                )}
+                {section.title}
+              </h2>
+              <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
 
-            <div class="mt-7 space-y-10">
-              {section.items.map((item) => (
-                <div
-                  class:list={[
-                    item.emphasized
-                      ? "rounded-md border-2 border-murash-red/60 bg-murash-red/5 p-5 sm:p-6"
-                      : "",
-                  ]}
-                >
-                  {item.emphasized && (
-                    <span class="inline-flex items-center rounded-sm bg-murash-red px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-white">
-                      伝説
-                    </span>
-                  )}
-                  {item.title && (
-                    <h3
-                      class:list={[
-                        "flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl",
-                        item.emphasized ? "mt-3" : "",
-                      ]}
-                    >
-                      {!item.emphasized && (
-                        <span
-                          aria-hidden="true"
-                          class="inline-block h-4 w-1 shrink-0 rounded-full bg-murash-red"
-                        />
-                      )}
-                      {item.title}
-                    </h3>
-                  )}
-                  <div class={item.title ? "mt-3 space-y-5" : "space-y-5"}>
-                    {item.body.map((p) => (
-                      <p class="text-base leading-[1.95] text-[#e5e5e5] sm:text-lg">
-                        {markupSegments(p).map((seg) =>
-                          seg.bold ? (
-                            <strong class="font-semibold text-white">{seg.text}</strong>
-                          ) : seg.href ? (
-                            <a
-                              href={seg.href}
-                              class="text-murash-red underline-offset-2 hover:underline"
-                            >
-                              {seg.text}
-                            </a>
-                          ) : (
-                            seg.text
-                          ),
+              <div class="mt-7 space-y-10">
+                {section.items.map((item) => (
+                  <div
+                    class:list={[
+                      item.emphasized
+                        ? "rounded-md border-2 border-murash-red/60 bg-murash-red/5 p-5 sm:p-6"
+                        : "",
+                    ]}
+                  >
+                    {item.emphasized && (
+                      <span class="inline-flex items-center rounded-sm bg-murash-red px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-white">
+                        伝説
+                      </span>
+                    )}
+                    {item.title && (
+                      <h3
+                        class:list={[
+                          "flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl",
+                          item.emphasized ? "mt-3" : "",
+                        ]}
+                      >
+                        {!item.emphasized && (
+                          <span
+                            aria-hidden="true"
+                            class="inline-block h-4 w-1 shrink-0 rounded-full bg-murash-red"
+                          />
                         )}
+                        {item.title}
+                      </h3>
+                    )}
+                    <div class={item.title ? "mt-3 space-y-5" : "space-y-5"}>
+                      {item.body.map((p) => (
+                        <p
+                          class="text-base leading-[1.95] text-[#e5e5e5] sm:text-lg"
+                          set:html={renderRichText(p, {
+                            excludeUrl: SELF_URL,
+                            seenTerms,
+                          })}
+                        />
+                      ))}
+                    </div>
+                    {item.note && (
+                      <p class="mt-3 inline-flex items-start gap-2 rounded-sm border border-white/10 bg-white/5 px-3 py-2 text-xs italic text-white/45">
+                        <span class="font-display not-italic text-murash-red">TBD</span>
+                        {item.note}
                       </p>
-                    ))}
+                    )}
                   </div>
-                  {item.note && (
-                    <p class="mt-3 inline-flex items-start gap-2 rounded-sm border border-white/10 bg-white/5 px-3 py-2 text-xs italic text-white/45">
-                      <span class="font-display not-italic text-murash-red">TBD</span>
-                      {item.note}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        ))
+                ))}
+              </div>
+            </section>
+          );
+        })
       }
     </div>
 
