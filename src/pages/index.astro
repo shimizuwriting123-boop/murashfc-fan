@@ -14,10 +14,9 @@ interface Section {
   label: string;
   href: string;
   sub: string;
-  /** true の場合カードが 2 カラム幅で特集表示 */
-  featured?: boolean;
 }
 
+// 物語の流れ：入り口 → 誰が → 過去 → 時系列 → 解説 → 小ネタ → 雑記
 const sections: Section[] = [
   {
     no: "01",
@@ -39,35 +38,33 @@ const sections: Section[] = [
   },
   {
     no: "04",
+    label: "再スタート編",
+    href: "/rebirth",
+    sub: "ブラジル大会後の組織改革から新生16名誕生までの全6章ドキュメンタリー。",
+  },
+  {
+    no: "05",
     label: "歴史・年表",
     href: "/history",
     sub: "キングスリーグ誕生から新生ムラッシュFCまでの歩みを時系列で。",
   },
   {
-    no: "05",
+    no: "06",
     label: "用語辞典",
     href: "/glossary",
     sub: "キングスリーグ・ムラッシュFC特有の用語をやさしく解説。",
   },
   {
-    no: "06",
-    label: "ブログ",
-    href: "/blog",
-    sub: "試合の感想やファン目線のコラムを不定期で更新中。",
-  },
-  {
-    no: "Wiki",
+    no: "07",
     label: "Wiki",
     href: "/wiki",
     sub: "あだ名・名セリフ・伝説の事件をまとめたファンアーカイブ。",
-    featured: true,
   },
   {
-    no: "特集",
-    label: "再スタート編",
-    href: "/rebirth",
-    sub: "ブラジル大会後の組織改革から新生16名誕生までの全6章ドキュメンタリー。",
-    featured: true,
+    no: "08",
+    label: "ブログ",
+    href: "/blog",
+    sub: "試合の感想やファン目線のコラムを不定期で更新中。",
   },
 ];
 
@@ -338,15 +335,10 @@ const visualTimeline = [
     <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {
         sections.map((s) => (
-          <li class:list={[s.featured ? "sm:col-span-2 lg:col-span-2" : ""]}>
+          <li>
             <a
               href={s.href}
-              class:list={[
-                "content-card group flex h-full flex-col rounded-md border bg-murash-charcoal p-5 transition-all duration-200 hover:-translate-y-0.5",
-                s.featured
-                  ? "border-murash-red/40 hover:border-murash-red"
-                  : "border-white/10 hover:border-murash-red/60",
-              ]}
+              class="content-card group flex h-full flex-col rounded-md border border-white/10 bg-murash-charcoal p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-murash-red/60"
             >
               <span class="font-display text-[11px] font-bold tracking-[0.3em] text-murash-red">
                 {s.no}
