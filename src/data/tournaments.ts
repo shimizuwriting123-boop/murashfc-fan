@@ -64,6 +64,11 @@ export interface Tournament {
   detail?: TournamentDetail;
   /** その大会のコーチング・スタッフ体制 */
   staffRoster?: StaffRosterEntry[];
+  /**
+   * SQUAD セクションの直下に表示する注記。
+   * 不参加選手・情報不明箇所などの TBD 情報を補足する用途。
+   */
+  squadNote?: string;
 }
 
 export const tournaments: Tournament[] = [
@@ -261,20 +266,6 @@ export const tournaments: Tournament[] = [
       hostCountry: "イタリア",
       sections: [
         {
-          title: "出場メンバー（13名）",
-          items: [
-            {
-              body: [
-                "GK：深谷圭佑（キャプテン）、成田雄聖",
-                "DF：金武航二朗、山田樹、梅谷堅人",
-                "MF：岸本青空、縣翔平、小田崚平、森保翔平、圓乘健介、中村駿介",
-                "FW：福原涼太、中川貴晴",
-              ],
-              note: "※この大会の監督は不明（第3回フランス大会で中井健介氏が監督就任）。情報をお持ちの方はお知らせください。",
-            },
-          ],
-        },
-        {
           icon: "⚽",
           title: "試合の名場面",
           items: [
@@ -361,6 +352,8 @@ export const tournaments: Tournament[] = [
         playerSlug: "watanabe",
       },
     ],
+    squadNote:
+      "※この大会の監督については情報に揺れがあり、現状は当サイトの情報に基づき中井健介氏として記載しています。正式情報をお持ちの方はお知らせください。",
   },
   {
     slug: "france",
@@ -381,30 +374,6 @@ export const tournaments: Tournament[] = [
     detail: {
       hostCountry: "フランス",
       sections: [
-        {
-          title: "スタッフ・出場メンバー",
-          items: [
-            {
-              title: "スタッフ",
-              body: [
-                "監督：中井健介（今大会で監督就任）",
-                "コーチ：山田樹",
-                "チームスタッフ：金武航二朗",
-                "GM：柴田涼太郎",
-                "アドバイザー：柿谷曜一朗（アキレス腱痛で帯同せず）",
-              ],
-            },
-            {
-              title: "出場メンバー（13名）",
-              body: [
-                "GK：深谷圭佑、成田力哉",
-                "DF：森保翔平（キャプテン）、増田丈偉",
-                "MF：縣翔平、圓乘健介、宮下豪也、小田崚平、田村佳翔、中村駿介、杉本竜士",
-                "FW：濱本和希、氏橋寛",
-              ],
-            },
-          ],
-        },
         {
           icon: "🔥",
           title: "大会前の激動ストーリー",
@@ -543,29 +512,6 @@ export const tournaments: Tournament[] = [
       hostCountry: "ブラジル",
       sections: [
         {
-          title: "スタッフ・出場メンバー",
-          items: [
-            {
-              title: "スタッフ",
-              body: [
-                "監督：中村駿介（今大会で監督就任、中井健介から交代）",
-                "アドバイザー：柿谷曜一朗",
-                "プレジデント：加藤純一",
-              ],
-            },
-            {
-              title: "出場メンバー（現時点判明分）",
-              body: [
-                "GK：成田力哉（リッキー）、成田雄聖",
-                "DF：縣翔平、横山航河、野崎雅也",
-                "MF：箱崎裕也、濱本和希、宮下豪也、重信圭佑、田邉隆平（[金ガム](/wiki/kingum)）",
-                "FW：梅津怜央、松森堅誠、三浦パブロ",
-              ],
-              note: "※深谷圭佑は妻の第1子出産のためブラジル大会を辞退・不参加。完全なメンバー情報は公式発表待ち。情報をお持ちの方はお知らせください。",
-            },
-          ],
-        },
-        {
           icon: "🔥",
           title: "大会前の激動ストーリー",
           items: [
@@ -682,6 +628,8 @@ export const tournaments: Tournament[] = [
       { role: "監督", name: "中村駿介", playerSlug: "nakamura" },
       { role: "トレーナー", name: "遠藤浩隆", playerSlug: "endo" },
     ],
+    squadNote:
+      "※深谷圭佑は妻の第1子出産のためブラジル大会を辞退・不参加。完全なメンバー情報は公式発表待ち。情報をお持ちの方はお知らせください。",
   },
 ];
 

@@ -7,6 +7,7 @@ import {
 } from "../../data/videos";
 import VideoSection from "../../components/VideoSection.astro";
 import { renderRichText } from "../../utils/autoLink";
+import { players, type Position } from "../../data/players";
 
 export function getStaticPaths() {
   return tournaments
@@ -38,6 +39,43 @@ const videos = videoCategory ? getVideosFor(videoCategory) : [];
 
 // この大会自身へのリンクは抑止（自リンク回避）
 const SELF_URL = `/tournaments/${t.urlSlug}`;
+
+// ============================================================
+// SQUAD：この大会で role=player として登録されている選手を抽出
+// → ポジション順（GK → DF → MF → FW）、その中で背番号昇順
+// ============================================================
+const POS_ORDER: Record<Position, number> = { GK: 0, DF: 1, MF: 2, FW: 3 };
+
+interface SquadCard {
+  slug: string;
+  name: string;
+  jerseyNumber?: number;
+  position: Position;
+  subRole?: string;
+}
+
+const squad: SquadCard[] = players
+  .flatMap((p) => {
+    const part = p.tournamentHistory?.find(
+      (h) => h.tournament === t.slug && h.role === "player",
+    );
+    if (!part) return [];
+    return [
+      {
+        slug: p.slug,
+        name: p.name,
+        jerseyNumber: part.jerseyNumber,
+        position: part.position ?? p.position,
+        subRole: part.subRole,
+      },
+    ];
+  })
+  .sort((a, b) => {
+    const ap = POS_ORDER[a.position] ?? 9;
+    const bp = POS_ORDER[b.position] ?? 9;
+    if (ap !== bp) return ap - bp;
+    return (a.jerseyNumber ?? 9999) - (b.jerseyNumber ?? 9999);
+  });
 // 同セクション内の重複は最初の1回のみリンク化（章単位で seen を共有）
 function makeSeen(): Set<string> {
   return new Set<string>();
@@ -217,6 +255,60 @@ const meta = [
       }
     </div>
 
+    {/* SQUAD：出場選手（背番号順カードグリッド） */}
+    {
+      squad.length > 0 && (
+        <section class="mt-16">
+          <h2 class="section-heading">
+            <span class="section-label-en">SQUAD</span>
+            <span class="section-title-jp flex flex-wrap items-baseline gap-x-3 text-2xl sm:text-3xl">
+              出場選手
+              <span class="font-display text-sm font-semibold text-white/40">
+                {squad.length}名
+              </span>
+            </span>
+          </h2>
+          <div class="mt-3 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+
+          <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {squad.map((p) => (
+              <li>
+                <a
+                  href={`/players/${p.slug}`}
+                  class="squad-card group flex items-center gap-3 rounded-md border border-white/10 bg-murash-charcoal px-3.5 py-3 transition-all hover:-translate-y-0.5 hover:border-murash-red/60"
+                >
+                  <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-murash-red font-display text-base font-bold text-white">
+                    {p.jerseyNumber ?? "-"}
+                  </span>
+                  <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span class="font-display text-[10px] font-semibold tracking-wider text-murash-red">
+                      {p.position}
+                      {p.subRole && ` ・ ${p.subRole}`}
+                    </span>
+                    <span class="truncate font-semibold text-white transition-colors group-hover:text-murash-red">
+                      {p.name}
+                    </span>
+                  </div>
+                  <span
+                    aria-hidden="true"
+                    class="self-center text-white/30 transition-colors group-hover:text-murash-red"
+                  >
+                    →
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {t.squadNote && (
+            <p class="mt-5 rounded-md border border-white/10 bg-white/5 px-4 py-3 text-xs leading-relaxed text-white/55 sm:text-sm">
+              {t.squadNote}
+            </p>
+          )}
+        </section>
+      )
+    }
+
     {/* コーチング・スタッフ体制 */}
     {
       t.staffRoster && t.staffRoster.length > 0 && (
@@ -330,10 +422,10 @@ const meta = [
     <!-- 関連リンク -->
     <div class="mt-10 flex flex-wrap gap-3 border-t border-white/10 pt-8">
       <a
-        href={`/players?filter=${t.slug}`}
+        href="/players"
         class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
       >
-        この大会のメンバーを見る
+        選手名鑑で全選手を見る
         <span aria-hidden="true">→</span>
       </a>
       <a
@@ -351,3 +443,15 @@ const meta = [
     subtitle={`${t.no} ${t.name}（${t.date}）に関するムラッシュFC公式・加藤純一公式チャンネルなどの動画アーカイブ。`}
   />
 </Layout>
+
+<style>
+  .squad-card:hover {
+    box-shadow: 0 6px 18px -10px rgba(230, 0, 18, 0.4);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .squad-card {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
