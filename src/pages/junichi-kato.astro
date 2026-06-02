@@ -7,11 +7,14 @@ const SELF_URL = "/junichi-kato";
 /**
  * 段落（para）または引用ライン（quote）。
  * - para: 通常本文。**強調** 記法 + 自動リンク対応。
- * - quote: 左ボーダー赤＋大きめ明朝の引用ブロック。
+ * - quote: 左ボーダー赤の引用ブロック。tone でサイズ3段階を切替。
+ *   - "lead"（デフォルト）: テーマを代表する名言・クライマックス引用。明朝・text-xl/2xl
+ *   - "support"           : 本文中の補強引用。サンセリフ・text-base/lg・ボーダー透過70%
  */
+type QuoteTone = "lead" | "support";
 type Block =
   | { kind: "para"; text: string }
-  | { kind: "quote"; text: string };
+  | { kind: "quote"; text: string; tone?: QuoteTone };
 
 /** 序章・テーマ・結びを統一的に扱うセクション型 */
 interface Section {
@@ -87,6 +90,7 @@ const themes: Section[] = [
       },
       {
         kind: "quote",
+        tone: "support",
         text: "絶対にこの地球上に俺以上にキングスリーグに強い気持ちを持ってるオーナーは存在しない",
       },
       {
@@ -110,6 +114,7 @@ const themes: Section[] = [
       },
       {
         kind: "quote",
+        tone: "support",
         text: "お金も使うし、やれることは全部やる",
       },
       {
@@ -153,6 +158,7 @@ const themes: Section[] = [
       },
       {
         kind: "quote",
+        tone: "support",
         text: "みんなは間違った調和を大事にしてる。争いが起きないことがただ正義じゃない。勝つことでまとまる。年齢関係ない。思ったことがあったら言うべき、そんな偽りの調和はいらない",
       },
       {
@@ -207,10 +213,12 @@ const themes: Section[] = [
       },
       {
         kind: "quote",
+        tone: "support",
         text: "僕はみんなに本当にスターになってほしいし、人生に大成功して欲しい",
       },
       {
         kind: "quote",
+        tone: "support",
         text: "僕は先人たちに引き上げられて人生を変えてもらった。だからみんなにも、この大会で人生が劇的に変わるような経験をしてほしい",
       },
       {
@@ -258,6 +266,7 @@ const themes: Section[] = [
       },
       {
         kind: "quote",
+        tone: "support",
         text: "賞金は一切いらない。優勝トロフィーだけは誰にも渡さずに、自宅のヤニまみれの部屋（配信部屋）にドーンと飾る。コレクションとしてあいつを持って帰ってくるのが人生の目標の1つ",
       },
       {
@@ -396,13 +405,41 @@ const relatedLinks = [
               )}
             </header>
 
-            {/* ブロック列：para と quote を交互に表示 */}
-            <div class="mt-10 space-y-8">
-              {s.blocks.map((b) =>
-                b.kind === "quote" ? (
-                  <blockquote class="border-l-2 border-murash-red pl-5 sm:pl-6">
+            {/* ブロック列：para（my-6）／quote-lead（my-8・明朝大）／quote-support（my-5・通常小）の3段階 */}
+            <div class="mt-10">
+              {s.blocks.map((b) => {
+                if (b.kind === "para") {
+                  return (
                     <p
-                      class="text-2xl font-bold leading-[1.6] text-white sm:text-3xl"
+                      class="my-6 text-base leading-[2.0] text-[#e5e5e5] sm:text-lg"
+                      set:html={renderRichText(b.text, {
+                        excludeUrl: SELF_URL,
+                        seenTerms,
+                      })}
+                    />
+                  );
+                }
+                // quote: tone でサイズ切替（デフォルト lead）
+                const tone = b.tone ?? "lead";
+                if (tone === "support") {
+                  // 本文中の補強引用：サンセリフ・控えめ・透過70%ボーダー
+                  return (
+                    <blockquote class="my-5 border-l-2 border-murash-red/70 pl-4 sm:pl-5">
+                      <p
+                        class="text-base leading-relaxed text-white/90 sm:text-lg"
+                        set:html={renderRichText(`「${b.text}」`, {
+                          excludeUrl: SELF_URL,
+                          seenTerms,
+                        })}
+                      />
+                    </blockquote>
+                  );
+                }
+                // lead（テーマ代表名言・クライマックス）：明朝・大きめ
+                return (
+                  <blockquote class="my-8 border-l-2 border-murash-red pl-5 sm:pl-6">
+                    <p
+                      class="text-xl font-bold leading-[1.6] text-white sm:text-2xl"
                       style="font-family: var(--font-section-jp); font-weight: 700;"
                       set:html={renderRichText(`「${b.text}」`, {
                         excludeUrl: SELF_URL,
@@ -410,16 +447,8 @@ const relatedLinks = [
                       })}
                     />
                   </blockquote>
-                ) : (
-                  <p
-                    class="text-base leading-[2.0] text-[#e5e5e5] sm:text-lg"
-                    set:html={renderRichText(b.text, {
-                      excludeUrl: SELF_URL,
-                      seenTerms,
-                    })}
-                  />
-                ),
-              )}
+                );
+              })}
             </div>
 
             {/* Epilogue の末尾に装飾線 */}
