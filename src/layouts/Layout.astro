@@ -28,30 +28,29 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/images/hero-banner.png" />
-    <meta property="og:image:width" content="1672" />
-    <meta property="og:image:height" content="941" />
+    <meta property="og:image" content="/images/hero-banner-og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="675" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@murashfcfan" />
     <meta name="twitter:creator" content="@murashfcfan" />
-    <meta name="twitter:image" content="/images/hero-banner.png" />
+    <meta name="twitter:image" content="/images/hero-banner-og.jpg" />
 
-    <!-- ヒーロー専用フォント：Bebas Neue（英字タイトル/ラベル）と Shippori Mincho B1 900（日本語タイトル） -->
-    <!-- 日本語は必要文字のみサブセット取得（&text=）、英字は font-display:swap で FOIT 回避 -->
+    <!-- Web フォント：preconnect で TLS ハンドシェイク事前確立、display=swap で FOIT 回避 -->
+    <!-- - Bebas Neue: ヒーロー＆セクション英ラベル（Latin、~17KB） -->
+    <!-- - Noto Serif JP 700: セクション日本語見出し（unicode-range で必要チャンクのみ取得） -->
+    <!-- - Shippori Mincho B1 900: TOP ヒーロー日本語タイトル（&text= で 14字のみサブセット、~5KB） -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Bebas Neue + Noto Serif JP を1つの CSS リクエストにまとめてラウンドトリップ削減 -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+JP:wght@700&display=swap"
     />
+    <!-- Shippori Mincho B1 は TOP ヒーローでしか使わないため別リクエスト＆サブセット -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@900&text=%E3%83%A0%E3%83%A9%E3%83%83%E3%82%B7%E3%83%A5FC%20%E3%83%95%E3%82%A1%E3%83%B3%E3%82%B5%E3%82%A4%E3%83%88&display=swap"
-    />
-    <!-- セクション見出し（日本語）: Noto Serif JP 700 -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&display=swap"
     />
 
     <title>{title}</title>
