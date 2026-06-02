@@ -256,7 +256,9 @@ export const tournaments: Tournament[] = [
     name: "イタリア大会",
     date: "2025年1月",
     format: "日本代表（国別対抗戦）",
-    result: "ラストチャンスラウンド敗退",
+    result: "1勝2敗・ラストチャンスラウンド敗退",
+    record:
+      "vs イタリア代表 勝利 → vs アルゼンチン代表 敗北 → vs モロッコ代表 敗北",
     selectionMethod: "オファー制",
     highlight:
       "開催地イタリアとの開幕戦。「日本なんか相手にならない」という雰囲気を覆しまさかの勝利。「ピザがしなしなになった」と加藤純一が配信で大はしゃぎした名場面。GK深谷圭佑が「日本の壁」と称賛される活躍。",
@@ -362,7 +364,9 @@ export const tournaments: Tournament[] = [
     name: "フランス大会",
     date: "2025年6月",
     format: "ムラッシュFC（クラブチーム）",
-    result: "グループリーグ敗退",
+    result: "0勝2敗・グループリーグ敗退",
+    record:
+      "vs F2R（フランス）3-5 敗北 → vs Jynxzi（アメリカ）5-5 延長シュートアウト敗北（第2戦終了時点で敗退決定）",
     champion: "Los Troncos FC（スペイン）",
     selectionMethod: "トライアウト形式",
     highlight: "柿谷曜一朗、杉本竜士など元Jリーガーを招集し本格強化を図った大会。",
@@ -496,7 +500,7 @@ export const tournaments: Tournament[] = [
     name: "ブラジル大会",
     date: "2026年1月",
     format: "日本代表（国別対抗戦）",
-    result: "3連敗・グループリーグ敗退",
+    result: "0勝3敗・グループリーグ敗退",
     selectionMethod: "トライアウト形式（常設チーム編成後の初出場）",
     highlight:
       "過去最高の気合いで臨んだ大会。安間TVでの特集・生配信で知名度も急上昇。しかし3連敗で帰国することに。この結果がロスター完全リセット・常設チーム化への決断につながった。",

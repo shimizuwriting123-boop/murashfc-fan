@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { tournaments } from "../data/tournaments";
 
 // 次の試合（後で正確な日時に差し替え：iso を変更するだけでOK）
 const NEXT_MATCH = {
@@ -8,6 +9,32 @@ const NEXT_MATCH = {
   iso: "2026-07-31T19:00:00+09:00",
   dateLabel: "2026年7月31日（仮）",
 };
+
+/**
+ * 大会戦績カード用のデータを tournaments.ts から導出する。
+ * data 側は `result: "1勝2敗・ベスト32敗退"` のように "・" 区切りで保持しており、
+ * TOP では先頭を大きな赤文字（勝敗）、後半を小さなサブ表示（敗退ステージ）として表示する。
+ */
+const yearMonth = (date: string) => {
+  const m = date.match(/(\d{4})年(\d{1,2})月/);
+  return m ? `${m[1]}.${m[2]}` : date;
+};
+const results = tournaments.map((t, i) => {
+  const parts = t.result.split("・").map((s) => s.trim()).filter(Boolean);
+  // 形式: "X勝Y敗・ステージ" の場合は前半を赤大文字、後半をサブ表示に分割。
+  // "・" が無い場合は record=null、result=全文（敗退理由のみ表示）。
+  const hasSplit = parts.length >= 2;
+  return {
+    no: t.no,
+    index: String(i + 1).padStart(2, "0"),
+    name: t.name,
+    ym: yearMonth(t.date),
+    record: hasSplit ? parts[0] : null,
+    result: hasSplit ? parts.slice(1).join("・") : parts[0],
+    urlSlug: t.urlSlug,
+    hasDetail: !!t.detail,
+  };
+});
 
 interface Section {
   no: string;
@@ -68,12 +95,6 @@ const sections: Section[] = [
   },
 ];
 
-const results = [
-  { no: "第1回", index: "01", name: "メキシコ大会", ym: "2024.5", record: "1勝2敗", result: "ベスト32敗退" },
-  { no: "第2回", index: "02", name: "イタリア大会", ym: "2025.1", record: null, result: "ラストチャンス敗退" },
-  { no: "第3回", index: "03", name: "フランス大会", ym: "2025.6", record: null, result: "グループ敗退" },
-  { no: "第4回", index: "04", name: "ブラジル大会", ym: "2026.1", record: "3連敗", result: "敗退" },
-];
 
 const visualTimeline = [
   {
@@ -454,7 +475,7 @@ const visualTimeline = [
         {
           results.map((r) => (
             <a
-              href="/tournaments"
+              href={r.hasDetail ? `/tournaments/${r.urlSlug}` : "/tournaments"}
               class="group relative flex flex-col overflow-hidden rounded-md border border-white/10 bg-murash-black p-6 transition-colors hover:border-murash-red/50"
             >
               <span
