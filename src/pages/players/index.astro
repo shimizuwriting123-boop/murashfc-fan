@@ -1,6 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { players, TOURNAMENTS, type Position, type TournamentSlug } from "../../data/players";
+import {
+  players,
+  TOURNAMENTS,
+  type Player,
+  type Position,
+  type TournamentSlug,
+} from "../../data/players";
 
 // 全選手を一つのグリッドに描画：現メンバー（背番号順）→ 歴代メンバー＆スタッフ（データ定義順）
 const current = players
@@ -8,6 +14,20 @@ const current = players
   .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
 const past = players.filter((p) => p.status === "past" || p.status === "staff");
 const allPlayers = [...current, ...past];
+
+/**
+ * その選手が「関わった」大会 slug 集合を返す。
+ * 既存の tournaments と新規 tournamentHistory（rebirth を除く）を統合し、
+ * スタッフ・コーチ・トレーナーも含めて大会フィルターに引っかかるようにする。
+ */
+function involvedTournaments(p: Player): Set<TournamentSlug> {
+  const set = new Set<TournamentSlug>();
+  for (const t of p.tournaments ?? []) set.add(t);
+  for (const h of p.tournamentHistory ?? []) {
+    if (h.tournament !== "rebirth") set.add(h.tournament);
+  }
+  return set;
+}
 
 // 現メンバーのポジション別カウント
 const order: Position[] = ["GK", "DF", "MF", "FW"];
@@ -17,12 +37,12 @@ const countByPosition = order.map((pos) => ({
 }));
 
 // 大会別カウント（チップに表示）。
-// 大会フィルターは現メンバー・歴代・スタッフを横断して全出場者を対象にするため、
-// allPlayers を母集合にして数える。
+// 大会フィルターは現メンバー・歴代・スタッフを横断して全関係者を対象にするため、
+// allPlayers ＋ involvedTournaments() を母集合にして数える。
 const tournamentOrder: TournamentSlug[] = ["mexico", "italy", "france", "brazil"];
 const tournamentCount = tournamentOrder.map((t) => ({
   t,
-  count: allPlayers.filter((p) => p.tournaments?.includes(t)).length,
+  count: allPlayers.filter((p) => involvedTournaments(p).has(t)).length,
 }));
 ---
 
@@ -153,7 +173,7 @@ const tournamentCount = tournamentOrder.map((t) => ({
         allPlayers.map((player) => (
           <li
             data-status={player.status}
-            data-tournaments={(player.tournaments ?? []).join(",")}
+            data-tournaments={[...involvedTournaments(player)].join(",")}
           >
             <a
               href={`/players/${player.slug}`}

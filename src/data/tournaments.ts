@@ -5,6 +5,20 @@ export interface TournamentFeature {
   body: string;
 }
 
+/**
+ * 大会のスタッフ・コーチング体制。
+ * playerSlug があれば /players/{slug} へリンク、なければテキスト表示（医師など名鑑外の人物）。
+ */
+export interface StaffRosterEntry {
+  /** 役職名（例：「監督」「1stコーチ」「GKコーチ」「トレーナー」「医師」） */
+  role: string;
+  name: string;
+  /** 表示後ろに付ける補足（例：「途中まで選手#8」「（GOD）」） */
+  noteSuffix?: string;
+  /** 選手名鑑にレコードがある場合の slug */
+  playerSlug?: string;
+}
+
 export interface DetailItem {
   /** サブ見出し（省略時は本文のみのブロック） */
   title?: string;
@@ -48,6 +62,8 @@ export interface Tournament {
   feature?: TournamentFeature;
   /** 個別ページのリッチ本文。未定義の大会は /tournaments/{urlSlug} を生成しない */
   detail?: TournamentDetail;
+  /** その大会のコーチング・スタッフ体制 */
+  staffRoster?: StaffRosterEntry[];
 }
 
 export const tournaments: Tournament[] = [
@@ -220,6 +236,13 @@ export const tournaments: Tournament[] = [
         },
       ],
     },
+    staffRoster: [
+      { role: "プレジデント", name: "加藤純一" },
+      { role: "1stコーチ", name: "乾達朗", playerSlug: "inui" },
+      { role: "2ndコーチ", name: "増田丈偉", playerSlug: "masuda" },
+      { role: "GKコーチ", name: "柴田涼太郎", playerSlug: "shibata" },
+      { role: "トレーナー", name: "金原知希", playerSlug: "kanehara" },
+    ],
   },
   {
     slug: "italy",
@@ -328,6 +351,16 @@ export const tournaments: Tournament[] = [
         },
       ],
     },
+    staffRoster: [
+      { role: "プレジデント", name: "加藤純一" },
+      { role: "監督", name: "中井健介", playerSlug: "nakai" },
+      {
+        role: "トレーナー",
+        name: "渡邉康隆",
+        noteSuffix: "（GOD）",
+        playerSlug: "watanabe",
+      },
+    ],
   },
   {
     slug: "france",
@@ -463,6 +496,29 @@ export const tournaments: Tournament[] = [
         },
       ],
     },
+    staffRoster: [
+      { role: "プレジデント", name: "加藤純一" },
+      {
+        role: "アドバイザー",
+        name: "柿谷曜一朗",
+        noteSuffix: "（途中まで選手#8）",
+        playerSlug: "kakitani",
+      },
+      { role: "監督", name: "中井健介", playerSlug: "nakai" },
+      { role: "コーチ", name: "山田樹", playerSlug: "yamada" },
+      {
+        role: "チームスタッフ",
+        name: "金武航二朗",
+        playerSlug: "kanetake",
+      },
+      { role: "医師", name: "丸子誉士宏" },
+      {
+        role: "トレーナー",
+        name: "渡邉康隆",
+        noteSuffix: "（GOD）",
+        playerSlug: "watanabe",
+      },
+    ],
   },
   {
     slug: "brazil",
@@ -616,6 +672,16 @@ export const tournaments: Tournament[] = [
         },
       ],
     },
+    staffRoster: [
+      { role: "プレジデント", name: "加藤純一" },
+      {
+        role: "強化責任者",
+        name: "柿谷曜一朗",
+        playerSlug: "kakitani",
+      },
+      { role: "監督", name: "中村駿介", playerSlug: "nakamura" },
+      { role: "トレーナー", name: "遠藤浩隆", playerSlug: "endo" },
+    ],
   },
 ];
 

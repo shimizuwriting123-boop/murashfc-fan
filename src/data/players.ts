@@ -3,16 +3,48 @@ export type PlayerStatus = "confirmed" | "pending" | "past" | "staff";
 export type TournamentSlug = "mexico" | "italy" | "france" | "brazil";
 export type DominantFoot = "right" | "left" | "both";
 
+/** 大会フェーズ。4大会 + 再スタート編（新体制）。 */
+export type ParticipationPhase = TournamentSlug | "rebirth";
+
+/** 大会ごとの参加形態。 */
+export type PlayerRole =
+  | "player"
+  | "manager"
+  | "coach"
+  | "trainer"
+  | "advisor"
+  | "staff"
+  | "president";
+
+export interface TournamentParticipation {
+  /** 4大会 + 新体制（rebirth）のいずれか */
+  tournament: ParticipationPhase;
+  role: PlayerRole;
+  /** 補助情報。例：「1st Coach」「GK Coach」「強化責任者」「ダブルオーナー」「レベナンツ監督」「選手復帰（背番号未定）」など */
+  subRole?: string;
+  /** 背番号（選手のみ） */
+  jerseyNumber?: number;
+  /** ポジション（選手のみ。大会ごとに変わる場合があるためここに保持） */
+  position?: Position;
+}
+
 export interface Player {
   slug: string;
   name: string;
   nameEn: string;
+  /** ふりがな（あれば） */
+  nameKana?: string;
   position: Position;
   /** 過去メンバーは背番号なし */
   number?: number;
   status: PlayerStatus;
-  /** 出場した大会の slug 配列 */
+  /**
+   * 出場した大会の slug 配列（後方互換のため維持）。
+   * 詳細表示は tournamentHistory を優先するが、フィルター・既存リストは tournaments を使う。
+   */
   tournaments?: TournamentSlug[];
+  /** 大会ごとの詳細な参加履歴（役割・背番号・ポジション変動） */
+  tournamentHistory?: TournamentParticipation[];
   nickname?: string;
   birthdate?: string;
   height?: string;
@@ -28,7 +60,7 @@ export interface Player {
   playerMessage?: string;
   instagramUrl?: string;
   xUrl?: string;
-  /** スタッフ用の役職（監督 / コーチ / マネージャー など）。staff バッジに表示される */
+  /** スタッフ用の現在の役職（監督 / コーチ / マネージャー など）。staff バッジに表示される */
   role?: string;
   /**
    * 公式サイトではなく、本人公開情報・各クラブ公式発表・Wikipedia 等から
@@ -36,6 +68,35 @@ export interface Player {
    */
   researchedProfile?: boolean;
 }
+
+/** PlayerRole → 表示用ラベル */
+export const ROLE_LABEL: Record<PlayerRole, string> = {
+  player: "選手",
+  manager: "監督",
+  coach: "コーチ",
+  trainer: "トレーナー",
+  advisor: "アドバイザー",
+  staff: "スタッフ",
+  president: "プレジデント",
+};
+
+/** ParticipationPhase → 短い表示ラベル */
+export const PHASE_SHORT_LABEL: Record<ParticipationPhase, string> = {
+  mexico: "メキシコ",
+  italy: "イタリア",
+  france: "フランス",
+  brazil: "ブラジル",
+  rebirth: "新体制",
+};
+
+/** ParticipationPhase → フル表示ラベル */
+export const PHASE_FULL_LABEL: Record<ParticipationPhase, string> = {
+  mexico: "第1回 メキシコ大会（2024年5〜6月）",
+  italy: "第2回 イタリア大会（2025年1月）",
+  france: "第3回 フランス大会（2025年6月）",
+  brazil: "第4回 ブラジル大会（2026年1月）",
+  rebirth: "再スタート編・新体制（2026年〜）",
+};
 
 export const players: Player[] = [
   // ============================================================
@@ -133,6 +194,9 @@ export const players: Player[] = [
     playerMessage:
       "箱﨑裕也です！新たに発足するチームで皆さんとコミュニケーションをいっぱい取っていきたいと思っています。今まで築き上げてこられたムラッシュFCの歴史をより良くできるように、世界一だけを目指して魂で闘います。よろしくお願いします。",
     instagramUrl: "https://instagram.com/yuya.hakozaki",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 8 },
+    ],
   },
   {
     slug: "nakamura",
@@ -140,8 +204,15 @@ export const players: Player[] = [
     nameEn: "NAKAMURA",
     position: "MF",
     number: 5,
-    status: "pending",
+    status: "confirmed",
     tournaments: ["italy", "france", "brazil"],
+    nickname: "なかしゅん",
+    tournamentHistory: [
+      { tournament: "italy", role: "player", position: "MF", jerseyNumber: 74 },
+      { tournament: "france", role: "player", position: "MF", jerseyNumber: 14 },
+      { tournament: "brazil", role: "manager", subRole: "監督" },
+      { tournament: "rebirth", role: "player", subRole: "選手復帰（背番号未定）" },
+    ],
   },
   {
     slug: "agata",
@@ -167,6 +238,11 @@ export const players: Player[] = [
       "背負った相手に対しての守備の強度が高い。落ち着いてボールを持てる、パスもできる。前もできる。",
     playerMessage: "勝とう",
     instagramUrl: "https://instagram.com/shohei_agata",
+    tournamentHistory: [
+      { tournament: "italy", role: "player", position: "MF", jerseyNumber: 7 },
+      { tournament: "france", role: "player", position: "FW", jerseyNumber: 5 },
+      { tournament: "brazil", role: "player", position: "DF", jerseyNumber: 6 },
+    ],
   },
   {
     slug: "yokoyama",
@@ -194,6 +270,9 @@ export const players: Player[] = [
     playerMessage:
       "初めまして、コウガです。見た目はちょっとあれですがめちゃめちゃ気さくなんで仲良くして下さい。皆さんと世界一獲れる様にチームの為にガンガン走って闘うんでよろしくお願いします",
     instagramUrl: "https://instagram.com/kouga_960526",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "DF", jerseyNumber: 7 },
+    ],
   },
   {
     slug: "umezu",
@@ -219,6 +298,9 @@ export const players: Player[] = [
     playerMessage:
       "はじめまして！梅津怜央です。へいへい、漢の分も魂燃やして必死こいて頑張ります。よろしくお願いします！",
     instagramUrl: "https://instagram.com/reeo1107",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "FW", jerseyNumber: 14 },
+    ],
   },
   {
     slug: "oda",
@@ -226,8 +308,13 @@ export const players: Player[] = [
     nameEn: "ODA",
     position: "MF",
     number: 9,
-    status: "pending",
+    status: "confirmed",
     tournaments: ["mexico", "italy", "france"],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "MF", jerseyNumber: 8 },
+      { tournament: "italy", role: "player", position: "MF", jerseyNumber: 8 },
+      { tournament: "france", role: "player", position: "DF", jerseyNumber: 6 },
+    ],
   },
   {
     slug: "egawa",
@@ -285,6 +372,10 @@ export const players: Player[] = [
       "MURASHファミリー全員でキングスリーグを盛り上げていきましょう！僕も世界一を掴むために全力でチームに貢献します！よろしくお願いします！",
     instagramUrl: "https://instagram.com/toshiya2003",
     xUrl: "https://x.com/tosiya58",
+    tournamentHistory: [
+      { tournament: "france", role: "player", position: "FW", jerseyNumber: 12 },
+      { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 10 },
+    ],
   },
   {
     slug: "hayashida",
@@ -331,6 +422,9 @@ export const players: Player[] = [
       "なかしゅんが連れてきた、無名枠。左足のシュートが武器で、シュートレンジ（シュートが決めれる範囲）が広い。",
     instagramUrl: "https://instagram.com/keisukeshige0901",
     xUrl: "https://x.com/Shigesuke0901",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 74 },
+    ],
   },
   {
     slug: "tanida",
@@ -375,6 +469,11 @@ export const players: Player[] = [
     ],
     feature:
       "「日本の壁」と称される絶対的GK。第1回メキシコ大会MVP受賞。第2回イタリア大会では日本代表キャプテン。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "GK", jerseyNumber: 1 },
+      { tournament: "italy", role: "player", position: "GK", jerseyNumber: 1 },
+      { tournament: "france", role: "player", position: "GK", jerseyNumber: 1 },
+    ],
   },
 
   // ============================================================
@@ -385,11 +484,16 @@ export const players: Player[] = [
     slug: "nasu",
     name: "那須大亮",
     nameEn: "NASU",
-    position: "MF",
+    nameKana: "なすだいすけ",
+    position: "DF",
     status: "past",
     tournaments: ["mexico"],
     nickname: "監督役",
     career: ["元Jリーガー（横浜FM・浦和レッズ）", "元U-23日本代表DF"],
+    feature: "元日本代表DF。複数のJリーグクラブで活躍したベテラン。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "DF", jerseyNumber: 4 },
+    ],
   },
   {
     slug: "kanetake",
@@ -397,26 +501,39 @@ export const players: Player[] = [
     nameEn: "KANETAKE",
     position: "DF",
     status: "past",
-    tournaments: ["mexico", "italy"],
+    tournaments: ["mexico", "italy", "france"],
     nickname: "こじろう／こーじろう",
     feature:
-      "メキシコ大会のヘイトタンク。USスチール戦で神シュートを決めて会場を沸かせた。",
+      "メキシコ大会のヘイトタンク。USスチール戦で神シュートを決めて会場を沸かせた。フランス大会ではチームスタッフとして帯同。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "DF", jerseyNumber: 10 },
+      { tournament: "italy", role: "player", position: "DF", jerseyNumber: 10 },
+      { tournament: "france", role: "staff", subRole: "チームスタッフ" },
+    ],
   },
   {
     slug: "nuno",
     name: "布尾航誠",
     nameEn: "NUNO",
+    nameKana: "ぬのおこうせい",
     position: "DF",
     status: "past",
     tournaments: ["mexico"],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "DF", jerseyNumber: 13 },
+    ],
   },
   {
     slug: "kiyokawa",
     name: "清川大輝",
     nameEn: "KIYOKAWA",
+    nameKana: "きよかわだいき",
     position: "MF",
     status: "past",
     tournaments: ["mexico"],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "MF", jerseyNumber: 7 },
+    ],
   },
   {
     slug: "enjo",
@@ -432,30 +549,47 @@ export const players: Player[] = [
       "WINNER'S",
       "プラムワン（ソサイチ日本代表）",
     ],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "MF", jerseyNumber: 5 },
+      { tournament: "italy", role: "player", position: "MF", jerseyNumber: 26 },
+      { tournament: "france", role: "player", position: "FW", jerseyNumber: 7 },
+    ],
   },
   {
     slug: "waragai",
     name: "藁谷尚紀",
     nameEn: "WARAGAI",
+    nameKana: "わらがいなおき",
     position: "MF",
     status: "past",
     tournaments: ["mexico"],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "MF", jerseyNumber: 11 },
+    ],
   },
   {
     slug: "kobayashi",
     name: "小林謙太",
     nameEn: "KOBAYASHI",
+    nameKana: "こばやしけんた",
     position: "FW",
     status: "past",
     tournaments: ["mexico"],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "FW", jerseyNumber: 9 },
+    ],
   },
   {
     slug: "hirai",
     name: "平井達也",
     nameEn: "HIRAI",
+    nameKana: "ひらいたつや",
     position: "FW",
     status: "past",
     tournaments: ["mexico"],
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "FW", jerseyNumber: 16 },
+    ],
   },
   {
     slug: "morihasu",
@@ -466,17 +600,28 @@ export const players: Player[] = [
     tournaments: ["mexico", "italy", "france"],
     feature:
       "サンフレッチェ広島ユース・元カマタマーレ讃岐。フランス大会でキャプテンに就任。日本代表森保一監督の長男。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "MF", jerseyNumber: 17 },
+      { tournament: "italy", role: "player", position: "MF", jerseyNumber: 17 },
+      { tournament: "france", role: "player", position: "DF", jerseyNumber: 3 },
+    ],
   },
   {
     slug: "yamada",
     name: "山田樹",
     nameEn: "YAMADA",
+    nameKana: "やまだいつき",
     position: "DF",
     status: "past",
-    tournaments: ["mexico", "italy"],
+    tournaments: ["mexico", "italy", "france"],
     nickname: "いつき",
     feature:
       "元ソサイチ日本代表、プラムワン所属、元ブラウブリッツ秋田。フランス大会ではコーチに就任。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "DF", jerseyNumber: 14 },
+      { tournament: "italy", role: "player", position: "DF", jerseyNumber: 14 },
+      { tournament: "france", role: "coach", subRole: "コーチ" },
+    ],
   },
   {
     slug: "yuseiNarita",
@@ -498,6 +643,11 @@ export const players: Player[] = [
       "品川CC",
     ],
     kakitaniComment: "左足のキック力、ビルドアップ能力",
+    tournamentHistory: [
+      { tournament: "mexico", role: "player", position: "GK", jerseyNumber: 29 },
+      { tournament: "italy", role: "player", position: "GK", jerseyNumber: 22 },
+      { tournament: "brazil", role: "player", position: "GK", jerseyNumber: 29 },
+    ],
   },
 
   // ----- イタリア大会出場者 -----
@@ -505,40 +655,56 @@ export const players: Player[] = [
     slug: "umetani",
     name: "梅谷堅人",
     nameEn: "UMETANI",
+    nameKana: "うめたにけんと",
     position: "DF",
     status: "past",
     tournaments: ["italy"],
     nickname: "梅ちゃん",
     feature: "元ソサイチ日本代表、プラムワン発起人。",
+    tournamentHistory: [
+      { tournament: "italy", role: "player", position: "DF", jerseyNumber: 2 },
+    ],
   },
   {
     slug: "kishimoto",
     name: "岸本青空",
     nameEn: "KISHIMOTO",
+    nameKana: "きしもとそら",
     position: "MF",
     status: "past",
     tournaments: ["italy"],
     nickname: "あおぞら",
     feature:
       "スペインキングスリーガー（Rayo de Barcelona所属）。青髪がトレードマーク。",
+    tournamentHistory: [
+      { tournament: "italy", role: "player", position: "MF", jerseyNumber: 18 },
+    ],
   },
   {
     slug: "fukuhara",
     name: "福原涼太",
     nameEn: "FUKUHARA",
+    nameKana: "ふくはらりょうた",
     position: "FW",
     status: "past",
     tournaments: ["italy"],
+    tournamentHistory: [
+      { tournament: "italy", role: "player", position: "FW", jerseyNumber: 9 },
+    ],
   },
   {
     slug: "nakagawa",
     name: "中川貴晴",
     nameEn: "NAKAGAWA",
+    nameKana: "なかがわたかはる",
     position: "FW",
     status: "past",
     tournaments: ["italy"],
     nickname: "たか",
     feature: "元ソサイチ日本代表、LFYR SC。",
+    tournamentHistory: [
+      { tournament: "italy", role: "player", position: "FW", jerseyNumber: 19 },
+    ],
   },
 
   // ----- フランス大会出場者 -----
@@ -567,23 +733,37 @@ export const players: Player[] = [
     playerMessage:
       "日本代表するチームとして誇りとプライドを胸に闘いたいと思います。宜しく御願いいたします。",
     instagramUrl: "https://instagram.com/rikiya_narita",
+    tournamentHistory: [
+      { tournament: "france", role: "player", position: "GK", jerseyNumber: 13 },
+      { tournament: "brazil", role: "player", position: "GK", jerseyNumber: 1 },
+    ],
   },
   {
     slug: "masuda",
     name: "増田丈偉",
     nameEn: "MASUDA",
+    nameKana: "ますだじょうい",
     position: "DF",
     status: "past",
-    tournaments: ["france"],
-    feature: "メキシコ大会ではコーチとして帯同。",
+    tournaments: ["mexico", "france"],
+    feature:
+      "メキシコ大会では2ndコーチ、フランス大会では選手として出場というユニークな経歴。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "coach", subRole: "2nd Coach" },
+      { tournament: "france", role: "player", position: "DF", jerseyNumber: 2 },
+    ],
   },
   {
     slug: "tamura",
     name: "田村佳翔",
     nameEn: "TAMURA",
+    nameKana: "たむらけいしょう",
     position: "MF",
     status: "past",
     tournaments: ["france"],
+    tournamentHistory: [
+      { tournament: "france", role: "player", position: "MF", jerseyNumber: 4 },
+    ],
   },
   {
     slug: "sugimoto",
@@ -594,6 +774,9 @@ export const players: Player[] = [
     tournaments: ["france"],
     feature:
       "元Jリーガー（東京ヴェルディ・FC町田ゼルビア・名古屋グランパス・徳島ヴォルティス・横浜FM・横浜FC・ザスパ群馬）。宮島事件の主人公。",
+    tournamentHistory: [
+      { tournament: "france", role: "player", position: "MF", jerseyNumber: 11 },
+    ],
   },
   {
     slug: "hamamoto",
@@ -621,25 +804,45 @@ export const players: Player[] = [
       "よろしくお願いします！キングスを盛り上げていろんな人にもっと知ってもらいたいです。勝ちましょう！！",
     instagramUrl: "https://instagram.com/ka5zu3ki0",
     xUrl: "https://x.com/ka5zu3ki0",
+    tournamentHistory: [
+      { tournament: "france", role: "player", position: "FW", jerseyNumber: 9 },
+      { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 9 },
+    ],
   },
   {
     slug: "ujihashi",
     name: "氏橋寛",
     nameEn: "UJIHASHI",
+    nameKana: "うじはしひろし",
     position: "FW",
     status: "past",
     tournaments: ["france"],
     feature: "フランス大会で柿谷の代替として、トライアウト参加者から選出。",
+    tournamentHistory: [
+      { tournament: "france", role: "player", position: "FW", jerseyNumber: 15 },
+    ],
   },
   {
     slug: "kakitani",
     name: "柿谷曜一朗",
     nameEn: "KAKITANI",
     position: "FW",
-    status: "past",
-    tournaments: ["france"],
+    status: "staff",
+    tournaments: ["france", "brazil"],
+    role: "ダブルオーナー",
     feature:
       "元日本代表FW（2014年ワールドカップ出場）。セレッソ大阪・徳島ヴォルティス・名古屋グランパス。MURASH FCにフランス大会で参加予定だったが、アキレス腱痛再発でアドバイザーに変更、日本から帯同せずサポート。再スタート編からはダブルオーナーに昇格し、加藤純一と並んでチームを率いる。",
+    tournamentHistory: [
+      {
+        tournament: "france",
+        role: "player",
+        position: "FW",
+        jerseyNumber: 8,
+        subRole: "途中でアドバイザーに転身",
+      },
+      { tournament: "brazil", role: "advisor", subRole: "強化責任者" },
+      { tournament: "rebirth", role: "president", subRole: "ダブルオーナー" },
+    ],
   },
 
   // ----- ブラジル大会出場者 -----
@@ -665,6 +868,10 @@ export const players: Player[] = [
       "Jの複数クラブとスペインのチームを経験した、プロを知るベテラン。浦和レッズユースではなかしゅんの1つ上の先輩。",
     instagramUrl: "https://instagram.com/nooooooza24",
     xUrl: "https://x.com/pepyan23",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "DF", jerseyNumber: 83 },
+      { tournament: "rebirth", role: "manager", subRole: "マネージャー" },
+    ],
   },
   {
     slug: "tanabe",
@@ -691,6 +898,9 @@ export const players: Player[] = [
     playerMessage:
       "こんにちは！田邉隆平です！！！チームの勝利のために全力で戦います！！！！よろしくお願いします！！！！！！！！！！",
     instagramUrl: "https://instagram.com/tanachan.gram_1030",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "FW", jerseyNumber: 13 },
+    ],
   },
   {
     slug: "matsumori",
@@ -704,6 +914,9 @@ export const players: Player[] = [
     kakitaniComment:
       "得点能力に長け、強さと賢さを備え、両足も蹴れる。大学生ならではのアグレッシブさもある。チーム内得点王で10番を背負う。",
     instagramUrl: "https://instagram.com/kensei_matsumori",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "FW", jerseyNumber: 46 },
+    ],
   },
   {
     slug: "pablo",
@@ -728,6 +941,9 @@ export const players: Player[] = [
       "攻撃の1vs1の強さがありスピードもある。ズラした後の左足のシュートもパンチがある。",
     playerMessage: "三浦パブロです！キングスリーグ世界一位を取りに行きます！！",
     instagramUrl: "https://instagram.com/pablomiura_p7",
+    tournamentHistory: [
+      { tournament: "brazil", role: "player", position: "FW", jerseyNumber: 77 },
+    ],
   },
 
   // ============================================================
@@ -762,6 +978,9 @@ export const players: Player[] = [
     feature:
       "左足からの高精度クロスとフリーキックを武器とする元日本代表DF。2014年・2015年にJリーグベストイレブンを受賞、日本代表として国際Aマッチ7試合に出場した実績を持つ。座右の銘は「自信と過信は紙一重」── これは横浜FC退団時に三浦淳寛から贈られた言葉。プロデビュー戦では経験のない右サイドバックで出場し、極度の緊張に襲われたという逸話も。2023年限りで現役を引退し、2026年よりムラッシュFCの新監督に就任。",
     researchedProfile: true,
+    tournamentHistory: [
+      { tournament: "rebirth", role: "manager", subRole: "監督" },
+    ],
   },
   {
     slug: "hasegawa",
@@ -793,6 +1012,91 @@ export const players: Player[] = [
     feature:
       "J1リーグ通算251試合17得点を記録した元日本代表MF。イラン人の父と日本人の母を持つハーフで、186cmの長身から繰り出される的確なパスとビルドアップが武器。FC東京時代の2013年9月にはJリーグ月間MVPを受賞、2012年には日本代表にも選出された（出場なし）。妻は元グラビアアイドルの滝川綾（モーニング娘。の生田衣梨奈のいとこ）。ランコ・ポポヴィッチ監督の下でFC東京・C大阪・サラゴサ・町田の4クラブを共にし、戦術を体現する選手として絶大な信頼を獲得していた。2026年よりムラッシュFCの新コーチに就任。",
     researchedProfile: true,
+    tournamentHistory: [{ tournament: "rebirth", role: "coach", subRole: "コーチ" }],
+  },
+
+  // ----- 各大会のスタッフ（コーチ・トレーナー） -----
+  {
+    slug: "inui",
+    name: "乾達朗",
+    nameEn: "INUI",
+    nameKana: "いぬいたつろう",
+    position: "MF",
+    status: "staff",
+    tournaments: ["mexico"],
+    role: "コーチ",
+    feature: "メキシコ大会1stコーチ。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "coach", subRole: "1st Coach" },
+    ],
+  },
+  {
+    slug: "shibata",
+    name: "柴田涼太郎",
+    nameEn: "SHIBATA",
+    nameKana: "しばたりょうたろう",
+    position: "GK",
+    status: "staff",
+    tournaments: ["mexico"],
+    role: "GKコーチ",
+    feature: "メキシコ大会GKコーチ。",
+    tournamentHistory: [
+      { tournament: "mexico", role: "coach", subRole: "GK Coach" },
+    ],
+  },
+  {
+    slug: "kanehara",
+    name: "金原知希",
+    nameEn: "KANEHARA",
+    nameKana: "かねはらともき",
+    position: "MF",
+    status: "staff",
+    tournaments: ["mexico"],
+    role: "トレーナー",
+    tournamentHistory: [{ tournament: "mexico", role: "trainer" }],
+  },
+  {
+    slug: "watanabe",
+    name: "渡邉康隆",
+    nameEn: "WATANABE",
+    nameKana: "わたなべやすたか",
+    position: "MF",
+    status: "staff",
+    tournaments: ["italy", "france"],
+    nickname: "GOD",
+    role: "トレーナー",
+    tournamentHistory: [
+      { tournament: "italy", role: "trainer" },
+      { tournament: "france", role: "trainer" },
+    ],
+  },
+  {
+    slug: "endo",
+    name: "遠藤浩隆",
+    nameEn: "ENDO",
+    nameKana: "えんどうひろたか",
+    position: "MF",
+    status: "staff",
+    tournaments: ["brazil"],
+    role: "トレーナー",
+    tournamentHistory: [{ tournament: "brazil", role: "trainer" }],
+  },
+  {
+    slug: "nakai",
+    name: "中井健介",
+    nameEn: "NAKAI",
+    nameKana: "なかいけんすけ",
+    position: "MF",
+    status: "staff",
+    tournaments: ["italy", "france"],
+    role: "前監督",
+    feature:
+      "第2回イタリア大会・第3回フランス大会で監督を務めた。再スタート編では落選メンバーを率いる「レベナンツ（Revenants：亡霊たち）」の監督として、最終セレクションで新生ムラッシュFCと激突した。",
+    tournamentHistory: [
+      { tournament: "italy", role: "manager", subRole: "監督" },
+      { tournament: "france", role: "manager", subRole: "監督" },
+      { tournament: "rebirth", role: "manager", subRole: "レベナンツ監督" },
+    ],
   },
 ];
 

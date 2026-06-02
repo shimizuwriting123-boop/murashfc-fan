@@ -2,6 +2,8 @@
 import Layout from "../../layouts/Layout.astro";
 import {
   players,
+  PHASE_SHORT_LABEL,
+  ROLE_LABEL,
   TOURNAMENTS,
   type DominantFoot,
   type Player,
@@ -62,6 +64,9 @@ const hasMessage = !!player.playerMessage;
 const hasFeature =
   !!player.feature && player.feature !== player.kakitaniComment;
 const hasTournaments = !!(player.tournaments && player.tournaments.length > 0);
+const hasHistory = !!(
+  player.tournamentHistory && player.tournamentHistory.length > 0
+);
 const hasSocial = !!(player.instagramUrl || player.xUrl);
 // 公式サイトから引用したフィールドが含まれているか
 const hasOfficialData = hasKakitani || hasMessage || hasSocial;
@@ -177,9 +182,67 @@ const showPendingNote =
       </dl>
     </section>
 
-    <!-- 出場大会 -->
+    {/* 大会別の役割・背番号（tournamentHistory がある場合はテーブル、なければ従来の出場大会一覧） */}
     {
-      hasTournaments && (
+      hasHistory ? (
+        <section class="mt-12">
+          <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+            大会別の役割・背番号
+          </h2>
+          <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+          <div class="mt-5 overflow-hidden rounded-md border border-white/10">
+            <table class="w-full border-collapse text-left text-sm sm:text-base">
+              <thead class="bg-murash-charcoal text-xs font-semibold tracking-wider text-white/50 sm:text-sm">
+                <tr>
+                  <th class="px-4 py-3 font-display font-bold">大会</th>
+                  <th class="px-4 py-3 font-display font-bold">役割</th>
+                  <th class="px-4 py-3 text-right font-display font-bold">背番号</th>
+                </tr>
+              </thead>
+              <tbody>
+                {player.tournamentHistory!.map((h) => {
+                  const isTournament = h.tournament !== "rebirth";
+                  const roleText = h.subRole ?? ROLE_LABEL[h.role];
+                  const fullRole = h.position
+                    ? `${roleText}（${h.position}）`
+                    : roleText;
+                  const phaseLabel = PHASE_SHORT_LABEL[h.tournament];
+                  const linkHref = isTournament
+                    ? `/tournaments/${
+                        h.tournament === "mexico"
+                          ? "mexico-2024"
+                          : h.tournament === "italy"
+                            ? "italy-2025"
+                            : h.tournament === "france"
+                              ? "france-2025"
+                              : "brazil-2026"
+                      }`
+                    : "/rebirth";
+                  return (
+                    <tr class="border-t border-white/10 transition-colors hover:bg-white/[0.03]">
+                      <td class="px-4 py-3 align-middle">
+                        <a
+                          href={linkHref}
+                          class="inline-flex items-center gap-2 font-display font-bold tracking-tight text-white hover:text-murash-red"
+                        >
+                          {isTournament ? `${phaseLabel}大会` : "再スタート編"}
+                          <span aria-hidden="true" class="text-murash-red">
+                            →
+                          </span>
+                        </a>
+                      </td>
+                      <td class="px-4 py-3 align-middle text-[#e5e5e5]">{fullRole}</td>
+                      <td class="px-4 py-3 text-right align-middle font-display font-semibold text-white/80">
+                        {h.jerseyNumber !== undefined ? `#${h.jerseyNumber}` : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : hasTournaments ? (
         <section class="mt-12">
           <h2 class="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
             出場大会
@@ -214,7 +277,7 @@ const showPendingNote =
             })}
           </ul>
         </section>
-      )
+      ) : null
     }
 
     <!-- 経歴 -->
