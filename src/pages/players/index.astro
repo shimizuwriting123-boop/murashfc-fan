@@ -8,15 +8,25 @@ import {
   type TournamentSlug,
 } from "../../data/players";
 
-// 全選手を一つのグリッドに描画：現メンバー（背番号順）→ 歴代メンバー＆スタッフ（データ定義順）
-const current = players
-  .filter((p) => p.status === "confirmed" || p.status === "pending")
-  .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
-const past = players.filter((p) => p.status === "past" || p.status === "staff");
-const allPlayers = [...current, ...past];
+/**
+ * 「現メンバー」判定：新生16名（confirmed）＋ 新体制スタッフ（staff かつ rebirth に
+ * 参加しており、レベナンツ等の外部チーム役職ではない人物）。
+ * 中井健介（status="staff" だが rebirth role が「レベナンツ監督」）は past 扱いになる。
+ */
+function isCurrentMember(p: Player): boolean {
+  if (p.status === "confirmed") return true;
+  if (p.status === "staff") {
+    const rebirth = p.tournamentHistory?.find((h) => h.tournament === "rebirth");
+    if (!rebirth) return false;
+    // レベナンツは敵対チーム、新生ムラッシュFCの一員ではない
+    if (rebirth.subRole?.includes("レベナンツ")) return false;
+    return true;
+  }
+  return false;
+}
 
 /**
- * その選手が「関わった」大会 slug 集合を返す。
+ * その選手が「関わった」大会 slug 集合を返す（大会フィルター用）。
  * 既存の tournaments と新規 tournamentHistory（rebirth を除く）を統合し、
  * スタッフ・コーチ・トレーナーも含めて大会フィルターに引っかかるようにする。
  */
@@ -29,21 +39,46 @@ function involvedTournaments(p: Player): Set<TournamentSlug> {
   return set;
 }
 
-// 現メンバーのポジション別カウント
-const order: Position[] = ["GK", "DF", "MF", "FW"];
-const countByPosition = order.map((pos) => ({
+// 現メンバー（選手＝confirmed、スタッフ＝rebirth参加）と歴代に分類
+const currentMembers = players.filter(isCurrentMember);
+const pastMembers = players.filter((p) => !isCurrentMember(p));
+
+// 現メンバー：選手（背番号順）
+const currentPlayers = currentMembers
+  .filter((p) => p.status === "confirmed")
+  .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+
+// 現メンバー：スタッフ（重要度順：ダブルオーナー → 監督 → コーチ → マネージャー）
+const STAFF_ROLE_ORDER = ["ダブルオーナー", "監督", "コーチ", "マネージャー"];
+const staffOrderIndex = (role?: string): number => {
+  if (!role) return 99;
+  const i = STAFF_ROLE_ORDER.indexOf(role);
+  return i === -1 ? 99 : i;
+};
+const currentStaff = currentMembers
+  .filter((p) => p.status === "staff")
+  .sort((a, b) => staffOrderIndex(a.role) - staffOrderIndex(b.role));
+
+// 大会フィルター用の全体集合（現メンバー → 歴代の順）
+const allPlayersSorted = [...currentMembers, ...pastMembers];
+
+// 選手セクション用のポジション別カウント（スタッフは除外）
+const positionOrder: Position[] = ["GK", "DF", "MF", "FW"];
+const countByPosition = positionOrder.map((pos) => ({
   pos,
-  count: current.filter((p) => p.position === pos).length,
+  count: currentPlayers.filter((p) => p.position === pos).length,
 }));
 
-// 大会別カウント（チップに表示）。
-// 大会フィルターは現メンバー・歴代・スタッフを横断して全関係者を対象にするため、
-// allPlayers ＋ involvedTournaments() を母集合にして数える。
+// 大会別カウント（チップに表示）。allPlayersSorted から involvedTournaments() で算出
 const tournamentOrder: TournamentSlug[] = ["mexico", "italy", "france", "brazil"];
 const tournamentCount = tournamentOrder.map((t) => ({
   t,
-  count: allPlayers.filter((p) => involvedTournaments(p).has(t)).length,
+  count: allPlayersSorted.filter((p) => involvedTournaments(p).has(t)).length,
 }));
+
+// タブラベル件数
+const currentTotal = currentMembers.length; // 20
+const pastTotal = pastMembers.length; // 30
 ---
 
 <Layout
@@ -63,7 +98,7 @@ const tournamentCount = tournamentOrder.map((t) => ({
         選手名鑑
       </h1>
       <p class="mt-4 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
-        ムラッシュFCの現メンバー {current.length} 名と、これまでチームを支えた歴代メンバー {past.length}
+        ムラッシュFCの現メンバー {currentTotal} 名と、これまでチームを支えた歴代メンバー・スタッフ {pastTotal}
          名をまとめています。
       </p>
     </div>
@@ -108,7 +143,7 @@ const tournamentCount = tournamentOrder.map((t) => ({
           aria-selected="true"
           class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
         >
-          現メンバー（{current.length}名）
+          現メンバー（{currentTotal}名）
         </button>
         <button
           type="button"
@@ -117,11 +152,11 @@ const tournamentCount = tournamentOrder.map((t) => ({
           aria-selected="false"
           class="tab-btn rounded-sm border border-white/10 bg-white/5 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white/70 transition-colors hover:text-white"
         >
-          歴代メンバー・スタッフ（{past.length}名）
+          歴代メンバー・スタッフ（{pastTotal}名）
         </button>
       </div>
 
-      <!-- 現メンバータブ用：ポジション別サマリー -->
+      <!-- 現メンバータブ用：ポジション別サマリー（選手セクションのカウントのみ） -->
       <div id="current-toolbar" class="mt-8 flex flex-wrap gap-3">
         {
           countByPosition.map(({ pos, count }) => (
@@ -148,7 +183,7 @@ const tournamentCount = tournamentOrder.map((t) => ({
             class="filter-btn inline-flex items-center gap-1.5 rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 font-display text-xs font-semibold tracking-wide text-white/60 transition-colors hover:text-white"
           >
             すべて
-            <span class="text-white/40">{past.length}</span>
+            <span class="text-white/40">{pastTotal}</span>
           </button>
           {
             tournamentCount.map(({ t, count }) => (
@@ -167,12 +202,112 @@ const tournamentCount = tournamentOrder.map((t) => ({
       </div>
     </div>
 
-    <!-- 単一のグリッド（全42名。JSで個別 li.hidden を制御） -->
-    <ul id="player-grid" class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+    <!-- ============ 現メンバーモード：選手 + スタッフの2セクション構成 ============ -->
+    <div id="current-mode">
+      <!-- 選手セクション -->
+      <section class="mt-10">
+        <h2 class="flex items-center gap-3 font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+          <span aria-hidden="true" class="text-2xl">⚽</span>
+          選手
+          <span class="font-display text-sm font-semibold text-white/40">{currentPlayers.length}名</span>
+        </h2>
+        <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent"></div>
+        <ul class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {
+            currentPlayers.map((player) => (
+              <li>
+                <a
+                  href={`/players/${player.slug}`}
+                  class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
+                >
+                  {player.number !== undefined && (
+                    <span
+                      aria-hidden="true"
+                      class="pointer-events-none absolute -right-3 -top-5 font-display text-8xl font-bold leading-none text-white/[0.04] transition-colors group-hover:text-murash-red/10"
+                    >
+                      {player.number}
+                    </span>
+                  )}
+                  <div class="relative flex items-center gap-2">
+                    <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                      {player.position}
+                    </span>
+                    {player.number !== undefined && (
+                      <span class="font-display text-xs font-semibold tracking-wider text-white/40">
+                        No.{player.number}
+                      </span>
+                    )}
+                  </div>
+                  <h2 class="relative mt-6 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                    {player.name}
+                  </h2>
+                  <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
+                    詳細を見る
+                    <span
+                      aria-hidden="true"
+                      class="transition-transform group-hover:translate-x-0.5"
+                    >
+                      →
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- スタッフセクション -->
+      <section class="mt-16">
+        <h2 class="flex items-center gap-3 font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+          <span aria-hidden="true" class="text-2xl">🎯</span>
+          コーチング・スタッフ
+          <span class="font-display text-sm font-semibold text-white/40">{currentStaff.length}名</span>
+        </h2>
+        <div class="mt-2 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent"></div>
+        <ul class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {
+            currentStaff.map((player) => (
+              <li>
+                <a
+                  href={`/players/${player.slug}`}
+                  class="group relative flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/50 hover:bg-murash-black"
+                >
+                  <div class="relative flex items-center gap-2">
+                    <span class="rounded-sm bg-murash-red px-2 py-0.5 font-display text-xs font-bold tracking-wide text-white">
+                      {player.position}
+                    </span>
+                    <span class="ml-auto rounded-sm border border-murash-red/40 bg-murash-red/10 px-1.5 py-0.5 text-[10px] font-semibold text-murash-red">
+                      {player.role ?? "スタッフ"}
+                    </span>
+                  </div>
+                  <h2 class="relative mt-6 font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                    {player.name}
+                  </h2>
+                  <span class="relative mt-auto inline-flex items-center gap-1 pt-4 font-display text-xs font-semibold tracking-wide text-white/40 transition-colors group-hover:text-murash-red">
+                    詳細を見る
+                    <span
+                      aria-hidden="true"
+                      class="transition-transform group-hover:translate-x-0.5"
+                    >
+                      →
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+
+    <!-- ============ 歴代モード／大会フィルターモードの単一グリッド ============ -->
+    <ul id="player-grid" class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" hidden>
       {
-        allPlayers.map((player) => (
+        allPlayersSorted.map((player) => (
           <li
             data-status={player.status}
+            data-membership={isCurrentMember(player) ? "current" : "past"}
             data-tournaments={[...involvedTournaments(player)].join(",")}
           >
             <a
@@ -288,6 +423,7 @@ const tournamentCount = tournamentOrder.map((t) => ({
   const filterClear = document.getElementById("filter-clear");
   const currentToolbar = document.getElementById("current-toolbar");
   const pastToolbar = document.getElementById("past-toolbar");
+  const currentMode = document.getElementById("current-mode");
   const grid = document.getElementById("player-grid");
   const empty = document.getElementById("empty-msg");
   const items = grid
@@ -298,7 +434,6 @@ const tournamentCount = tournamentOrder.map((t) => ({
 
   // ステート
   let currentTab: "current" | "past" = "current";
-  let pastFilter = "all";
   // 大会フィルターモードに入る直前のタブ。解除時にここへ戻す。
   let savedTabBeforeFilter: "current" | "past" | null = null;
 
@@ -312,9 +447,11 @@ const tournamentCount = tournamentOrder.map((t) => ({
     const inFilterMode = !!filter && VALID_TOURNAMENTS.includes(filter);
 
     if (inFilterMode && filter) {
-      // フィルターモード
+      // フィルターモード：#current-mode は隠し、#player-grid だけ表示
       if (tabContainer) tabContainer.hidden = true;
       if (filterBanner) filterBanner.hidden = false;
+      if (currentMode) currentMode.hidden = true;
+      if (grid) grid.hidden = false;
       if (filterTitle)
         filterTitle.textContent = `${TOURNAMENT_LABEL[filter]}大会 出場メンバー`;
       let visible = 0;
@@ -333,21 +470,23 @@ const tournamentCount = tournamentOrder.map((t) => ({
       if (currentToolbar) currentToolbar.hidden = currentTab !== "current";
       if (pastToolbar) pastToolbar.hidden = currentTab !== "past";
 
-      let visible = 0;
-      items.forEach((li) => {
-        const isPast = li.dataset.status === "past";
-        let show: boolean;
-        if (currentTab === "current") {
-          show = !isPast;
-        } else {
-          const ts = tournamentsOf(li);
-          const chipMatch = pastFilter === "all" || ts.includes(pastFilter);
-          show = isPast && chipMatch;
-        }
-        li.hidden = !show;
-        if (show) visible++;
-      });
-      if (empty) empty.hidden = visible !== 0;
+      if (currentTab === "current") {
+        // 現メンバーモード：独立した #current-mode（2セクション）を表示、#player-grid は隠す
+        if (currentMode) currentMode.hidden = false;
+        if (grid) grid.hidden = true;
+        if (empty) empty.hidden = true;
+      } else {
+        // 歴代モード：#player-grid から data-membership=past のものだけ表示
+        if (currentMode) currentMode.hidden = true;
+        if (grid) grid.hidden = false;
+        let visible = 0;
+        items.forEach((li) => {
+          const show = li.dataset.membership === "past";
+          li.hidden = !show;
+          if (show) visible++;
+        });
+        if (empty) empty.hidden = visible !== 0;
+      }
     }
   }
 
@@ -364,13 +503,12 @@ const tournamentCount = tournamentOrder.map((t) => ({
 
   // 大会フィルター（歴代タブのチップ）
   // 大会名チップ → URL ?filter=xxx でフィルターモードに遷移し、
-  // 現メンバー・歴代・スタッフを横断したその大会の全出場者を表示する。
+  // 現メンバー・歴代・スタッフを横断したその大会の全関係者を表示する。
   // 「すべて」チップ → 通常のタブモードへ戻す。
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const f = btn.dataset.filter ?? "all";
       if (f === "all" || !VALID_TOURNAMENTS.includes(f)) {
-        pastFilter = "all";
         filterBtns.forEach((b) =>
           b.setAttribute("aria-pressed", String(b === btn)),
         );
@@ -398,7 +536,6 @@ const tournamentCount = tournamentOrder.map((t) => ({
           ),
         );
         if (currentTab === "past") {
-          pastFilter = "all";
           filterBtns.forEach((b) =>
             b.setAttribute(
               "aria-pressed",
