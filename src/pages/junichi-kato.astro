@@ -1,0 +1,495 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { renderRichText } from "../utils/autoLink";
+
+const SELF_URL = "/junichi-kato";
+
+/**
+ * 段落（para）または引用ライン（quote）。
+ * - para: 通常本文。**強調** 記法 + 自動リンク対応。
+ * - quote: 左ボーダー赤＋大きめ明朝の引用ブロック。
+ */
+type Block =
+  | { kind: "para"; text: string }
+  | { kind: "quote"; text: string };
+
+/** 序章・テーマ・結びを統一的に扱うセクション型 */
+interface Section {
+  /** "prologue" | "theme-01"..."theme-06" | "epilogue" 用の id（アンカー） */
+  id: string;
+  /** "PROLOGUE" / "THEME 01" / "EPILOGUE" */
+  enLabel: string;
+  /** "序章" / "熱量" / "結び" など */
+  jpLabel: string;
+  /** Prologue 用のサブタイトル */
+  subtitle?: string;
+  blocks: Block[];
+}
+
+const prologue: Section = {
+  id: "prologue",
+  enLabel: "PROLOGUE",
+  jpLabel: "序章",
+  subtitle: "ピケからの招待、そして衝撃の出会い",
+  blocks: [
+    {
+      kind: "para",
+      text: "加藤純一がキングスリーグに参戦した発端は、スペインの英雄でありサッカーのレジェンドであるジェラール・ピケが立ち上げたこの大会に招待されたことだった。",
+    },
+    {
+      kind: "para",
+      text: "参戦当初は、サッカーにそこまで詳しくない状態からのスタート。「ピケってスペインの英雄らしいんだけど、ちょっとよくわかんない」と本人は語っていた。エンタメ要素のある「バラエティに富んだお祭り的な大会」という印象を持っていた。",
+    },
+    {
+      kind: "para",
+      text: "しかし、第1回メキシコ大会に「ムラッシュFC」として参加すると、その印象は大きく覆される。実際のピッチでは、選手たちが骨を折り、血を流しながらも死に物狂いでプレーしていた。バラエティどころか、ガチの真剣勝負だった。",
+    },
+    {
+      kind: "quote",
+      text: "あくまでもガチの試合の中に、もうちょっとだけエンタメが入っているというニュアンスが正しい",
+    },
+    {
+      kind: "para",
+      text: "エンタメ要素（カードやオーナーPKなど）が試合の勝敗に直結するため、エンタメを担当する側も決していい加減にはやらず真剣に取り組む。今までに感じたことのない異様な空気感に、加藤純一は衝撃を受けた。",
+    },
+    {
+      kind: "para",
+      text: "第1回メキシコ大会は1勝2敗、第2回イタリア大会は「日本代表」として参加するも1勝2敗。通算7連敗という結果を経て、加藤純一の中で「もう二度と負けたくない」という強烈な悔しさと、勝利への執念が芽生えていった。",
+    },
+    {
+      kind: "para",
+      text: "これは、その覚悟と挑戦の物語である。",
+    },
+  ],
+};
+
+const themes: Section[] = [
+  {
+    id: "theme-01",
+    enLabel: "THEME 01",
+    jpLabel: "熱量",
+    blocks: [
+      {
+        kind: "quote",
+        text: "俺が世界で一番熱量が高いオーナーだ",
+      },
+      {
+        kind: "para",
+        text: "加藤純一の活動には、自腹で渡航費などの莫大な経費を支払うほどの投資が伴っている。「ワクワクする衝動を抑えきれない」と語るように、自身の精神、肉体、そしてお金を削りながらこの挑戦に立ち向かっている。",
+      },
+      {
+        kind: "para",
+        text: "選手たちの前で、加藤は断言する。",
+      },
+      {
+        kind: "quote",
+        text: "僕が世界で1番熱量が高いオーナーだと思います",
+      },
+      {
+        kind: "quote",
+        text: "絶対にこの地球上に俺以上にキングスリーグに強い気持ちを持ってるオーナーは存在しない",
+      },
+      {
+        kind: "para",
+        text: "この大会を「負けたら厳しい声が飛んできて次の日帰れと言われるぐらい残酷だが、勝てば向こうではスターのようにメディアに扱われる、凄まじく刺激的で中毒性のあるコンテンツ」と評する。その世界に、加藤純一は完全に取り憑かれている。",
+      },
+    ],
+  },
+  {
+    id: "theme-02",
+    enLabel: "THEME 02",
+    jpLabel: "大改革",
+    blocks: [
+      {
+        kind: "quote",
+        text: "7連敗からの覚悟",
+      },
+      {
+        kind: "para",
+        text: "過去の大会で7連敗を喫し、「もう2度と負けたくない」と血の滲むような悔しさを味わった加藤純一は、本気で世界一を獲るために自ら大改革に乗り出した。",
+      },
+      {
+        kind: "quote",
+        text: "お金も使うし、やれることは全部やる",
+      },
+      {
+        kind: "para",
+        text: "その言葉通り、自腹を切ってでも最高の環境を整え、現役Jリーガーや元プロ選手にも声をかけ、最強の「ムラッシュFC」を作り上げた。",
+      },
+      {
+        kind: "para",
+        text: "象徴的だったのは、元日本代表・柿谷曜一朗へのダブルオーナー就任依頼だった。「どんな手を使ってでも勝ちたい」と考えた加藤は、自身のプレジデントPKの決定率向上、そして柿谷の持つ絶大な影響力と求心力をチームにもたらすため、協力を依頼。柿谷もそれを了承した。",
+      },
+      {
+        kind: "para",
+        text: "さらに、元日本代表の太田宏介を新監督に招聘。元プロのプロフェッショナルが集結する、もはや「企画」ではなく「本気の世界一への挑戦」となったのである。",
+      },
+    ],
+  },
+  {
+    id: "theme-03",
+    enLabel: "THEME 03",
+    jpLabel: "哲学",
+    blocks: [
+      {
+        kind: "quote",
+        text: "偽りの調和はいらない",
+      },
+      {
+        kind: "para",
+        text: "世界大会を前にして、加藤純一が最も嫌ったのは、選手間の「遠慮」や「仲良しクラブ」の空気だった。",
+      },
+      {
+        kind: "para",
+        text: "第4回ブラジル大会で、強豪アメリカ代表のチームに敗北した後、加藤は緊急ミーティングを開き、本音をぶつけた。",
+      },
+      {
+        kind: "quote",
+        text: "居心地のいい環境じゃ勝てない。俺はそんなチームでいい勝負をして『よく頑張ったね』とよしよしされるために来たんじゃない",
+      },
+      {
+        kind: "para",
+        text: "戦術や技術の前に、闘争心やハングリー精神が足りていないことを見抜いていた。",
+      },
+      {
+        kind: "quote",
+        text: "みんなは間違った調和を大事にしてる。争いが起きないことがただ正義じゃない。勝つことでまとまる。年齢関係ない。思ったことがあったら言うべき、そんな偽りの調和はいらない",
+      },
+      {
+        kind: "para",
+        text: "加藤が求めたのは、全員が「俺が勝たせる」という覚悟を持つ、真の戦闘集団だった。",
+      },
+    ],
+  },
+  {
+    id: "theme-04",
+    enLabel: "THEME 04",
+    jpLabel: "プレッシャーへの志願",
+    blocks: [
+      {
+        kind: "quote",
+        text: "俺にPK蹴らせろ",
+      },
+      {
+        kind: "para",
+        text: "加藤純一は選手たちに厳しい要求をする一方で、自らも逃げ道を作らずに極限のプレッシャーを背負い込んでいる。",
+      },
+      {
+        kind: "para",
+        text: "キングスリーグ特有の「プレジデント・ペナルティ（オーナーPK）」において、加藤は自ら志願した。",
+      },
+      {
+        kind: "quote",
+        text: "一番苦しくてプレッシャーかかる場面で俺にPK蹴らせろ。俺が一番辛い時に助けに行くから",
+      },
+      {
+        kind: "para",
+        text: "「手汗が止まらない」「心臓が鼓動してワクワクする」ほどの重圧の中、フランス戦やアルゼンチン戦の絶体絶命の場面でピッチに立ち、見事にPKを沈めてチームを救い出した。",
+      },
+      {
+        kind: "para",
+        text: "自分が体を張って結果を出すことで、「俺を信じろ、お前らも絶対やれる」という熱いメッセージを背中で示し続けている。",
+      },
+    ],
+  },
+  {
+    id: "theme-05",
+    enLabel: "THEME 05",
+    jpLabel: "選手への愛",
+    blocks: [
+      {
+        kind: "quote",
+        text: "お前らの人生を変えたい",
+      },
+      {
+        kind: "para",
+        text: "加藤純一の根底にあるのは、共に戦う選手たちへの深い愛情である。普段は仕事をしながら夢を追う選手たちに対し、加藤は語りかける。",
+      },
+      {
+        kind: "quote",
+        text: "僕はみんなに本当にスターになってほしいし、人生に大成功して欲しい",
+      },
+      {
+        kind: "quote",
+        text: "僕は先人たちに引き上げられて人生を変えてもらった。だからみんなにも、この大会で人生が劇的に変わるような経験をしてほしい",
+      },
+      {
+        kind: "para",
+        text: "自らの配信人生を懸けて、彼らの背中を押し続けている。",
+      },
+      {
+        kind: "para",
+        text: "だからこそ、試合に敗れた時、加藤純一は誰よりも悔しがった。しかしそれは、ただ負けたことに対する悔しさではない。",
+      },
+      {
+        kind: "quote",
+        text: "今日の試合、俺が一番悔しかったのは負けたことじゃなくて、みんながこの程度の選手だと思われたことが何よりも悔しくて",
+      },
+      {
+        kind: "quote",
+        text: "お前らはこんなもんじゃない。俺は練習から見てるから知ってる",
+      },
+      {
+        kind: "para",
+        text: "世間からの評価と彼らの本当の実力とのギャップに、涙をこらえながら訴えかけた。",
+      },
+    ],
+  },
+  {
+    id: "theme-06",
+    enLabel: "THEME 06",
+    jpLabel: "終わらない挑戦",
+    blocks: [
+      {
+        kind: "quote",
+        text: "金ピカのトロフィーを飾るその日まで",
+      },
+      {
+        kind: "para",
+        text: "強豪国相手に敗退が決まった後も、加藤純一の炎は決して消えなかった。",
+      },
+      {
+        kind: "quote",
+        text: "ここで落ち込む必要はない。俺はまた自信を持って『俺を信じろ』と絶対決めてやるって気持ちで必ず戻ってくる",
+      },
+      {
+        kind: "para",
+        text: "加藤は語っていた。",
+      },
+      {
+        kind: "quote",
+        text: "賞金は一切いらない。優勝トロフィーだけは誰にも渡さずに、自宅のヤニまみれの部屋（配信部屋）にドーンと飾る。コレクションとしてあいつを持って帰ってくるのが人生の目標の1つ",
+      },
+      {
+        kind: "para",
+        text: "彼にとってのキングスリーグは、単なる一度きりのイベントではない。手に入れられなかったものがない加藤純一が、人生のすべてを懸けて「金ピカのトロフィーを日本のヤニまみれの部屋に飾る」その日まで続く、泥臭くも熱い、終わらない挑戦の物語である。",
+      },
+    ],
+  },
+];
+
+const epilogue: Section = {
+  id: "epilogue",
+  enLabel: "EPILOGUE",
+  jpLabel: "結び",
+  blocks: [
+    {
+      kind: "para",
+      text: "加藤純一のキングスリーグへの挑戦は、まだ続いている。",
+    },
+    {
+      kind: "para",
+      text: "オーナーとして、プレイヤーとして、そして一人の人間として──。",
+    },
+    {
+      kind: "para",
+      text: "選手たちに「俺を信じろ」と言い続けるために、自らが誰よりも先に体を張り、誰よりも本気で、誰よりも勝利を渇望している。",
+    },
+    {
+      kind: "para",
+      text: "このサイトは、その挑戦を見届けるための小さなアーカイブである。",
+    },
+  ],
+};
+
+const relatedLinks = [
+  { label: "ムラッシュFCについて", href: "/about" },
+  { label: "大会の軌跡", href: "/tournaments" },
+  { label: "選手名鑑", href: "/players" },
+  { label: "再スタート編", href: "/rebirth" },
+];
+---
+
+<Layout
+  title="加藤純一の覚悟 | ムラッシュFC ファンサイト（非公認）"
+  description="ムラッシュFCのオーナー・加藤純一がキングスリーグに懸ける覚悟・哲学・選手への愛情を、6つのテーマで描く特集記事。"
+>
+  <!-- ヒーローセクション -->
+  <section class="relative overflow-hidden border-b border-white/10">
+    <!-- 背景：黒×赤グラデーション、シネマチック -->
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-murash-red/15 via-murash-black to-black"></div>
+      <!-- 赤グロー（左下） -->
+      <div
+        class="absolute -left-32 bottom-0 h-96 w-96 rounded-full bg-murash-red/25 blur-3xl"
+      >
+      </div>
+      <!-- 赤グロー（右上） -->
+      <div
+        class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-murash-red/20 blur-3xl"
+      >
+      </div>
+      <!-- グリッド -->
+      <div
+        class="absolute inset-0 opacity-[0.04]"
+        style="background-image: linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px); background-size: 48px 48px;"
+      >
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-4xl px-4 py-24 text-center sm:px-6 sm:py-36">
+      <!-- 英ラベル -->
+      <p
+        class="font-display text-sm font-bold tracking-[0.4em] text-murash-red sm:text-base"
+      >
+        THE STORY OF JUNICHI KATO
+      </p>
+      <!-- 大タイトル（明朝） -->
+      <h1
+        class="mt-6 font-display text-5xl font-bold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl"
+        style="font-family: var(--font-section-jp); font-weight: 700; text-shadow: 0 3px 18px rgba(0,0,0,0.85), 0 0 32px rgba(230,0,18,0.18);"
+      >
+        加藤純一の覚悟
+      </h1>
+      <!-- サブタイトル -->
+      <p
+        class="mt-6 text-base leading-relaxed text-white/80 sm:text-lg"
+      >
+        ── キングスリーグに懸ける、終わらない挑戦
+      </p>
+
+      <!-- 装飾線 -->
+      <div class="mt-10 flex items-center justify-center gap-3">
+        <span aria-hidden="true" class="h-px w-12 bg-murash-red/60 sm:w-20"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="h-2 w-2 rotate-45 bg-murash-red"
+        ></span>
+        <span aria-hidden="true" class="h-px w-12 bg-murash-red/60 sm:w-20"
+        ></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 本文（Prologue → THEME 01-06 → Epilogue） -->
+  <article class="mx-auto max-w-3xl px-4 sm:px-6">
+    {
+      [prologue, ...themes, epilogue].map((s, idx) => {
+        // セクション単位で seen を共有し、同じ用語は最初の1回のみリンク化
+        const seenTerms = new Set();
+        const isLast = idx === themes.length + 1; // Epilogue
+        return (
+          <section
+            id={s.id}
+            class:list={[
+              "scroll-mt-24 py-16 sm:py-24",
+              idx === 0 ? "" : "border-t border-white/10",
+            ]}
+          >
+            {/* 見出しブロック：英ラベル小 + 日本語見出し大（明朝） */}
+            <header>
+              <p class="font-display text-xs font-bold tracking-[0.4em] text-murash-red sm:text-sm">
+                {s.enLabel}
+              </p>
+              <h2
+                class="mt-3 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl"
+                style="font-family: var(--font-section-jp); font-weight: 700;"
+              >
+                {s.jpLabel}
+              </h2>
+              <div class="mt-4 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+              {s.subtitle && (
+                <p class="mt-6 text-base font-medium text-white/75 sm:text-lg">
+                  {s.subtitle}
+                </p>
+              )}
+            </header>
+
+            {/* ブロック列：para と quote を交互に表示 */}
+            <div class="mt-10 space-y-8">
+              {s.blocks.map((b) =>
+                b.kind === "quote" ? (
+                  <blockquote class="border-l-2 border-murash-red pl-5 sm:pl-6">
+                    <p
+                      class="text-2xl font-bold leading-[1.6] text-white sm:text-3xl"
+                      style="font-family: var(--font-section-jp); font-weight: 700;"
+                      set:html={renderRichText(`「${b.text}」`, {
+                        excludeUrl: SELF_URL,
+                        seenTerms,
+                      })}
+                    />
+                  </blockquote>
+                ) : (
+                  <p
+                    class="text-base leading-[2.0] text-[#e5e5e5] sm:text-lg"
+                    set:html={renderRichText(b.text, {
+                      excludeUrl: SELF_URL,
+                      seenTerms,
+                    })}
+                  />
+                ),
+              )}
+            </div>
+
+            {/* Epilogue の末尾に装飾線 */}
+            {isLast && (
+              <div class="mt-12 flex items-center justify-center gap-3">
+                <span
+                  aria-hidden="true"
+                  class="h-px w-12 bg-murash-red/60 sm:w-20"
+                />
+                <span
+                  aria-hidden="true"
+                  class="h-2 w-2 rotate-45 bg-murash-red"
+                />
+                <span
+                  aria-hidden="true"
+                  class="h-px w-12 bg-murash-red/60 sm:w-20"
+                />
+              </div>
+            )}
+          </section>
+        );
+      })
+    }
+  </article>
+
+  <!-- 関連リンクセクション -->
+  <section class="border-t border-white/10 bg-murash-charcoal/40">
+    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
+      <p class="font-display text-xs font-bold tracking-[0.4em] text-murash-red sm:text-sm">
+        RELATED
+      </p>
+      <h2
+        class="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl"
+        style="font-family: var(--font-section-jp); font-weight: 700;"
+      >
+        関連リンク
+      </h2>
+      <div class="mt-4 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent"></div>
+
+      <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+        {
+          relatedLinks.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="group flex items-center justify-between rounded-md border border-white/10 bg-murash-black px-5 py-4 transition-colors hover:border-murash-red/50"
+              >
+                <span class="font-display text-sm font-bold tracking-wide text-white sm:text-base">
+                  {l.label}
+                </span>
+                <span
+                  aria-hidden="true"
+                  class="font-display text-sm text-white/40 transition-all group-hover:translate-x-0.5 group-hover:text-murash-red"
+                >
+                  →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-10">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+        >
+          ← トップへ戻る
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
