@@ -82,6 +82,10 @@ export interface Player {
   playerMessage?: string;
   instagramUrl?: string;
   xUrl?: string;
+  /** YouTube チャンネル URL。可能なら /@handle 形式に揃える（動画 URL でも表示は可） */
+  youtubeUrl?: string;
+  /** TikTok プロフィール URL（/@handle 形式） */
+  tiktokUrl?: string;
   /** スタッフ用の現在の役職（監督 / コーチ / マネージャー など）。staff バッジに表示される */
   role?: string;
   /**
@@ -173,6 +177,9 @@ export const players: Player[] = [
     ],
     feature:
       "Jリーグ通算200試合以上出場のベテラン守護神。FC東京で5年間正GKを務めた。足元・1対1の強さ・コーチングが武器で、YouTubeチャンネル登録者は2万人超。GKスクール「Kodama Academy」代表も務める実業家・教育者でもある。",
+    instagramUrl: "https://www.instagram.com/tsuyoshikodama_official",
+    youtubeUrl: "https://youtube.com/@vlog-ec4ri",
+    tiktokUrl: "https://www.tiktok.com/@tsuyoshikodama",
   },
   {
     slug: "miyauchi",
@@ -189,6 +196,7 @@ export const players: Player[] = [
     feature:
       "2003年生まれの若手MF。フォルトゥナU-15から帝京大可児高校でプレー。",
     researchedProfile: true,
+    instagramUrl: "https://www.instagram.com/miyauchi714",
   },
   {
     slug: "kido",
@@ -215,6 +223,8 @@ export const players: Player[] = [
     feature:
       "J2リーグ通算105試合6得点を記録した元プロサッカー選手。東福岡高校時代には全国高校サッカー選手権大会の優秀選手に選出。明治大学時代にはユニバーシアード日本代表にも選出された実力派FW。",
     researchedProfile: true,
+    instagramUrl: "https://www.instagram.com/koki13official",
+    xUrl: "https://x.com/kkkkdddddkkk333",
   },
   {
     slug: "hako",
@@ -240,7 +250,7 @@ export const players: Player[] = [
       "パスを出すタイミング、出すところのセンスがある。全てにおいて能力が高い。",
     playerMessage:
       "箱﨑裕也です！新たに発足するチームで皆さんとコミュニケーションをいっぱい取っていきたいと思っています。今まで築き上げてこられたムラッシュFCの歴史をより良くできるように、世界一だけを目指して魂で闘います。よろしくお願いします。",
-    instagramUrl: "https://instagram.com/yuya.hakozaki",
+    instagramUrl: "https://www.instagram.com/yuya.hakozaki",
     tournamentHistory: [
       { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 8 },
     ],
@@ -254,6 +264,10 @@ export const players: Player[] = [
     status: "confirmed",
     tournaments: ["italy", "france", "brazil"],
     nickname: "なかしゅん",
+    instagramUrl: "https://www.instagram.com/shunsukenakamura0516",
+    xUrl: "https://x.com/nakashun0516",
+    youtubeUrl: "https://youtube.com/@nakashun7474",
+    tiktokUrl: "https://www.tiktok.com/@shunsukenakamura0516",
     tournamentHistory: [
       { tournament: "italy", role: "player", position: "MF", jerseyNumber: 74 },
       { tournament: "france", role: "player", position: "MF", jerseyNumber: 14 },
@@ -284,7 +298,8 @@ export const players: Player[] = [
     kakitaniComment:
       "背負った相手に対しての守備の強度が高い。落ち着いてボールを持てる、パスもできる。前もできる。",
     playerMessage: "勝とう",
-    instagramUrl: "https://instagram.com/shohei_agata",
+    instagramUrl: "https://www.instagram.com/shohei_agata",
+    xUrl: "https://x.com/agata19940525",
     tournamentHistory: [
       { tournament: "italy", role: "player", position: "MF", jerseyNumber: 7 },
       { tournament: "france", role: "player", position: "FW", jerseyNumber: 5 },
@@ -316,7 +331,9 @@ export const players: Player[] = [
       "守備の強度が高く何度も球に行ける、戦える。自身で運ぶドリブルもそつなくできる。キック精度もある。",
     playerMessage:
       "初めまして、コウガです。見た目はちょっとあれですがめちゃめちゃ気さくなんで仲良くして下さい。皆さんと世界一獲れる様にチームの為にガンガン走って闘うんでよろしくお願いします",
-    instagramUrl: "https://instagram.com/kouga_960526",
+    instagramUrl: "https://www.instagram.com/kouga_960526",
+    xUrl: "https://x.com/kouga3030",
+    tiktokUrl: "https://www.tiktok.com/@kouga.yokoyama",
     tournamentHistory: [
       { tournament: "brazil", role: "player", position: "DF", jerseyNumber: 7 },
     ],
@@ -344,7 +361,8 @@ export const players: Player[] = [
       "1vs1で何度も相手を剥がしているシーンが見られた。取られない持ち方もできる。左利きも特徴。",
     playerMessage:
       "はじめまして！梅津怜央です。へいへい、漢の分も魂燃やして必死こいて頑張ります。よろしくお願いします！",
-    instagramUrl: "https://instagram.com/reeo1107",
+    instagramUrl: "https://www.instagram.com/reeo1107",
+    xUrl: "https://x.com/reeeeeo1107",
     tournamentHistory: [
       { tournament: "brazil", role: "player", position: "FW", jerseyNumber: 14 },
     ],
@@ -357,6 +375,9 @@ export const players: Player[] = [
     number: 9,
     status: "confirmed",
     tournaments: ["mexico", "italy", "france"],
+    instagramUrl: "https://www.instagram.com/heihei.0303",
+    xUrl: "https://x.com/heiheikings8",
+    youtubeUrl: "https://youtu.be/tg2MKtSHaP0",
     tournamentHistory: [
       { tournament: "mexico", role: "player", position: "MF", jerseyNumber: 8 },
       { tournament: "italy", role: "player", position: "MF", jerseyNumber: 8 },
@@ -388,6 +409,7 @@ export const players: Player[] = [
     feature:
       "モンテネグロ・スウェーデンと欧州キャリアを持つ左利きアタッカー。モンテネグロ・プルヴァで6試合出場、スウェーデン・スーペルエッタンで6試合出場1得点の記録を残している。",
     researchedProfile: true,
+    xUrl: "https://x.com/forever_829",
   },
   {
     slug: "miyashita",
@@ -417,8 +439,10 @@ export const players: Player[] = [
       "ドリブルの1vs1の能力はダントツで1番。世界を相手にも通用する1vs1の強さがある。後ろからのビルドアップもできるし1番前で背負ったプレーもできる。",
     playerMessage:
       "MURASHファミリー全員でキングスリーグを盛り上げていきましょう！僕も世界一を掴むために全力でチームに貢献します！よろしくお願いします！",
-    instagramUrl: "https://instagram.com/toshiya2003",
+    instagramUrl: "https://www.instagram.com/toshiya2003",
     xUrl: "https://x.com/tosiya58",
+    youtubeUrl: "https://youtube.com/@toshiya.10",
+    tiktokUrl: "https://www.tiktok.com/@tosisal10",
     tournamentHistory: [
       { tournament: "france", role: "player", position: "FW", jerseyNumber: 12 },
       { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 10 },
@@ -433,6 +457,7 @@ export const players: Player[] = [
     status: "confirmed",
     tournaments: [],
     feature: "現時点で公開されている情報が少ない選手。今後の活躍に期待。",
+    instagramUrl: "https://www.instagram.com/yamatohayashida_",
   },
   {
     slug: "shiraishi",
@@ -454,6 +479,7 @@ export const players: Player[] = [
     feature:
       "アメリカNCAA D1屈指の強豪・ミズーリ州立大学でプレー中の現役大学生プレーヤー。シーズン開幕戦で4ゴールを記録し、MVCカンファレンス週間最優秀選手・週間ベストイレブンに選出されたチーム攻撃の核。卒業後のプロ入りを目指している。",
     researchedProfile: true,
+    instagramUrl: "https://www.instagram.com/fumiya__shiraishi",
   },
   {
     slug: "shigenobu",
@@ -467,8 +493,8 @@ export const players: Player[] = [
     career: ["浦和西高校"],
     kakitaniComment:
       "なかしゅんが連れてきた、無名枠。左足のシュートが武器で、シュートレンジ（シュートが決めれる範囲）が広い。",
-    instagramUrl: "https://instagram.com/keisukeshige0901",
-    xUrl: "https://x.com/Shigesuke0901",
+    instagramUrl: "https://www.instagram.com/keisukeshige0901",
+    xUrl: "https://x.com/shigesuke0901",
     tournamentHistory: [
       { tournament: "brazil", role: "player", position: "MF", jerseyNumber: 74 },
     ],
@@ -493,6 +519,8 @@ export const players: Player[] = [
     feature:
       "フィンランドのプロチーム「Musan Salama」でプレーした経験を持つ攻撃的MF。前十字靭帯断裂を機にプロサッカーから一度離れ、IT企業「株式会社ソシアス」にエンジニアとして就職。現在はエンジニアとして働きながら、社会人チーム「FCカラスト埼玉南西」で背番号10を背負いプレーするユニークなキャリアの持ち主。",
     researchedProfile: true,
+    instagramUrl: "https://www.instagram.com/mitsuru_t_0",
+    tiktokUrl: "https://www.tiktok.com/@mitsuru_t_0",
   },
   {
     slug: "fukaya",
@@ -516,6 +544,9 @@ export const players: Player[] = [
     ],
     feature:
       "「日本の壁」と称される絶対的GK。第1回メキシコ大会MVP受賞。第2回イタリア大会では日本代表キャプテン。",
+    instagramUrl: "https://www.instagram.com/f_ksk_",
+    xUrl: "https://x.com/kei93fuka41",
+    youtubeUrl: "https://youtube.com/@kskch8243",
     tournamentHistory: [
       { tournament: "mexico", role: "player", position: "GK", jerseyNumber: 1 },
       { tournament: "italy", role: "player", position: "GK", jerseyNumber: 1 },
@@ -724,6 +755,10 @@ export const players: Player[] = [
     nickname: "いつき",
     feature:
       "元ソサイチ日本代表、プラムワン所属、元ブラウブリッツ秋田。フランス大会ではコーチに就任。",
+    instagramUrl: "https://www.instagram.com/yitsuki15",
+    xUrl: "https://x.com/itsuki_ymd",
+    youtubeUrl: "https://youtube.com/@itsukichannel14",
+    tiktokUrl: "https://www.tiktok.com/@yitsuki14",
     tournamentHistory: [
       { tournament: "mexico", role: "player", position: "DF", jerseyNumber: 14 },
       { tournament: "italy", role: "player", position: "DF", jerseyNumber: 14 },
@@ -973,8 +1008,9 @@ export const players: Player[] = [
       "浦和レッズユース、浦和レッズ、アビスパ福岡、ガイナーレ鳥取などJリーグ複数クラブを経験。第4回ブラジル大会では選手として出場し、再スタート編からはマネージャーに転身。",
     kakitaniComment:
       "Jの複数クラブとスペインのチームを経験した、プロを知るベテラン。浦和レッズユースではなかしゅんの1つ上の先輩。",
-    instagramUrl: "https://instagram.com/nooooooza24",
+    instagramUrl: "https://www.instagram.com/nooooooza83",
     xUrl: "https://x.com/pepyan23",
+    youtubeUrl: "https://youtube.com/channel/UCCnEJ1xGXtax28byjvZsBGw",
     tournamentHistory: [
       { tournament: "brazil", role: "player", position: "DF", jerseyNumber: 83 },
       { tournament: "rebirth", role: "manager", subRole: "マネージャー" },
