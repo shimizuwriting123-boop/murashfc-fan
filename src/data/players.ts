@@ -38,6 +38,23 @@ export interface TournamentEpisodes {
   rebirth?: EpisodeItem[];
 }
 
+/**
+ * 選手の出演動画1本ぶん。YouTube 限定（サムネは hqdefault.jpg を使用）。
+ * - title: 必須。動画タイトル
+ * - url: 必須。`https://youtu.be/xxx` or `https://www.youtube.com/watch?v=xxx`
+ * - videoId: 任意。URL から抽出可能だが、明示するとサムネ生成が安定する
+ * - publishedAt: 任意。YYYY-MM-DD 形式
+ * - channel: 任意。チャンネル名（例「KSK ch 【MURASH FC】」）
+ */
+export interface VideoItem {
+  title: string;
+  url: string;
+  videoId?: string;
+  description?: string;
+  publishedAt?: string;
+  channel?: string;
+}
+
 export interface TournamentParticipation {
   /** 4大会 + 新体制（rebirth）のいずれか */
   tournament: ParticipationPhase;
@@ -100,6 +117,8 @@ export interface Player {
   personalityNote?: string;
   /** 大会別のエピソード集。NotebookLM 等の動画分析から抽出。 */
   tournamentEpisodes?: TournamentEpisodes;
+  /** 出演動画リスト（YouTube）。空・未定義なら詳細ページのセクション自体を非表示。 */
+  featuredVideos?: VideoItem[];
 }
 
 /** TournamentEpisodes のキー → 表示ラベル */
@@ -452,12 +471,29 @@ export const players: Player[] = [
     slug: "hayashida",
     name: "林田大和",
     nameEn: "HAYASHIDA",
-    position: "FW",
+    position: "DF",
     number: 12,
     status: "confirmed",
     tournaments: [],
-    feature: "現時点で公開されている情報が少ない選手。今後の活躍に期待。",
+    career: [
+      "埼玉の大学（大学4年生の夏に休学）",
+      "スペイン5部リーグ（学生ビザ、約2年間 〜2025年5月）",
+      "キャリアアドバイザー（転職サポート）／スペイン留学サポート（社会人として並行）",
+    ],
+    feature:
+      "1対1の対人の強さと、ボールを奪ってからそのまま攻撃に出ていける推進力が武器のディフェンダー。一番後ろで構えるだけでなく、ボランチのように守備から攻撃へ参加していくプレーが持ち味。",
     instagramUrl: "https://www.instagram.com/yamatohayashida_",
+    personalityNote:
+      "24歳のディフェンダー（2026年現在、今年25歳）。\n\n埼玉の大学でサッカーをプレーしていたが、「日本で行けるカテゴリーでは天井が見えている」と感じ、自身の付加価値を高めるために海外挑戦を決意。大学4年生の夏に休学し、スペインの5部リーグで約2年間プレーした。プロ契約ではなく学生ビザでの滞在で、チームからの給与だけでは生活できず、日本の企業の仕事をオンラインでこなしながら苦労して生活した経験を持つ。\n\n2025年5月に帰国。現在は社会人として働きながら、キャリアアドバイザー（転職サポート）と、自身の元代理人が経営する会社で高校生のスペイン留学サポート業務を行っている。\n\nプレースタイルは1対1の対人の強さに加え、ボールを奪ってからそのまま攻撃に出ていける推進力が特徴。一番後ろで構えるだけでなく、ボランチのように守備から攻撃へ参加していくプレーが持ち味。",
+    featuredVideos: [
+      {
+        title:
+          "【新加入】スペインサッカーを知る男がMURASH FCに加入！その素顔に迫る！MURASH Podcast#2 ｜林田大和",
+        url: "https://youtu.be/gWV7CVF_m8U",
+        videoId: "gWV7CVF_m8U",
+        channel: "KSK ch 【MURASH FC】",
+      },
+    ],
   },
   {
     slug: "shiraishi",

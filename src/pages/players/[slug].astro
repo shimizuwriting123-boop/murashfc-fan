@@ -78,6 +78,37 @@ const hasSocial = !!(
   player.tiktokUrl
 );
 
+/**
+ * YouTube URL から videoId を抽出（youtu.be / watch?v= / shorts 対応）。
+ * videoId を data 側で明示している場合はそれを優先する。
+ */
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /youtu\.be\/([A-Za-z0-9_-]{6,})/,
+    /youtube\.com\/watch\?v=([A-Za-z0-9_-]{6,})/,
+    /youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/,
+    /youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+const featuredVideos = (player.featuredVideos ?? []).map((v) => {
+  const id = v.videoId ?? extractYouTubeId(v.url);
+  return {
+    ...v,
+    videoId: id ?? "",
+    thumb: id
+      ? `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+      : null,
+  };
+});
+const hasFeaturedVideos = featuredVideos.length > 0;
+const featuredVideosCollapsible = featuredVideos.length > 3;
+
 // EPISODES セクション：personalityNote または tournamentEpisodes に何か入っていれば表示
 const personalityParagraphs = player.personalityNote
   ? player.personalityNote.split(/\n\n+/).map((s) => s.trim()).filter(Boolean)
@@ -541,6 +572,109 @@ const showPendingNote =
       )
     }
 
+    {/* 出演動画（YouTube）：3本超は折りたたみ、未設定なら非表示 */}
+    {
+      hasFeaturedVideos && (
+        <section class="mt-14" data-featured-videos>
+          <h2 class="section-heading">
+            <span class="section-label-en">FEATURED VIDEOS</span>
+            <span class="section-title-jp text-2xl sm:text-3xl">出演動画</span>
+          </h2>
+          <div class="mt-3 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+
+          <ul class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredVideos.map((v, i) => (
+              <li
+                data-video-idx={i}
+                class:list={[
+                  "video-item",
+                  featuredVideosCollapsible && i >= 3 ? "hidden" : "",
+                ]}
+              >
+                <a
+                  href={v.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-murash-charcoal transition-colors hover:border-murash-red/50"
+                >
+                  {v.thumb && (
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                      <img
+                        src={v.thumb}
+                        alt={`${v.title} のサムネイル`}
+                        width="480"
+                        height="360"
+                        loading="lazy"
+                        decoding="async"
+                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {/* 中央プレイボタン */}
+                      <span
+                        aria-hidden="true"
+                        class="absolute inset-0 flex items-center justify-center"
+                      >
+                        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/20 transition-all group-hover:scale-110 group-hover:bg-murash-red/85">
+                          <svg
+                            viewBox="0 0 24 24"
+                            class="h-5 w-5 fill-current text-white"
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </span>
+                      </span>
+                      {/* YouTube ラベル */}
+                      <span class="absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-black/75 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+                        <svg
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                          class="h-3 w-3 fill-current text-murash-red"
+                        >
+                          <path d="M23.5 6.2c-.3-1.1-1.1-1.9-2.1-2.2C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.5C1.6 4.3.8 5.1.5 6.2 0 8.1 0 12 0 12s0 3.9.5 5.8c.3 1.1 1.1 1.9 2.1 2.2C4.5 20.5 12 20.5 12 20.5s7.5 0 9.4-.5c1-.3 1.8-1.1 2.1-2.2.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z" />
+                        </svg>
+                        YouTube
+                      </span>
+                    </div>
+                  )}
+
+                  <div class="flex flex-1 flex-col p-4">
+                    <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-white sm:text-base">
+                      {v.title}
+                    </h3>
+                    {(v.channel || v.publishedAt) && (
+                      <p class="mt-2 text-xs text-white/50">
+                        {v.channel}
+                        {v.channel && v.publishedAt && " ・ "}
+                        {v.publishedAt}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {featuredVideosCollapsible && (
+            <div class="mt-6 text-center">
+              <button
+                type="button"
+                data-featured-videos-toggle
+                data-expanded="false"
+                data-hidden-count={featuredVideos.length - 3}
+                class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
+              >
+                <span data-toggle-label>
+                  もっと見る（残り {featuredVideos.length - 3} 本）
+                </span>
+                <span aria-hidden="true" data-toggle-arrow>
+                  ↓
+                </span>
+              </button>
+            </div>
+          )}
+        </section>
+      )
+    }
+
     <!-- 準備中（pending かつ詳細データなしの時だけ） -->
     {
       showPendingNote && (
@@ -590,3 +724,34 @@ const showPendingNote =
     }
   </div>
 </Layout>
+
+<script>
+  /**
+   * 出演動画セクションの「もっと見る／閉じる」トグル。
+   * セクションが4本以上の場合のみボタンが存在する。
+   */
+  const btn = document.querySelector<HTMLButtonElement>(
+    "[data-featured-videos-toggle]",
+  );
+  if (btn) {
+    const section = btn.closest("[data-featured-videos]");
+    const hidden = Number(btn.dataset.hiddenCount ?? "0");
+    const labelEl = btn.querySelector<HTMLElement>("[data-toggle-label]");
+    const arrowEl = btn.querySelector<HTMLElement>("[data-toggle-arrow]");
+    btn.addEventListener("click", () => {
+      const expanded = btn.dataset.expanded === "true";
+      const next = !expanded;
+      btn.dataset.expanded = String(next);
+      section?.querySelectorAll<HTMLElement>(".video-item").forEach((el) => {
+        const idx = Number(el.dataset.videoIdx ?? "0");
+        if (idx >= 3) el.classList.toggle("hidden", !next);
+      });
+      if (labelEl) {
+        labelEl.textContent = next
+          ? "閉じる"
+          : `もっと見る（残り ${hidden} 本）`;
+      }
+      if (arrowEl) arrowEl.textContent = next ? "↑" : "↓";
+    });
+  }
+</script>
