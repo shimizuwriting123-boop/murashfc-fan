@@ -1,3 +1,4 @@
-# 知人限定公開のため、全てのクローラーをブロック
 User-agent: *
-Disallow: /
+Allow: /
+
+Sitemap: https://murashfc-fan.com/sitemap-index.xml
