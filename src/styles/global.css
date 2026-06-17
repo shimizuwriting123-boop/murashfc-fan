@@ -51,7 +51,7 @@ body {
 }
 .hero-title-jp {
   font-family: var(--font-hero-jp);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.02em;
   text-shadow:
     0 3px 12px rgba(0, 0, 0, 0.85),
