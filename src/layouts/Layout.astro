@@ -55,24 +55,21 @@ const {
 
     <title>{title}</title>
 
-    {/* Google Analytics (gtag.js) — 本番ビルドでのみ出力（ローカル開発のアクセスは送信しない） */}
     {
       import.meta.env.PROD && (
-        <>
-          <script
-            async
-            src="https://www.googletagmanager.com/gtag/js?id=G-HMFVVLCKCL"
-          />
-          <script
-            is:inline
-            set:html={`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.addEventListener('load', function() {
+            setTimeout(function() {
+              var s = document.createElement('script');
+              s.src = 'https://www.googletagmanager.com/gtag/js?id=G-HMFVVLCKCL';
+              document.head.appendChild(s);
               gtag('js', new Date());
               gtag('config', 'G-HMFVVLCKCL');
-            `}
-          />
-        </>
+            }, 2000);
+          });
+        `} />
       )
     }
   </head>
