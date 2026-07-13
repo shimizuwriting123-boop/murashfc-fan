@@ -630,6 +630,7 @@ export const tournaments: Tournament[] = [
         playerSlug: "kakitani",
       },
       { role: "監督", name: "中村駿介", playerSlug: "nakamura" },
+      { role: "コーチ", name: "山田樹", playerSlug: "yamada" },
       { role: "トレーナー", name: "遠藤浩隆", playerSlug: "endo" },
     ],
     squadNote:
