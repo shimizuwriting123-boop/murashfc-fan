@@ -142,14 +142,14 @@ const total = wikiEntries.length;
           placeholder="タイトル・本文・人物・タグで検索（例: PK、加藤、こうじろう）"
           aria-label="Wikiを検索"
           autocomplete="off"
-          class="w-full rounded-md border border-white/10 bg-murash-charcoal py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-white/35 transition-colors focus:border-murash-red focus:outline-none"
+          class="w-full rounded-md border border-white/10 bg-murash-charcoal py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-white/55 transition-colors focus:border-murash-red focus:outline-none"
         />
       </div>
 
       <!-- カテゴリフィルター -->
       <div class="mt-6">
         <p
-          class="mb-2 font-display text-[11px] font-bold tracking-[0.15em] text-white/40"
+          class="mb-2 font-display text-[11px] font-bold tracking-[0.15em] text-white/55"
         >
           カテゴリ
         </p>
@@ -187,7 +187,7 @@ const total = wikiEntries.length;
       <!-- 大会フィルター -->
       <div class="mt-4">
         <p
-          class="mb-2 font-display text-[11px] font-bold tracking-[0.15em] text-white/40"
+          class="mb-2 font-display text-[11px] font-bold tracking-[0.15em] text-white/55"
         >
           大会
         </p>
@@ -221,8 +221,8 @@ const total = wikiEntries.length;
   <!-- 一覧 -->
   <section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12">
     <!-- 結果件数 -->
-    <p id="wiki-result" class="mb-4 text-sm text-white/50">
-      <b class="font-semibold text-murash-red">{total}</b>件を表示
+    <p id="wiki-result" class="mb-4 text-sm text-white/60">
+      <b class="font-semibold text-murash-red-light">{total}</b>件を表示
     </p>
 
     <div
@@ -262,7 +262,7 @@ const total = wikiEntries.length;
               <h3 class="mt-3 font-display text-base font-bold leading-snug tracking-tight text-white transition-colors group-hover:text-murash-red">
                 {e.title}
               </h3>
-              <p class="mt-0.5 text-[11px] text-white/35">{e.reading}</p>
+              <p class="mt-0.5 text-[11px] text-white/55">{e.reading}</p>
 
               <p class="mt-2 line-clamp-3 flex-1 text-[12.5px] leading-relaxed text-white/60">
                 {e.summary}
@@ -273,7 +273,7 @@ const total = wikiEntries.length;
                   {e.tags.slice(0, 4).map((tag) => (
                     <button
                       type="button"
-                      class="wiki-tag rounded-sm bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-white/45 transition-colors hover:bg-murash-red hover:text-white"
+                      class="wiki-tag rounded-sm bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-white/65 transition-colors hover:bg-murash-red hover:text-white"
                       data-tag={tag}
                     >
                       #{tag}
@@ -296,7 +296,7 @@ const total = wikiEntries.length;
 
     <p
       id="wiki-empty"
-      class="hidden py-16 text-center text-sm text-white/40"
+      class="hidden py-16 text-center text-sm text-white/55"
     >
       該当するエントリがありません。
     </p>
@@ -334,11 +334,11 @@ const total = wikiEntries.length;
   }
   .chip-cnt {
     font-size: 0.6875rem;
-    opacity: 0.7;
+    opacity: 0.85;
     margin-left: 0.15rem;
   }
   .wiki-chip[aria-pressed="true"] .chip-cnt {
-    opacity: 0.85;
+    opacity: 1;
   }
 </style>
 
@@ -418,9 +418,9 @@ const total = wikiEntries.length;
 
     // 結果件数（＋タグ絞り込み中はクリア導線）
     if (resultInfo) {
-      let html = `<b class="font-semibold text-murash-red">${visible}</b>件を表示`;
+      let html = `<b class="font-semibold text-murash-red-light">${visible}</b>件を表示`;
       if (state.tag) {
-        html += ` <span class="text-white/40">／ タグ:</span> <b class="font-semibold text-murash-red">#${state.tag}</b> <button type="button" id="wiki-tag-clear" class="ml-1 text-white/50 underline underline-offset-2 hover:text-white">×クリア</button>`;
+        html += ` <span class="text-white/60">／ タグ:</span> <b class="font-semibold text-murash-red-light">#${state.tag}</b> <button type="button" id="wiki-tag-clear" class="ml-1 text-white/70 underline underline-offset-2 hover:text-white">×クリア</button>`;
       }
       resultInfo.innerHTML = html;
       document

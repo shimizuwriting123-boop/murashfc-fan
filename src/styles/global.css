@@ -5,6 +5,10 @@
   --color-murash-charcoal: #161616;
   --color-murash-red: #e60012;
   --color-murash-red-dark: #b3000e;
+  /* 暗背景上の小さめテキスト用のやや明るい赤（WCAG AA 4.5:1 を満たす）。
+     ブランドの純赤(#e60012)は黒地で約4.1:1と僅かに不足するため、
+     件数表示・区分バッジ文字などアクセント文字に限定して使う。 */
+  --color-murash-red-light: #ff4d4d;
 
   --font-display: "Oswald", "Arial Narrow", sans-serif;
   /* ヒーロー専用フォント（TOPページ <h1> のみで使用） */

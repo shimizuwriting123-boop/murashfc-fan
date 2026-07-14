@@ -118,7 +118,7 @@ export const CATEGORY_STYLE: Record<
   // 事件・出来事 → 赤
   "事件・出来事": {
     badge:
-      "border-murash-red/40 bg-murash-red/10 text-murash-red",
+      "border-murash-red/40 bg-murash-red/10 text-murash-red-light",
     dot: "bg-murash-red",
     hover: "hover:border-murash-red/60",
   },
