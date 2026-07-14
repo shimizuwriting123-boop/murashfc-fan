@@ -1,199 +1,691 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { players } from "../../data/players";
+import { tournaments } from "../../data/tournaments";
 
-interface Section {
-  no: string;
-  title: string;
-  enLabel: string;
-  image: string;
-  imageAlt: string;
-  body: string[];
-}
+// ============================================================
+// 動的に算出する数値（同じ数字を複数ファイルへハードコードしない）
+// ============================================================
+// 現役選手（新生16名 = confirmed）
+const currentPlayerCount = players.filter(
+  (p) => p.status === "confirmed",
+).length;
+// 現行スタッフ（status=staff かつ 新体制=rebirth に参加、レベナンツ等の外部役職は除外）
+// ※ players/index.astro の isCurrentMember と同じ判定
+const currentStaff = players.filter(
+  (p) =>
+    p.status === "staff" &&
+    (p.tournamentHistory?.some(
+      (h) => h.tournament === "rebirth" && !h.subRole?.includes("レベナンツ"),
+    ) ??
+      false),
+);
+const staffCount = currentStaff.length;
+// 世界大会出場回数（tournaments.ts の大会数 = メキシコ/イタリア/フランス/ブラジル）
+const worldCupCount = tournaments.length;
 
-const sections: Section[] = [
+// 算出が難しい年は定数化（更新時はここを変更）
+const FIRST_ENTRY_YEAR = 2024; // 初参戦：第1回メキシコ大会
+const REBUILD_YEAR = 2026; // 常設クラブ化・新生16名始動
+
+// ============================================================
+// セクション用データ
+// ============================================================
+const glanceItems: { label: string; value: string }[] = [
+  { label: "オーナー", value: "加藤純一" },
+  { label: "ダブルオーナー", value: "柿谷曜一朗" },
+  { label: "監督", value: "太田宏介" },
+  { label: "競技", value: "キングスリーグ／7人制" },
+  { label: "目標", value: "世界大会優勝" },
+  { label: "チーム形態", value: "常設クラブチーム" },
+  { label: "現役選手", value: `${currentPlayerCount}名` },
+  { label: "初参戦", value: `${FIRST_ENTRY_YEAR}年` },
+];
+
+const differences: { title: string; body: string }[] = [
   {
-    no: "01",
-    title: "キングスリーグとは？",
-    enLabel: "KINGS LEAGUE",
-    image: "/images/about/01-kings-league.webp",
-    imageAlt: "キングスリーグの試合風景を象徴するシネマチックなイメージ",
-    body: [
-      "2022年、元スペイン代表DFジェラール・ピケが立ち上げた7人制サッカーの新リーグ。従来のサッカーより試合時間が短く、得点が入りやすい独自ルールと、インフルエンサーや元プロ選手がオーナーとして参加するエンターテインメント性の高さが特徴。ネイマール、ロナウジーニョといったレジェンドも関わり、世界中で急速に広まっている。",
-    ],
+    title: "7人制・短時間のスピード勝負",
+    body: "キングスリーグは、GKを含む7人制で行われます。通常の11人制より選手同士の距離が近く、攻守の切り替えや1対1が頻繁に起こる、展開の速い競技です。",
   },
   {
-    no: "02",
-    title: "ムラッシュFCとは？",
-    enLabel: "MURASH FC",
-    image: "/images/about/02-murash-fc.webp",
-    imageAlt: "ムラッシュFCのチームを象徴するシネマチックなイメージ",
-    body: [
-      "ムラッシュFCは、人気ゲーム配信者・加藤純一がオーナーを務めるキングスリーグの日本チーム。「加藤純一がサッカーをやる」のではなく、加藤純一がチームを率いて世界に挑む、というスタイルだ。",
-      "チームには2つの形態がある。大会によって「ムラッシュFC（クラブチーム）」として出場する場合と、「日本代表」として国別対抗戦に出場する場合がある。どちらも加藤純一がプレジデント（オーナー）として指揮を執る。",
-    ],
+    title: "オーナーも試合に関わる",
+    body: "加藤純一は経営者として見守るだけではありません。選手選考やチーム方針に直接関わり、大会ではプレジデントPKを蹴ることもあります。",
   },
   {
-    no: "03",
-    title: "なぜ加藤純一がオーナーに？",
-    enLabel: "ORIGIN STORY",
-    image: "/images/about/03-kato-owner.webp",
-    imageAlt: "加藤純一とピケのオーナー就任エピソードを象徴するシネマチックなイメージ",
-    body: [
-      "きっかけは2023年12月、加藤純一のXにピケから突然リプが届いたことだった。",
-      "その後、加藤純一はピケとオンライン会議を行うことになるが、本人いわく「俺サッカーわかんねぇし、できねぇよ」と断るつもりだったという。しかしピケから「お前がやらないなら正直日本からは選ばない」と言われ、「それはちょっと勿体ねぇなと思って」引き受けることを決めた。",
-      "ギャラも出ない、サッカーの知識もない。それでも「日本が出られなくなるなら」という理由で、野球しか興味がなかった男がサッカーチームを率いることになった。",
-    ],
-  },
-  {
-    no: "04",
-    title: "世界への挑戦と常設チーム化",
-    enLabel: "WORLD CHALLENGE",
-    image: "/images/about/04-tournaments.webp",
-    imageAlt: "世界大会への挑戦と常設チーム化を象徴するシネマチックなイメージ",
-    body: [
-      "2024年のメキシコ大会を皮切りに、イタリア、フランス、ブラジルと4大会に参加。しかし結果は振るわず、7連敗という苦しい時期も続いた。",
-      "課題は明確だった。ヨーロッパや南米の強豪国は国内にキングスリーグが存在し、日常的にチームとして活動している。対して日本は大会のたびにメンバーを招集する「都度編成」。この差は埋められなかった。",
-      "そこで2025年から動き出したのが「常設チーム化」だ。大会のたびに集まるのではなく、定期的に集まって活動する本格的なクラブチームとしてムラッシュFCを再構築する。",
-    ],
-  },
-  {
-    no: "05",
-    title: "新生ムラッシュFC誕生",
-    enLabel: "REBORN",
-    image: "/images/about/05-new-murash.webp",
-    imageAlt: "新生ムラッシュFCの誕生を象徴するシネマチックなイメージ",
-    body: [
-      "2026年、大規模なセレクションが実施された。書類選考から始まり、1次・2次・3次・4次と絞り込みが続き、250名以上の応募者から最終的に16名の常設メンバーが選ばれた。",
-      "チームのコンセプトは「夢ではなく目標」。賞金よりも優勝トロフィーを日本に持ち帰ることを最優先に、新生ムラッシュFCは走り始めた。",
-    ],
+    title: "エンタメだが、本気で勝ちに行く",
+    body: "配信者や著名人が参加するエンターテインメント性の高い大会ですが、ムラッシュFCが目指すのは世界一。「夢」ではなく、達成すべき目標として勝利を追い続けています。",
   },
 ];
+
+const identities: {
+  name: string;
+  title: string;
+  body: string;
+  note: string;
+}[] = [
+  {
+    name: "ムラッシュFC",
+    title: "クラブ対抗戦",
+    body: "ムラッシュFCというクラブチームとして、世界各国のクラブと戦います。",
+    note: "メキシコ大会・フランス大会など",
+  },
+  {
+    name: "日本代表",
+    title: "国別対抗戦",
+    body: "日本を代表するチームとして、各国代表と戦う大会にも出場します。",
+    note: "イタリア大会・ブラジル大会など",
+  },
+];
+
+const football7Points: string[] = [
+  "選手間の距離が近い",
+  "攻守の切り替えが速い",
+  "1対1の機会が多い",
+  "全員に攻撃と守備が必要",
+];
+
+const rebuildBefore = {
+  title: "大会ごとに招集",
+  items: [
+    "大会前にメンバーを招集",
+    "練習期間が短い",
+    "大会ごとに選手や指導体制が変化",
+    "チームとして連携を積み上げにくい",
+  ],
+};
+const rebuildAfter = {
+  title: "常設クラブとして活動",
+  items: [
+    `${currentPlayerCount}名の常設選手`,
+    "定期的なチーム練習",
+    "太田宏介監督を中心とした指導体制",
+    "選手同士の継続的な競争",
+    "長期的に世界一を目指す",
+  ],
+};
+
+// リーダー陣（既存データに存在すれば /players/{slug} へリンク。加藤純一は個別エントリが無いため href なし）
+const leaders: {
+  name: string;
+  role: string;
+  desc: string;
+  href: string | null;
+}[] = [
+  {
+    name: "加藤純一",
+    role: "プレジデント",
+    desc: "チームの最終責任者。選手選考や方針決定、大会でのプレジデントPKまで直接関わるチームの顔。",
+    href: null,
+  },
+  {
+    name: "柿谷曜一朗",
+    role: "ダブルオーナー",
+    desc: "元日本代表FWの視点から選手評価やチーム強化を担い、加藤純一と並んでチームを率いるダブルオーナー。",
+    href: "/players/kakitani",
+  },
+  {
+    name: "太田宏介",
+    role: "監督",
+    desc: "元日本代表DF。常設チームの戦術、練習、選手起用を統括し、勝てる組織づくりを担う監督として現場を指揮する。",
+    href: "/players/ota",
+  },
+  {
+    name: "長谷川アーリアジャスール",
+    role: "コーチ",
+    desc: "元日本代表MF。国内外での豊富な経験を生かし、選手の技術と戦術理解を引き上げる役割を担うコーチ。",
+    href: "/players/hasegawa",
+  },
+  {
+    name: "山田樹",
+    role: "コーチ",
+    desc: "選手として初期大会に出場後コーチへ転身。ソサイチ日本代表主将の経験をチームへ還元する。",
+    href: "/players/yamada",
+  },
+  {
+    name: "野崎雅也",
+    role: "マネージャー",
+    desc: "元Jリーガー。ブラジル大会に選手として出場し、現在はチーム運営を支えるマネージャー。",
+    href: "/players/nozaki",
+  },
+];
+
+// 数字で見る（推測値は載せない。すべて確定データ）
+const numbers: { value: string; label: string }[] = [
+  { value: `${worldCupCount}`, label: "世界大会出場" },
+  { value: `${currentPlayerCount}`, label: "現役選手" },
+  { value: `${staffCount}`, label: "スタッフ" },
+  { value: `${FIRST_ENTRY_YEAR}`, label: "初参戦(年)" },
+  { value: `${REBUILD_YEAR}`, label: "常設化(年)" },
+];
+
+// これまでと、これから（5つの転換点・各80字以内）
+const journey: { year: string; body: string }[] = [
+  {
+    year: "2023年",
+    body: "ピケから加藤純一へ届いた一通のリプライが、日本参戦のきっかけとなった。",
+  },
+  {
+    year: "2024年",
+    body: "ムラッシュFCが結成され、メキシコ大会で世界大会に初参戦した。",
+  },
+  {
+    year: "2025年",
+    body: "イタリア・フランスなど各国の舞台へ挑戦を重ね、世界との差を痛感した。",
+  },
+  {
+    year: "2025年",
+    body: "都度招集の限界から、選手を継続育成する常設クラブ化を決断した。",
+  },
+  {
+    year: "2026年",
+    body: "大規模セレクションを経て、新生ムラッシュFCが16名で始動した。",
+  },
+];
+
+const exploreCards: {
+  lead: string;
+  title: string;
+  desc: string;
+  href: string;
+}[] = [
+  {
+    lead: "選手を知りたい",
+    title: "選手名鑑",
+    desc: "現役16名とスタッフ、歴代メンバーの経歴・プレースタイルを一覧で。",
+    href: "/players",
+  },
+  {
+    lead: "試合を振り返りたい",
+    title: "大会の軌跡",
+    desc: "メキシコからブラジルまで、各大会のメンバーと戦績・名場面をまとめて。",
+    href: "/tournaments",
+  },
+  {
+    lead: "結成から順番に知りたい",
+    title: "歴史・年表",
+    desc: "キングスリーグ誕生から新生チーム始動までを時系列で追える年表。",
+    href: "/history",
+  },
+  {
+    lead: "新生チーム誕生を知りたい",
+    title: "再スタート編",
+    desc: "解散から大規模セレクション、新生16名誕生までの物語を詳しく。",
+    href: "/rebirth",
+  },
+  {
+    lead: "ルールを知りたい",
+    title: "用語辞典",
+    desc: "7人制の特殊ルールやキングスリーグ用語を初心者向けに解説。",
+    href: "/glossary",
+  },
+  {
+    lead: "ファンネタを楽しみたい",
+    title: "Wiki",
+    desc: "独自のあだ名・名セリフ・伝説の事件を集めたファンアーカイブ。",
+    href: "/wiki",
+  },
+];
+
+// リンク共通のフォーカス可視化
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black";
 ---
 
 <Layout
-  title="ムラッシュFCとは | ムラッシュFC ファンサイト（非公認）"
-  description="キングスリーグの日本チーム「ムラッシュFC」とは何か。リーグの概要、加藤純一がオーナーになった経緯、常設チーム化と新生ムラッシュFC誕生までの歩みを紹介します。"
+  title="ムラッシュFCとは？チームの特徴・体制・世界への挑戦 | ムラッシュFC ファンサイト（非公認）"
+  description="加藤純一が率いるムラッシュFCとは？キングスリーグとの関係、7人制サッカーの特徴、常設チーム化の理由、監督・選手体制を初心者向けに紹介します。"
 >
-  <!-- ページヘッダー -->
-  <section class="relative overflow-hidden border-b border-white/10">
-    <div class="absolute inset-0 -z-10">
-      <div class="absolute inset-0 bg-gradient-to-br from-murash-charcoal via-murash-black to-black"></div>
-      <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-murash-red/20 blur-3xl"></div>
-    </div>
-
-    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-      <p class="font-display text-sm font-semibold tracking-[0.3em] text-murash-red">ABOUT</p>
-      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-        ムラッシュFCとは
-      </h1>
-      <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
-        加藤純一がオーナーを務めるキングスリーグの日本チーム「ムラッシュFC」。その成り立ちから、世界への挑戦、そして新生チーム誕生までの歩みをまとめました。
-      </p>
-    </div>
-  </section>
-
-  <!-- 本文 -->
-  <article class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-    <div class="space-y-20">
-      {
-        sections.map((s) => (
-          <section class="scroll-mt-24">
-            {/* シネマチックなチャプターヒーロー：16:9 画像 + 下部グラデにラベル＋h2 をオーバーレイ */}
-            <figure class="group relative overflow-hidden rounded-lg shadow-[0_18px_60px_-18px_rgba(230,0,18,0.4)] ring-1 ring-white/5">
-              <img
-                src={s.image}
-                alt={s.imageAlt}
-                width="1672"
-                height="941"
-                loading="lazy"
-                decoding="async"
-                class="aspect-video h-auto w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-              />
-              {/* 下から立ち上がる黒グラデ：テキスト可読性確保 */}
-              <div
-                aria-hidden="true"
-                class="absolute inset-0 bg-gradient-to-t from-murash-black via-murash-black/70 to-transparent"
-              />
-              {/* チャプターラベル + 大見出し */}
-              <figcaption class="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-10">
-                <p class="flex items-center gap-2 font-display text-[10px] font-bold tracking-[0.4em] text-murash-red sm:text-xs">
-                  <span aria-hidden="true" class="inline-block h-3 w-1 rounded-full bg-murash-red" />
-                  {s.no} / {s.enLabel}
-                </p>
-                <h2 class="mt-2 font-display text-2xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] sm:text-4xl lg:text-5xl">
-                  {s.title}
-                </h2>
-              </figcaption>
-            </figure>
-
-            <p class="mt-3 text-xs text-white/40">
-              ⚠️ AIで生成したイメージ画像です
-            </p>
-
-            <div class="mt-8 space-y-6 border-l-2 border-murash-red/40 pl-5 sm:pl-6">
-              {s.body.map((p) => (
-                <p class="text-base leading-[1.9] text-[#e5e5e5] sm:text-lg">{p}</p>
-              ))}
-            </div>
-          </section>
-        ))
-      }
-    </div>
-
-    <!-- 関連リンク -->
-    <div class="mt-16 flex flex-wrap gap-4 border-t border-white/10 pt-10">
-      <a
-        href="/players"
-        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+  <!-- ============================================================
+       1. ファーストビュー
+       ============================================================ -->
+  <section class="border-b border-white/10">
+    <div class="mx-auto max-w-4xl px-4 pt-10 sm:px-6 sm:pt-14">
+      <figure
+        class="relative overflow-hidden rounded-lg ring-1 ring-white/10 shadow-[0_18px_60px_-18px_rgba(230,0,18,0.4)]"
       >
-        選手名鑑を見る
-        <span aria-hidden="true">→</span>
-      </a>
-      <a
-        href="/"
-        class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5"
-      >
-        トップへ戻る
-      </a>
-    </div>
-  </article>
-
-  <!-- オーナーの覚悟：/junichi-kato への誘導 -->
-  <section class="border-t border-white/10 bg-murash-black py-16 sm:py-20">
-    <div class="mx-auto max-w-3xl px-4 sm:px-6">
-      <!-- 見出し -->
-      <h2 class="section-heading">
-        <span class="section-label-en">OWNER'S RESOLVE</span>
-        <span class="section-title-jp text-2xl sm:text-3xl">オーナーの覚悟</span>
-      </h2>
-      <div
-        class="mt-3 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent"
-      >
-      </div>
-
-      <!-- 抜粋テキスト -->
-      <div class="mt-8 space-y-5 text-base leading-[1.95] text-[#e5e5e5] sm:text-lg">
-        <p>
-          加藤純一がキングスリーグに参戦した発端は、スペインの英雄ジェラール・ピケが立ち上げたこの大会に招待されたことだった。
-        </p>
-        <p>
-          当初はサッカーにそこまで詳しくない状態からのスタート。「バラエティに富んだお祭り的な大会」という印象を持っていたが、第1回メキシコ大会に「ムラッシュFC」として参加すると、その印象は大きく覆される。
-        </p>
-        <p>
-          通算7連敗という結果を経て、「もう二度と負けたくない」という強烈な悔しさと、勝利への執念が芽生えていった——。
-        </p>
-      </div>
-
-      <!-- CTA -->
-      <div class="mt-10">
-        <a
-          href="/junichi-kato"
-          class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-bold tracking-wide text-white transition-colors hover:bg-murash-red-dark"
+        <img
+          src="/images/about/02-murash-fc.webp"
+          alt="円陣を組み世界一を目指すムラッシュFCの選手たちを象徴するイメージ"
+          width="1672"
+          height="941"
+          fetchpriority="high"
+          decoding="async"
+          class="absolute inset-0 h-full w-full object-cover object-center"
+        />
+        <div
+          aria-hidden="true"
+          class="absolute inset-0 bg-gradient-to-t from-murash-black via-murash-black/85 to-murash-black/30"
         >
-          加藤純一の覚悟をすべて読む
+        </div>
+        <figcaption
+          class="relative flex min-h-[24rem] flex-col justify-end p-6 sm:min-h-[30rem] sm:p-10"
+        >
+          <p
+            class="font-display text-xs font-bold tracking-[0.3em] text-murash-red-light sm:text-sm"
+          >
+            ABOUT MURASH FC
+          </p>
+          <h1
+            class="mt-3 font-display text-2xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] sm:text-4xl lg:text-5xl"
+          >
+            配信者が率い、<br />元プロと社会人選手が、<br />本気で<span
+              class="text-murash-red-light">世界一</span
+            >を目指す。
+          </h1>
+        </figcaption>
+      </figure>
+      <p class="mt-3 text-xs text-white/50">⚠️ AIで生成したイメージ画像です</p>
+
+      <p class="mt-6 text-base leading-[1.9] text-[#e5e5e5] sm:text-lg">
+        ムラッシュFCは、ゲーム配信者・加藤純一がオーナーを務めるキングスリーグの日本チームです。元Jリーガー、ソサイチ日本代表、フットサル選手、会社員など、異なる背景を持つ選手たちが集まり、世界大会優勝を目指しています。
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 pb-4 sm:flex-row sm:flex-wrap">
+        <a
+          href="/players"
+          class:list={[
+            "inline-flex items-center justify-center gap-2 rounded-sm bg-murash-red px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark",
+            focusRing,
+          ]}
+        >
+          選手名鑑を見る
+          <span aria-hidden="true">→</span>
+        </a>
+        <a
+          href="/tournaments"
+          class:list={[
+            "inline-flex items-center justify-center gap-2 rounded-sm border border-white/20 px-6 py-3 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5",
+            focusRing,
+          ]}
+        >
+          大会の軌跡を見る
           <span aria-hidden="true">→</span>
         </a>
       </div>
     </div>
   </section>
+
+  <div class="mx-auto max-w-4xl space-y-16 px-4 py-16 sm:px-6 sm:space-y-20 sm:py-20">
+    <!-- ============================================================
+         2. 30秒で分かるムラッシュFC
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">AT A GLANCE</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >30秒で分かるムラッシュFC</span
+        >
+      </h2>
+      <dl class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {
+          glanceItems.map((item) => (
+            <div class="rounded-md border border-white/10 bg-murash-charcoal p-4">
+              <dt class="text-[11px] tracking-wide text-white/50">
+                {item.label}
+              </dt>
+              <dd class="mt-1 font-display text-base font-bold leading-snug text-white sm:text-lg">
+                {item.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <!-- ============================================================
+         3. 普通のサッカーチームと何が違う？
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">WHAT MAKES IT DIFFERENT</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >普通のサッカーチームと何が違う？</span
+        >
+      </h2>
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        {
+          differences.map((c) => (
+            <div class="flex h-full flex-col rounded-md border border-white/10 bg-murash-charcoal p-5">
+              <h3 class="font-display text-lg font-bold leading-snug text-white">
+                {c.title}
+              </h3>
+              <p class="mt-3 text-sm leading-[1.85] text-[#e5e5e5]">{c.body}</p>
+            </div>
+          ))
+        }
+      </div>
+      <div class="mt-6">
+        <a
+          href="/glossary"
+          class:list={[
+            "inline-flex items-center gap-1.5 font-display text-sm font-semibold text-murash-red-light hover:underline underline-offset-4",
+            focusRing,
+          ]}
+        >
+          キングスリーグのルールを詳しく見る
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         4. クラブチームと日本代表、2つの顔
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">TWO IDENTITIES</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >クラブチームと日本代表、2つの顔</span
+        >
+      </h2>
+      <div class="mt-8 grid gap-4 sm:grid-cols-2">
+        {
+          identities.map((c) => (
+            <div class="flex h-full flex-col rounded-md border border-white/10 bg-murash-charcoal p-5 sm:p-6">
+              <p class="font-display text-xs font-bold tracking-[0.2em] text-murash-red-light">
+                {c.name}
+              </p>
+              <h3 class="mt-2 font-display text-xl font-bold text-white">
+                {c.title}
+              </h3>
+              <p class="mt-3 flex-1 text-sm leading-[1.85] text-[#e5e5e5]">
+                {c.body}
+              </p>
+              <p class="mt-4 rounded-sm border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
+                {c.note}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+      <div class="mt-6">
+        <a
+          href="/tournaments"
+          class:list={[
+            "inline-flex items-center gap-1.5 font-display text-sm font-semibold text-murash-red-light hover:underline underline-offset-4",
+            focusRing,
+          ]}
+        >
+          世界大会の戦績を見る
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         5. なぜソサイチ経験者が多いのか
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">WHY FOOTBALL 7</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >なぜソサイチ経験者が多いのか</span
+        >
+      </h2>
+      <div class="mt-8 space-y-5 text-base leading-[1.9] text-[#e5e5e5]">
+        <p>
+          キングスリーグとソサイチは、どちらもGKを含む7人制です。11人制より選手同士の距離が近く、全員に攻撃と守備への関与が求められます。
+        </p>
+        <p>
+          ムラッシュFCには、ソサイチ日本代表やF7SLで活躍する選手が多く所属しています。7人制特有の距離感、判断速度、攻守の切り替えを経験していることが、キングスリーグへの適応につながっています。
+        </p>
+      </div>
+      <ul class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {
+          football7Points.map((p) => (
+            <li class="rounded-md border border-white/10 bg-murash-charcoal px-4 py-3 text-sm font-medium text-white">
+              {p}
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-6">
+        <a
+          href="/glossary"
+          class:list={[
+            "inline-flex items-center gap-1.5 font-display text-sm font-semibold text-murash-red-light hover:underline underline-offset-4",
+            focusRing,
+          ]}
+        >
+          ソサイチとは？
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         6. なぜ常設チームになったのか
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">THE REBUILD</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >なぜ常設チームになったのか</span
+        >
+      </h2>
+      <p class="mt-6 text-base leading-[1.9] text-[#e5e5e5] sm:text-lg">
+        世界大会を経験する中で、短期間の招集だけでは海外の常設チームとの差を埋められないことが明確になりました。そこでムラッシュFCは、選手を継続的に育成し、連携を積み上げる常設クラブへと生まれ変わりました。
+      </p>
+      <div class="mt-8 grid gap-4 md:grid-cols-2">
+        <div class="rounded-md border border-white/10 bg-murash-charcoal p-5">
+          <p class="font-display text-xs font-bold tracking-[0.2em] text-white/50">
+            BEFORE
+          </p>
+          <h3 class="mt-1 font-display text-lg font-bold text-white">
+            {rebuildBefore.title}
+          </h3>
+          <ul class="mt-4 space-y-2">
+            {
+              rebuildBefore.items.map((it) => (
+                <li class="flex gap-2 text-sm leading-relaxed text-white/70">
+                  <span aria-hidden="true" class="text-white/30">
+                    —
+                  </span>
+                  <span>{it}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="rounded-md border border-murash-red/40 bg-murash-charcoal p-5">
+          <p
+            class="font-display text-xs font-bold tracking-[0.2em] text-murash-red-light"
+          >
+            AFTER
+          </p>
+          <h3 class="mt-1 font-display text-lg font-bold text-white">
+            {rebuildAfter.title}
+          </h3>
+          <ul class="mt-4 space-y-2">
+            {
+              rebuildAfter.items.map((it) => (
+                <li class="flex gap-2 text-sm leading-relaxed text-[#e5e5e5]">
+                  <span aria-hidden="true" class="text-murash-red-light">
+                    ✓
+                  </span>
+                  <span>{it}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+      <div class="mt-6">
+        <a
+          href="/rebirth"
+          class:list={[
+            "inline-flex items-center gap-1.5 font-display text-sm font-semibold text-murash-red-light hover:underline underline-offset-4",
+            focusRing,
+          ]}
+        >
+          新生チーム誕生の物語を見る
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         7. チームを動かす人たち
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">TEAM LEADERS</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >チームを動かす人たち</span
+        >
+      </h2>
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          leaders.map((l) => {
+            const inner = (
+              <>
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="font-display text-base font-bold text-white">
+                    {l.name}
+                  </h3>
+                  <span class="shrink-0 rounded-sm border border-murash-red/40 bg-murash-red/10 px-2 py-0.5 font-display text-[10px] font-bold tracking-wide text-murash-red-light">
+                    {l.role}
+                  </span>
+                </div>
+                <p class="mt-3 text-sm leading-[1.8] text-white/70">{l.desc}</p>
+              </>
+            );
+            return l.href ? (
+              <a
+                href={l.href}
+                class:list={[
+                  "group block rounded-md border border-white/10 bg-murash-charcoal p-5 transition-colors hover:border-murash-red/60",
+                  focusRing,
+                ]}
+              >
+                {inner}
+                <span class="mt-3 inline-flex items-center gap-1 font-display text-xs font-semibold text-murash-red-light">
+                  プロフィールを見る
+                  <span aria-hidden="true">→</span>
+                </span>
+              </a>
+            ) : (
+              <div class="rounded-md border border-white/10 bg-murash-charcoal p-5">
+                {inner}
+              </div>
+            );
+          })
+        }
+      </div>
+      <div class="mt-6">
+        <a
+          href="/players"
+          class:list={[
+            "inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5",
+            focusRing,
+          ]}
+        >
+          全員の詳細を見る（選手・スタッフ名鑑）
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         8. 数字で見るムラッシュFC
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">MURASH FC IN NUMBERS</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >数字で見るムラッシュFC</span
+        >
+      </h2>
+      <dl class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+        {
+          numbers.map((n) => (
+            <div class="rounded-md border border-white/10 bg-murash-black p-4 text-center">
+              <dd class="font-display text-3xl font-bold leading-none text-murash-red-light sm:text-4xl">
+                {n.value}
+              </dd>
+              <dt class="mt-2 text-[11px] tracking-wide text-white/60">
+                {n.label}
+              </dt>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <!-- ============================================================
+         9. これまでと、これから
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">THE JOURNEY</span>
+        <span class="section-title-jp text-2xl sm:text-3xl">これまでと、これから</span>
+      </h2>
+      <ol class="mt-8 space-y-3">
+        {
+          journey.map((j) => (
+            <li class="flex flex-col gap-1 rounded-md border-l-2 border-murash-red/50 bg-murash-charcoal py-3 pl-4 pr-4 sm:flex-row sm:items-baseline sm:gap-4">
+              <span class="shrink-0 font-display text-sm font-bold text-murash-red-light">
+                {j.year}
+              </span>
+              <span class="text-sm leading-[1.8] text-[#e5e5e5]">{j.body}</span>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="mt-6">
+        <a
+          href="/history"
+          class:list={[
+            "inline-flex items-center gap-1.5 font-display text-sm font-semibold text-murash-red-light hover:underline underline-offset-4",
+            focusRing,
+          ]}
+        >
+          結成から現在までの歴史を見る
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         10. もっと知る
+         ============================================================ -->
+    <section>
+      <h2 class="section-heading">
+        <span class="section-label-en">EXPLORE MORE</span>
+        <span class="section-title-jp text-2xl sm:text-3xl"
+          >もっとムラッシュFCを知る</span
+        >
+      </h2>
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          exploreCards.map((c) => (
+            <a
+              href={c.href}
+              class:list={[
+                "group flex h-full flex-col rounded-md border border-white/10 bg-murash-charcoal p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-murash-red/60",
+                focusRing,
+              ]}
+            >
+              <p class="text-xs text-white/50">{c.lead}</p>
+              <h3 class="mt-1 font-display text-lg font-bold text-white transition-colors group-hover:text-murash-red-light">
+                {c.title}
+              </h3>
+              <p class="mt-2 flex-1 text-sm leading-[1.8] text-white/70">
+                {c.desc}
+              </p>
+              <span class="mt-4 inline-flex items-center gap-1 font-display text-xs font-semibold text-murash-red-light">
+                ひらく
+                <span
+                  aria-hidden="true"
+                  class="transition-transform group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </div>
 </Layout>
