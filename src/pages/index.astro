@@ -12,8 +12,22 @@ const NEXT_MATCH_TOURNAMENT = tournaments.find(
   (t) => t.exhibitionMatches && t.exhibitionMatches.length > 0,
 );
 const upcomingMatches = NEXT_MATCH_TOURNAMENT?.exhibitionMatches ?? [];
+
+/**
+ * 見出しの改行位置を制御するためのチャンク。
+ * CJK は全文字が改行可能なため、そのままだと「エキシビジ／ョンマッチ」のように
+ * 語の途中で折れてしまう。`.next-match-title { word-break: keep-all }` で任意改行を止め、
+ * ここで分割した意味の切れ目にだけ <wbr> を入れて折り返させる。
+ */
+const NEXT_MATCH_NAME_CHUNKS = [
+  "キングス・",
+  "ワールドカップ",
+  " エキシビジョン",
+  "マッチ",
+];
+
 const NEXT_MATCH = {
-  name: "キングス・ワールドカップ エキシビジョンマッチ",
+  name: NEXT_MATCH_NAME_CHUNKS.join(""),
   location: "イタリア／ミラノ",
   dateLabel: "2026年7月28日〜31日",
   detailUrl: NEXT_MATCH_TOURNAMENT
@@ -270,9 +284,16 @@ const visualTimeline = [
         class="next-match-card mt-8 overflow-hidden rounded-lg border border-murash-red/30 bg-gradient-to-br from-murash-charcoal/90 to-murash-black/95 p-6 sm:mt-10 sm:p-12"
       >
         <h2
-          class="text-center font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl"
+          class="next-match-title text-center font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl"
         >
-          {NEXT_MATCH.name}
+          {
+            NEXT_MATCH_NAME_CHUNKS.map((chunk, i) => (
+              <>
+                {i > 0 && <wbr />}
+                {chunk}
+              </>
+            ))
+          }
         </h2>
 
         <div
@@ -679,6 +700,18 @@ const visualTimeline = [
 </Layout>
 
 <style>
+  /*
+   * NEXT MATCH 見出しの改行位置制御。
+   * keep-all で CJK の任意改行（「エキシビジ／ョン」のような語中改行）を止め、
+   * マークアップ側の <wbr> を入れた意味の切れ目でだけ折り返させる。
+   * break-word は保険：チャンク単体が幅に収まらない極端に狭い画面でのみ、
+   * 従来どおり任意位置で折ってはみ出しを防ぐ。
+   */
+  .next-match-title {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
   .content-card:hover {
     box-shadow: 0 8px 22px -12px rgba(230, 0, 18, 0.45);
   }
