@@ -343,7 +343,7 @@ const visualTimeline = [
               iso: m.iso,
             })),
           )}
-          class="countdown-pulse mt-8 grid grid-cols-4 gap-2 rounded-lg p-2 sm:mt-10 sm:gap-4 sm:p-3"
+          class="countdown-pulse mt-8 grid grid-cols-4 gap-3 rounded-lg p-2 sm:mt-10 sm:gap-4 sm:p-3"
         >
           {
             [
@@ -352,10 +352,10 @@ const visualTimeline = [
               { id: "cd-mins", label: "分" },
               { id: "cd-secs", label: "秒" },
             ].map((u) => (
-              <div class="countdown-cell group relative flex flex-col items-center justify-center rounded-md border border-white/10 bg-black/55 px-1 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-murash-red/50 hover:bg-black/70 sm:py-7">
+              <div class="countdown-cell group relative flex flex-col items-center justify-center rounded-md border border-white/15 bg-black/55 px-2 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-murash-red/50 hover:bg-black/70 sm:py-7">
                 <div
                   id={u.id}
-                  class="cd-num font-display text-5xl font-black tabular-nums leading-none text-white sm:text-7xl lg:text-8xl"
+                  class="cd-num font-display text-4xl font-bold tabular-nums leading-none text-white min-[380px]:text-5xl sm:text-7xl lg:text-8xl"
                   style="text-shadow: 0 0 32px rgba(230,0,18,0.35), 0 0 10px rgba(230,0,18,0.25);"
                 >
                   --
