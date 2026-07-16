@@ -5,7 +5,7 @@ import { tournaments } from "../../data/tournaments";
 
 <Layout
   title="大会の軌跡 | ムラッシュFC ファンサイト（非公認）"
-  description="ムラッシュFCが戦ってきたキングスリーグ4大会（メキシコ・イタリア・フランス・ブラジル）の結果と名場面、舞台裏のエピソードを時系列でまとめました。"
+  description="ムラッシュFCが戦ってきたキングスリーグ4大会（メキシコ・イタリア・フランス・ブラジル）の結果と名場面、舞台裏のエピソードに加え、参戦予定のキングス・ワールドカップ・クラブズ2026までを時系列でまとめました。"
 >
   <!-- ページヘッダー -->
   <section class="relative overflow-hidden border-b border-white/10">
@@ -20,7 +20,7 @@ import { tournaments } from "../../data/tournaments";
         大会の軌跡
       </h1>
       <p class="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
-        メキシコ、イタリア、フランス、ブラジル。ムラッシュFCがこれまで挑んだ4つの大会を、結果と名場面、舞台裏のエピソードとともに時系列で振り返ります。
+        メキシコ、イタリア、フランス、ブラジル。ムラッシュFCがこれまで挑んだ4つの大会を、結果と名場面、舞台裏のエピソードとともに時系列で振り返ります。そして2026年7月、新体制で臨むキングス・ワールドカップ・クラブズ2026へ。
       </p>
     </div>
   </section>
@@ -70,10 +70,20 @@ import { tournaments } from "../../data/tournaments";
                       <span class="font-display text-xs font-semibold tracking-wider text-white/40">
                         {t.date}
                       </span>
+                      {t.upcoming && (
+                        <span class="rounded-sm border border-murash-red/40 bg-murash-red/10 px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-murash-red-light">
+                          開催予定
+                        </span>
+                      )}
                     </div>
                     <h2 class="mt-2 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
                       {t.name}
                     </h2>
+                    {t.subtitle && (
+                      <p class="mt-1 font-display text-sm font-semibold tracking-wide text-murash-red-light">
+                        {t.subtitle}
+                      </p>
+                    )}
 
                     <dl class="mt-4 space-y-2 text-sm">
                       {meta.map((m) => (

@@ -21,8 +21,8 @@ const currentStaff = players.filter(
       false),
 );
 const staffCount = currentStaff.length;
-// 世界大会出場回数（tournaments.ts の大会数 = メキシコ/イタリア/フランス/ブラジル）
-const worldCupCount = tournaments.length;
+// 世界大会出場回数（開催済みの大会のみ。upcoming=開催予定 は実績に含めない）
+const worldCupCount = tournaments.filter((t) => !t.upcoming).length;
 
 // 算出が難しい年は定数化（更新時はここを変更）
 const FIRST_ENTRY_YEAR = 2024; // 初参戦：第1回メキシコ大会

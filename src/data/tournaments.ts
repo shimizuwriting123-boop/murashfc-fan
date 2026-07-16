@@ -42,6 +42,31 @@ export interface TournamentDetail {
   sections: DetailSection[];
 }
 
+/**
+ * エキシビションマッチ1試合ぶん。
+ * TOP の NEXT MATCH カウントダウンと大会詳細ページで同じ値を共有するため、
+ * 日時は必ずここ（データ側）に持たせる。ページ側でハードコードしないこと。
+ */
+export interface ExhibitionMatch {
+  /** 表示用ラベル（例：「第1戦」） */
+  no: string;
+  /** 対戦相手のクラブ名 */
+  opponent: string;
+  /** キックオフ日時（ISO8601・タイムゾーン付き。カウントダウンの対象） */
+  iso: string;
+  /** 表示用の日時ラベル（例：「7月28日(火) 23:00〜」） */
+  dateLabel: string;
+  /** ABEMA の視聴リンク */
+  abemaUrl?: string;
+}
+
+/** 本戦のラウンド日程（ムラッシュFC は非参戦。情報として掲載） */
+export interface MainRound {
+  label: string;
+  /** 日本時間の日程表記 */
+  dateLabel: string;
+}
+
 export interface Tournament {
   /** 内部ID（players.ts の TournamentSlug と一致） */
   slug: TournamentSlug;
@@ -62,6 +87,19 @@ export interface Tournament {
   feature?: TournamentFeature;
   /** 個別ページのリッチ本文。未定義の大会は /tournaments/{urlSlug} を生成しない */
   detail?: TournamentDetail;
+  /** 大会名の下に添えるサブタイトル（例：「第5弾／イタリア・ミラノ」） */
+  subtitle?: string;
+  /**
+   * 未開催（開催予定）の大会は true。
+   * 「世界大会出場回数」など実績系の集計からは除外する。
+   */
+  upcoming?: boolean;
+  /** ムラッシュFC が参戦するエキシビションマッチ（TOP カウントダウンと共有） */
+  exhibitionMatches?: ExhibitionMatch[];
+  /** 本戦の日程（ムラッシュFC 非参戦） */
+  mainRounds?: MainRound[];
+  /** 日程セクションに添える注記 */
+  scheduleNote?: string;
   /** その大会のコーチング・スタッフ体制 */
   staffRoster?: StaffRosterEntry[];
   /**
@@ -635,6 +673,118 @@ export const tournaments: Tournament[] = [
     ],
     squadNote:
       "※深谷圭佑は妻の第1子出産のためブラジル大会を辞退・不参加。完全なメンバー情報は公式発表待ち。情報をお持ちの方はお知らせください。",
+  },
+  {
+    slug: "clubs2026",
+    urlSlug: "kings-world-cup-clubs-2026",
+    no: "第5弾",
+    name: "キングス・ワールドカップ・クラブズ2026",
+    subtitle: "第5弾／イタリア・ミラノ",
+    upcoming: true,
+    date: "2026年7月",
+    format: "クラブ世界一決定戦（エキシビションマッチ参戦）",
+    result: "開催予定（参戦予定）",
+    highlight:
+      "ジェラール・ピケが考案した“新時代”7人制サッカーの、クラブ世界一決定戦。過去4大会（各国のキングス・ワールドカップ）とは別枠の「クラブ版」大会で、ムラッシュFCは新体制で世界の強豪クラブに挑む。本戦には参戦せず、キングスリーグ・イタリア所属クラブとのエキシビションマッチ3試合を戦う。ABEMAでムラッシュFC戦を全試合無料生中継。",
+    scheduleNote: "※日程は変更される可能性があります。最新情報をご確認ください。",
+    exhibitionMatches: [
+      {
+        no: "第1戦",
+        opponent: "Zebras FC",
+        iso: "2026-07-28T23:00:00+09:00",
+        dateLabel: "7月28日(火) 23:00〜",
+        abemaUrl: "https://abema.go.link/bhYzm",
+      },
+      {
+        no: "第2戦",
+        opponent: "Gear 7 FC",
+        iso: "2026-07-30T23:00:00+09:00",
+        dateLabel: "7月30日(木) 23:00〜",
+        abemaUrl: "https://abema.go.link/isTJe",
+      },
+      {
+        no: "第3戦",
+        opponent: "Zeta Como",
+        iso: "2026-07-31T23:00:00+09:00",
+        dateLabel: "7月31日(金) 23:00〜",
+        abemaUrl: "https://abema.go.link/bFDNv",
+      },
+    ],
+    mainRounds: [
+      { label: "ラウンド1", dateLabel: "7月27日 午前2時〜／7月28日 午前2時〜" },
+      { label: "ラウンド2", dateLabel: "7月29日 午前2時〜／7月30日 午前2時〜" },
+      { label: "ラストチャンス", dateLabel: "7月31日 午前2時〜" },
+      { label: "準々決勝", dateLabel: "8月1日 午前2時〜" },
+      { label: "準決勝", dateLabel: "8月2日 午前2時〜" },
+      { label: "決勝", dateLabel: "8月2日 午前4時〜" },
+    ],
+    detail: {
+      hostCountry: "イタリア（ミラノ）",
+      sections: [
+        {
+          title: "大会概要",
+          items: [
+            {
+              body: [
+                "**キングス・ワールドカップ・クラブズ2026** は、ジェラール・ピケが考案した“新時代”7人制サッカーの**クラブ世界一決定戦**。世界各国のキングスリーグを勝ち抜いたクラブが集い、クラブ単位で世界一を争う。",
+                "**この大会は、過去4大会（メキシコ大会・イタリア大会・フランス大会・ブラジル大会）とは別枠の「クラブ版」大会である。** ムラッシュFCは本戦には参戦せず、キングスリーグ・イタリア所属クラブとのエキシビションマッチ3試合を戦う。",
+                "新体制で臨む今大会の陣容は、プレジデントに加藤純一、共同オーナーに柿谷曜一朗、監督に太田宏介。ムラッシュFC戦は**ABEMAで全試合無料生中継**される。",
+              ],
+            },
+          ],
+        },
+        {
+          title: "開催地",
+          items: [
+            {
+              body: [
+                "開催国：イタリア ／ 開催都市：ミラノ",
+                "会場：コローニョ・モンツェーゼ｜キングスアリーナ（フォンジーズアリーナ）",
+              ],
+            },
+          ],
+        },
+        {
+          title: "開催期間",
+          items: [
+            {
+              body: [
+                "日本時間：2026年7月27日〜8月2日",
+                "現地時間：2026年7月26日〜8月1日",
+              ],
+            },
+          ],
+        },
+        {
+          title: "エキシビ対戦相手",
+          items: [
+            {
+              title: "Zebras FC（第1戦）",
+              body: [
+                "2026シーズンのキングスリーグ・イタリアでプレーオフ進出を争う実力チーム。オーナーはイタリアのストリーマー Luca Campolunghi（ルカ・カンポルンギ）。",
+              ],
+            },
+            {
+              title: "Gear 7 FC（第2戦）",
+              body: [
+                "若手中心のメンバー構成で、攻撃的なプレースタイルが特徴。オーナーはイタリアのストリーマー Manuuxo（マヌーショ）。",
+              ],
+            },
+            {
+              title: "Zeta Como（第3戦）",
+              body: [
+                "キングスリーグ・イタリアでも上位を争うクラブの一つ。元イタリア代表の Luca Toni（ルカ・トーニ）と、サッカー系コンテンツクリエイターの ZW Jackson（ズィーダブリュー・ジャクソン）が共同オーナーを務める。",
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    staffRoster: [
+      { role: "プレジデント", name: "加藤純一" },
+      { role: "共同オーナー", name: "柿谷曜一朗", playerSlug: "kakitani" },
+      { role: "監督", name: "太田宏介", playerSlug: "ota" },
+    ],
   },
 ];
 

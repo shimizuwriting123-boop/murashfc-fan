@@ -34,6 +34,12 @@ interface Props {
 const { tournament: t, prev, next } = Astro.props;
 const detail = t.detail!;
 
+// インフォグラフィックは public/images/infographics/{urlSlug}.webp を用意した大会のみ表示。
+// 未用意の大会（開催予定など）は画像セクションごと非表示にする。
+const infographics = import.meta.glob("/public/images/infographics/*.webp");
+const hasInfographic =
+  `/public/images/infographics/${t.urlSlug}.webp` in infographics;
+
 const videoCategory = TOURNAMENT_URLSLUG_TO_VIDEO_CATEGORY[t.urlSlug];
 const videos = videoCategory ? getVideosFor(videoCategory) : [];
 
@@ -128,6 +134,13 @@ const meta = [
       >
         {t.name}
       </h1>
+      {
+        t.subtitle && (
+          <p class="mt-2 font-display text-sm font-semibold tracking-wide text-murash-red-light sm:text-base">
+            {t.subtitle}
+          </p>
+        )
+      }
 
       <!-- 概要メタ -->
       <dl class="mt-6 space-y-2 text-sm">
@@ -145,7 +158,9 @@ const meta = [
     </div>
   </section>
 
-  <!-- ビジュアルサマリー：インフォグラフィック -->
+  <!-- ビジュアルサマリー：インフォグラフィック（画像を用意している大会のみ） -->
+  {
+    hasInfographic && (
   <section class="border-b border-white/10 bg-murash-black">
     <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
       <h2 class="section-heading">
@@ -179,6 +194,91 @@ const meta = [
       </figure>
     </div>
   </section>
+    )
+  }
+
+  {/* SCHEDULE：大会日程（エキシビ＝参戦・強調／本戦＝非参戦） */}
+  {
+    (t.exhibitionMatches?.length || t.mainRounds?.length) && (
+      <section class="border-b border-white/10 bg-murash-black/40">
+        <div class="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+          <h2 class="section-heading">
+            <span class="section-label-en">SCHEDULE</span>
+            <span class="section-title-jp text-2xl sm:text-3xl">大会日程（日本時間）</span>
+          </h2>
+          <div class="mt-3 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
+
+          {t.scheduleNote && (
+            <p class="mt-4 text-xs text-white/50 sm:text-sm">{t.scheduleNote}</p>
+          )}
+
+          {/* エキシビションマッチ：ムラッシュFC 参戦 */}
+          {t.exhibitionMatches && t.exhibitionMatches.length > 0 && (
+            <div class="mt-8">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-display text-lg font-bold text-white">
+                  エキシビションマッチ
+                </h3>
+                <span class="rounded-sm border border-murash-red/40 bg-murash-red/10 px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-murash-red-light">
+                  ムラッシュFC 参戦
+                </span>
+              </div>
+              <ul class="mt-4 space-y-3">
+                {t.exhibitionMatches.map((m) => (
+                  <li class="rounded-md border border-murash-red/40 bg-murash-charcoal p-4 sm:p-5">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div class="min-w-0">
+                        <p class="font-display text-xs font-bold tracking-widest text-murash-red-light">
+                          {m.no}
+                        </p>
+                        <p class="mt-1 font-display text-lg font-bold text-white">
+                          vs {m.opponent}
+                        </p>
+                        <p class="mt-1 text-sm text-white/70">{m.dateLabel}</p>
+                      </div>
+                      {m.abemaUrl && (
+                        <a
+                          href={m.abemaUrl}
+                          target="_blank"
+                          rel="noopener"
+                          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-sm bg-murash-red px-4 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
+                        >
+                          ABEMAで無料生中継
+                          <span aria-hidden="true">↗</span>
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 本戦：ムラッシュFC 非参戦 */}
+          {t.mainRounds && t.mainRounds.length > 0 && (
+            <div class="mt-10">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-display text-lg font-bold text-white/80">本戦</h3>
+                <span class="rounded-sm border border-white/15 bg-white/5 px-2 py-0.5 font-display text-[10px] font-bold tracking-widest text-white/50">
+                  ムラッシュFC 非参戦
+                </span>
+              </div>
+              <dl class="mt-4 divide-y divide-white/10 rounded-md border border-white/10 bg-murash-charcoal/60">
+                {t.mainRounds.map((r) => (
+                  <div class="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4">
+                    <dt class="shrink-0 font-display text-sm font-semibold text-white/60 sm:w-32">
+                      {r.label}
+                    </dt>
+                    <dd class="text-sm text-white/70">{r.dateLabel}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
 
   {/* SQUAD：出場選手（背番号順カードグリッド・折りたたみ式・初期6名） */}
   {

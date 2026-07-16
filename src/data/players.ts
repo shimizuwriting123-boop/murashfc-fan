@@ -1,6 +1,13 @@
 export type Position = "GK" | "DF" | "MF" | "FW";
 export type PlayerStatus = "confirmed" | "pending" | "past" | "staff";
-export type TournamentSlug = "mexico" | "italy" | "france" | "brazil";
+// clubs2026 = キングス・ワールドカップ・クラブズ2026（クラブ版・第5弾）。
+// 過去4大会（各国のキングス・ワールドカップ）とは別枠の大会。
+export type TournamentSlug =
+  | "mexico"
+  | "italy"
+  | "france"
+  | "brazil"
+  | "clubs2026";
 export type DominantFoot = "right" | "left" | "both";
 
 /** 大会フェーズ。4大会 + 再スタート編（新体制）。 */
@@ -156,6 +163,7 @@ export const PHASE_SHORT_LABEL: Record<ParticipationPhase, string> = {
   italy: "イタリア",
   france: "フランス",
   brazil: "ブラジル",
+  clubs2026: "クラブズ2026",
   rebirth: "新体制",
 };
 
@@ -165,6 +173,7 @@ export const PHASE_FULL_LABEL: Record<ParticipationPhase, string> = {
   italy: "第2回 イタリア大会（2025年1月）",
   france: "第3回 フランス大会（2025年6月）",
   brazil: "第4回 ブラジル大会（2026年1月）",
+  clubs2026: "第5弾 キングス・ワールドカップ・クラブズ2026（2026年7月）",
   rebirth: "再スタート編・新体制（2026年〜）",
 };
 
@@ -1707,4 +1716,9 @@ export const TOURNAMENTS: Record<
   italy: { no: "第2回", short: "イタリア", label: "第2回 イタリア大会" },
   france: { no: "第3回", short: "フランス", label: "第3回 フランス大会" },
   brazil: { no: "第4回", short: "ブラジル", label: "第4回 ブラジル大会" },
+  clubs2026: {
+    no: "第5弾",
+    short: "クラブズ2026",
+    label: "第5弾 キングス・ワールドカップ・クラブズ2026",
+  },
 };

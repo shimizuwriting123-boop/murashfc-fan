@@ -2,12 +2,23 @@
 import Layout from "../layouts/Layout.astro";
 import { tournaments } from "../data/tournaments";
 
-// 次の試合（後で正確な日時に差し替え：iso を変更するだけでOK）
+/**
+ * NEXT MATCH：日時は tournaments.ts の exhibitionMatches を唯一の情報源とする
+ * （詳細ページと値を共有するため、ここでは日時をハードコードしない）。
+ * 実際のカウントダウン対象（現在時刻より後で最も近い試合）は、
+ * ビルド時刻に依存しないようクライアント側スクリプトで決定する。
+ */
+const NEXT_MATCH_TOURNAMENT = tournaments.find(
+  (t) => t.exhibitionMatches && t.exhibitionMatches.length > 0,
+);
+const upcomingMatches = NEXT_MATCH_TOURNAMENT?.exhibitionMatches ?? [];
 const NEXT_MATCH = {
   name: "キングス・ワールドカップ エキシビジョンマッチ",
-  location: "イタリア",
-  iso: "2026-07-31T19:00:00+09:00",
-  dateLabel: "2026年7月31日（仮）",
+  location: "イタリア／ミラノ",
+  dateLabel: "2026年7月28日〜31日",
+  detailUrl: NEXT_MATCH_TOURNAMENT
+    ? `/tournaments/${NEXT_MATCH_TOURNAMENT.urlSlug}`
+    : "/tournaments",
 };
 
 /**
@@ -33,6 +44,7 @@ const results = tournaments.map((t, i) => {
     result: hasSplit ? parts.slice(1).join("・") : parts[0],
     urlSlug: t.urlSlug,
     hasDetail: !!t.detail,
+    upcoming: !!t.upcoming,
   };
 });
 
@@ -276,6 +288,13 @@ const visualTimeline = [
           </span>
         </div>
 
+        <!-- 次戦ラベル（JSで対象試合名を差し込む） -->
+        <p
+          id="cd-target-label"
+          class="mt-4 text-center font-display text-sm font-semibold tracking-wide text-murash-red-light sm:text-base"
+        >
+        </p>
+
         <!-- KICK OFF ラベル -->
         <div class="mt-12 flex items-center justify-center gap-3 sm:mt-16">
           <span
@@ -296,7 +315,13 @@ const visualTimeline = [
         <!-- カウントダウン -->
         <div
           id="countdown"
-          data-target={NEXT_MATCH.iso}
+          data-matches={JSON.stringify(
+            upcomingMatches.map((m) => ({
+              no: m.no,
+              opponent: m.opponent,
+              iso: m.iso,
+            })),
+          )}
           class="countdown-pulse mt-8 grid grid-cols-4 gap-2 rounded-lg p-2 sm:mt-10 sm:gap-4 sm:p-3"
         >
           {
@@ -328,12 +353,64 @@ const visualTimeline = [
 
         <p
           id="cd-note"
-          class="mt-6 text-center text-xs text-white/35 sm:mt-8"
+          class="mt-6 hidden text-center text-xs text-white/35 sm:mt-8"
         >
-          ※日時は仮です。決定次第更新します。
         </p>
+
+        <!-- エキシビ3試合の一覧（次戦は data-next="true" で強調） -->
+        {
+          upcomingMatches.length > 0 && (
+            <ul id="match-list" class="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-3">
+              {upcomingMatches.map((m) => (
+                <li
+                  data-match-item
+                  data-iso={m.iso}
+                  class="match-item flex h-full flex-col rounded-md border border-white/10 bg-black/45 p-4 transition-colors"
+                >
+                  <div class="flex items-center gap-2">
+                    <span class="font-display text-xs font-bold tracking-widest text-white/45">
+                      {m.no}
+                    </span>
+                    <span
+                      data-next-badge
+                      class="hidden rounded-sm bg-murash-red px-1.5 py-0.5 font-display text-[10px] font-bold tracking-widest text-white"
+                    >
+                      次戦
+                    </span>
+                  </div>
+                  <p class="mt-1.5 font-display text-lg font-bold leading-snug text-white">
+                    vs {m.opponent}
+                  </p>
+                  <p class="mt-1 text-sm text-white/60">{m.dateLabel}</p>
+                  {m.abemaUrl && (
+                    <a
+                      href={m.abemaUrl}
+                      target="_blank"
+                      rel="noopener"
+                      class="mt-3 inline-flex items-center justify-center gap-1.5 rounded-sm border border-murash-red/50 px-3 py-2 font-display text-xs font-semibold tracking-wide text-murash-red-light transition-colors hover:bg-murash-red hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
+                    >
+                      ABEMAで無料生中継
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+
+        <div class="mt-8 flex justify-center">
+          <a
+            href={NEXT_MATCH.detailUrl}
+            class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
+          >
+            大会情報を見る
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
         <p
-          class="mt-2 text-center font-display text-sm font-semibold tracking-wide text-murash-red/85"
+          class="mt-6 text-center font-display text-sm font-semibold tracking-wide text-murash-red/85"
         >
           ── ムラッシュFCの次の戦いを見逃すな ──
         </p>
@@ -556,6 +633,11 @@ const visualTimeline = [
                 <span class="font-display text-xs font-semibold tracking-wider text-white/40">
                   {r.ym}
                 </span>
+                {r.upcoming && (
+                  <span class="rounded-sm border border-murash-red/40 bg-murash-red/10 px-1.5 py-0.5 font-display text-[10px] font-bold tracking-widest text-murash-red-light">
+                    開催予定
+                  </span>
+                )}
               </div>
 
               <h3 class="relative mt-4 font-display text-xl font-bold tracking-tight text-white">
@@ -690,9 +772,45 @@ const visualTimeline = [
 </style>
 
 <script>
+  interface MatchData {
+    no: string;
+    opponent: string;
+    iso: string;
+  }
+
   const el = document.getElementById("countdown");
-  if (el instanceof HTMLElement && el.dataset.target) {
-    const target = new Date(el.dataset.target).getTime();
+  if (el instanceof HTMLElement && el.dataset.matches) {
+    const matches: MatchData[] = JSON.parse(el.dataset.matches);
+    // 日時順に並べておく（データ側の順序に依存しない）
+    matches.sort(
+      (a, b) => new Date(a.iso).getTime() - new Date(b.iso).getTime(),
+    );
+
+    const targetLabel = document.getElementById("cd-target-label");
+    const matchList = document.getElementById("match-list");
+    const items = matchList
+      ? Array.from(
+          matchList.querySelectorAll<HTMLElement>("[data-match-item]"),
+        )
+      : [];
+
+    /** 現在時刻より後で最も近い試合。全試合終了後は null */
+    const nextMatch = (): MatchData | null =>
+      matches.find((m) => new Date(m.iso).getTime() > Date.now()) ?? null;
+
+    /** 次戦カードの強調を更新 */
+    const markNext = (m: MatchData | null) => {
+      items.forEach((li) => {
+        const isNext = !!m && li.dataset.iso === m.iso;
+        li.classList.toggle("border-murash-red/60", isNext);
+        li.classList.toggle("bg-murash-red/5", isNext);
+        li.classList.toggle("border-white/10", !isNext);
+        li.classList.toggle("bg-black/45", !isNext);
+        const badge = li.querySelector<HTMLElement>("[data-next-badge]");
+        if (badge) badge.classList.toggle("hidden", !isNext);
+      });
+    };
+
     const dd = document.getElementById("cd-days");
     const hh = document.getElementById("cd-hours");
     const mm = document.getElementById("cd-mins");
@@ -716,17 +834,38 @@ const visualTimeline = [
     };
 
     let timer: ReturnType<typeof setInterval>;
+    let currentIso: string | null = null;
+
     const tick = () => {
-      const diff = target - Date.now();
-      if (diff <= 0) {
-        setNum(dd, "0", true);
-        setNum(hh, "00", true);
-        setNum(mm, "00", true);
+      const m = nextMatch();
+
+      // 全試合終了：ゼロ表示のまま「エキシビション終了」を案内し、詳細ページへ誘導
+      if (!m) {
+        setNum(dd, "0", false);
+        setNum(hh, "00", false);
+        setNum(mm, "00", false);
         setNum(ss, "00", false);
-        if (note) note.textContent = "まもなくキックオフ！";
+        if (targetLabel) targetLabel.textContent = "エキシビション終了";
+        if (note) {
+          note.textContent =
+            "全3試合が終了しました。結果は大会情報ページをご覧ください。";
+          note.classList.remove("hidden");
+        }
+        markNext(null);
         clearInterval(timer);
         return;
       }
+
+      // 対象試合が繰り上がったら表示を更新
+      if (m.iso !== currentIso) {
+        currentIso = m.iso;
+        if (targetLabel) {
+          targetLabel.textContent = `${m.no} vs ${m.opponent}`;
+        }
+        markNext(m);
+      }
+
+      const diff = new Date(m.iso).getTime() - Date.now();
       const s = Math.floor(diff / 1000);
       // 日・時間・分はアニメ、秒は静かに更新（うるさくならないように）
       setNum(dd, String(Math.floor(s / 86400)), true);
