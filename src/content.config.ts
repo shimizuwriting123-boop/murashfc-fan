@@ -16,6 +16,9 @@ const blog = defineCollection({
       "考察",
       "イベントレポート",
     ]),
+    // OGP画像（ルート相対パス）。未指定なら共通のヒーロー画像にフォールバック。
+    // X等のクローラー対策で JPG 推奨・1200×630。
+    ogImage: z.string().optional(),
   }),
 });
 

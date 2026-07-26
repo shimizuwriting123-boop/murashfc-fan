@@ -16,12 +16,24 @@ import Footer from "../components/Footer.astro";
 interface Props {
   title?: string;
   description?: string;
+  /** 記事個別のOGP画像（ルート相対パス）。未指定なら共通ヒーロー画像。 */
+  ogImage?: string;
 }
 
 const {
   title = "ムラッシュFC ファンサイト（非公認）",
   description = "加藤純一がオーナーのキングスリーグ日本チーム「ムラッシュFC」を応援する非公認ファンサイト。選手名鑑・大会の軌跡・歴史・用語辞典・ブログをお届けします。",
+  ogImage,
 } = Astro.props;
+
+// OGP画像は絶対URLで出力する（X等のクローラーは相対パスを解決できないため）。
+// ドメインは astro.config の site 設定（Astro.site）を唯一の情報源とし、
+// sitemap / canonical と一貫させる。site 未設定時のみ本番ドメインへフォールバック。
+const OG_FALLBACK = "/images/hero-banner-og.jpg";
+const siteOrigin = Astro.site ?? new URL("https://murashfc-fan.com");
+const ogImageUrl = new URL(ogImage ?? OG_FALLBACK, siteOrigin).href;
+// 共通ヒーロー画像は 1200×675、記事個別OGPは 1200×630（OGP標準）を想定。
+const ogImageHeight = ogImage ? "630" : "675";
 ---
 
 <!doctype html>
@@ -36,13 +48,13 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/images/hero-banner-og.jpg" />
+    <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="675" />
+    <meta property="og:image:height" content={ogImageHeight} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@murashfcfan" />
     <meta name="twitter:creator" content="@murashfcfan" />
-    <meta name="twitter:image" content="/images/hero-banner-og.jpg" />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <link rel="preload" as="image" type="image/webp" href="/images/hero-banner.webp" fetchpriority="high" />
 
