@@ -193,6 +193,20 @@ const fmtDate = (d: Date) =>
     margin: 2.5rem 0;
     border-color: rgba(255, 255, 255, 0.1);
   }
+  /* ツイートのスクショをリンク画像として貼る用。カード風に軽く整える。
+     元画像の自然幅（約600px）を上限に、拡大でボケないようにする。 */
+  .article-body a.tweet-embed {
+    display: block;
+    max-width: 600px;
+    margin: 1.75rem auto;
+    text-decoration: none;
+  }
+  .article-body a.tweet-embed img {
+    margin: 0;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.75rem;
+  }
   /* 記事内 CTA（例：ファンクラブ入会）をサイト共通のボタン意匠に揃える。
      .article-body a の下線・赤文字より優先させる。 */
   .article-body a.fanclub-cta {
