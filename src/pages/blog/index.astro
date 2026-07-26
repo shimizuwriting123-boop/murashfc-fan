@@ -13,7 +13,14 @@ const fmtDate = (d: Date) =>
 
 const excerpt = (body: string, len = 80) => {
   const text = body
+    // MDX の import/export 文を除去（.mdx 記事で本文先頭に入るため）
+    .replace(/^\s*(import|export)\s.*$/gm, "")
+    // JSX / HTML タグを除去（<Tweet />, <a>, <span> など）
+    .replace(/<[^>]+>/g, "")
+    // Markdown 画像 ![alt](url) を除去
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
     .replace(/[#>*_`~\-]/g, "")
+    // Markdown リンク [text](url) はテキストだけ残す
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();

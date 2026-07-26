@@ -193,4 +193,24 @@ const fmtDate = (d: Date) =>
     margin: 2.5rem 0;
     border-color: rgba(255, 255, 255, 0.1);
   }
+  /* 記事内 CTA（例：ファンクラブ入会）をサイト共通のボタン意匠に揃える。
+     .article-body a の下線・赤文字より優先させる。 */
+  .article-body a.fanclub-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 0.125rem;
+    background: #e60012;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background-color 0.2s;
+  }
+  .article-body a.fanclub-cta:hover {
+    background: #b3000e;
+    color: #fff;
+  }
 </style>
