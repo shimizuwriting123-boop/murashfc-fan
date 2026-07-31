@@ -18,11 +18,16 @@ const TOUR_ORDER = [
   "フランス",
   "ブラジル",
   "再スタート編",
+  "クラブズ2026",
 ] as const;
 type TourLabel = (typeof TOUR_ORDER)[number];
 
 function normalizeTournament(t: string | null): TourLabel | null {
   if (!t) return null;
+  // 「クラブズ2026」は開催地がイタリアなだけの別大会（2025年1月の国別対抗
+  // 「イタリア大会」とは無関係）。"イタリア" 判定より先に見る。
+  if (t.includes("クラブズ2026") || t.includes("キングス・ワールドカップ"))
+    return "クラブズ2026";
   if (t.includes("メキシコ")) return "メキシコ";
   if (t.includes("イタリア")) return "イタリア";
   if (t.includes("フランス")) return "フランス";
@@ -61,6 +66,7 @@ const tourCounts: Record<TourLabel, number> = {
   フランス: 0,
   ブラジル: 0,
   再スタート編: 0,
+  クラブズ2026: 0,
 };
 for (const e of entries) {
   catCounts[e.entry.category]++;
