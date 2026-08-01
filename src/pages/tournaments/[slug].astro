@@ -87,6 +87,25 @@ function makeSeen(): Set<string> {
   return new Set<string>();
 }
 
+// エキシビションマッチの結果バッジ表示用
+const RESULT_BADGE: Record<
+  "win" | "lose" | "draw",
+  { label: string; classes: string }
+> = {
+  win: {
+    label: "WIN",
+    classes: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
+  },
+  lose: {
+    label: "LOSE",
+    classes: "border-white/20 bg-white/5 text-white/50",
+  },
+  draw: {
+    label: "DRAW",
+    classes: "border-yellow-400/40 bg-yellow-400/10 text-yellow-300",
+  },
+};
+
 // 概要メタ
 const meta = [
   { label: "形態", value: t.format },
@@ -224,32 +243,76 @@ const meta = [
                 </span>
               </div>
               <ul class="mt-4 space-y-3">
-                {t.exhibitionMatches.map((m) => (
-                  <li class="rounded-md border border-murash-red/40 bg-murash-charcoal p-4 sm:p-5">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div class="min-w-0">
-                        <p class="font-display text-xs font-bold tracking-widest text-murash-red-light">
-                          {m.no}
-                        </p>
-                        <p class="mt-1 font-display text-lg font-bold text-white">
-                          vs {m.opponent}
-                        </p>
-                        <p class="mt-1 text-sm text-white/70">{m.dateLabel}</p>
+                {t.exhibitionMatches.map((m) => {
+                  const matchSeen = makeSeen();
+                  return (
+                    <li class="rounded-md border border-murash-red/40 bg-murash-charcoal p-4 sm:p-5">
+                      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="min-w-0">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <p class="font-display text-xs font-bold tracking-widest text-murash-red-light">
+                              {m.no}
+                            </p>
+                            {m.result && (
+                              <span
+                                class:list={[
+                                  "inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 font-display text-[10px] font-bold tracking-widest",
+                                  RESULT_BADGE[m.result.outcome].classes,
+                                ]}
+                              >
+                                {RESULT_BADGE[m.result.outcome].label} {m.result.score}
+                              </span>
+                            )}
+                          </div>
+                          <p class="mt-1 font-display text-lg font-bold text-white">
+                            vs {m.opponent}
+                          </p>
+                          <p class="mt-1 text-sm text-white/70">{m.dateLabel}</p>
+                          {m.broadcastNote && (
+                            <p class="mt-1 text-xs text-white/50">{m.broadcastNote}</p>
+                          )}
+                        </div>
+                        {m.abemaUrl && (
+                          <a
+                            href={m.abemaUrl}
+                            target="_blank"
+                            rel="noopener"
+                            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-sm bg-murash-red px-4 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
+                          >
+                            ABEMAで無料生中継
+                            <span aria-hidden="true">↗</span>
+                          </a>
+                        )}
                       </div>
-                      {m.abemaUrl && (
-                        <a
-                          href={m.abemaUrl}
-                          target="_blank"
-                          rel="noopener"
-                          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-sm bg-murash-red px-4 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
-                        >
-                          ABEMAで無料生中継
-                          <span aria-hidden="true">↗</span>
-                        </a>
+
+                      {m.scorers && m.scorers.length > 0 && (
+                        <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-white/10 pt-3 text-sm text-white/70">
+                          {m.scorers.map((s) => (
+                            <li>
+                              <span class="text-white/45">{s.minute}</span>{" "}
+                              <span
+                                set:html={renderRichText(s.name, {
+                                  excludeUrl: SELF_URL,
+                                  seenTerms: matchSeen,
+                                })}
+                              />
+                            </li>
+                          ))}
+                        </ul>
                       )}
-                    </div>
-                  </li>
-                ))}
+
+                      {m.note && (
+                        <p
+                          class="mt-4 border-t border-white/10 pt-3 text-sm leading-relaxed text-white/65"
+                          set:html={renderRichText(m.note, {
+                            excludeUrl: SELF_URL,
+                            seenTerms: matchSeen,
+                          })}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

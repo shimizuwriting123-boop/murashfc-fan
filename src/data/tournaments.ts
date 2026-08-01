@@ -58,6 +58,18 @@ export interface ExhibitionMatch {
   dateLabel: string;
   /** ABEMA の視聴リンク */
   abemaUrl?: string;
+  /** 試合結果。開催前（未確定）は undefined のまま */
+  result?: {
+    outcome: "win" | "lose" | "draw";
+    /** 例："9-2" */
+    score: string;
+  };
+  /** 配信体制が通常と異なる場合の補足（例：他プラットフォームでも同時配信） */
+  broadcastNote?: string;
+  /** 確定している得点者（分・選手名）。一部でも未確定な試合では省略し note を使う */
+  scorers?: { minute: string; name: string }[];
+  /** 得点内訳が未確定の試合向けの、確定分のみを述べる補足文。GK評などの追加エピソードにも使う */
+  note?: string;
 }
 
 /** 本戦のラウンド日程（ムラッシュFC は非参戦。情報として掲載） */
@@ -683,9 +695,11 @@ export const tournaments: Tournament[] = [
     upcoming: true,
     date: "2026年7月",
     format: "クラブ世界一決定戦（エキシビションマッチ参戦）",
-    result: "開催予定（参戦予定）",
+    result: "3勝0敗・第4戦 開催前",
+    record:
+      "vs Zebras FC 9-2 勝利 → vs GEAR 7 FC 7-0 勝利 → vs Zeta Como 8-1 勝利 → vs UNDERDOGS FC 開催前",
     highlight:
-      "ジェラール・ピケが考案した“新時代”7人制サッカーの、クラブ世界一決定戦。過去4大会（各国のキングス・ワールドカップ）とは別枠の「クラブ版」大会で、ムラッシュFCは新体制で世界の強豪クラブに挑む。本戦には参戦せず、キングスリーグ・イタリア所属クラブとのエキシビションマッチ3試合を戦う。ABEMAでムラッシュFC戦を全試合無料生中継。",
+      "ジェラール・ピケが考案した“新時代”7人制サッカーの、クラブ世界一決定戦。過去4大会（各国のキングス・ワールドカップ）とは別枠の「クラブ版」大会で、ムラッシュFCは新体制で世界の強豪クラブに挑む。本戦には参戦せず、キングスリーグ・イタリア所属クラブとのエキシビションマッチ4試合を戦う。Zebras FC・GEAR 7 FC・Zeta Comoとの3試合を3連勝、24得点3失点という好スタートで終えた。ABEMAでムラッシュFC戦を全試合無料生中継。",
     scheduleNote: "※日程は変更される可能性があります。最新情報をご確認ください。",
     exhibitionMatches: [
       {
@@ -694,6 +708,18 @@ export const tournaments: Tournament[] = [
         iso: "2026-07-28T23:00:00+09:00",
         dateLabel: "7月28日(火) 23:00〜",
         abemaUrl: "https://abema.go.link/bhYzm",
+        result: { outcome: "win", score: "9-2" },
+        scorers: [
+          { minute: "1分", name: "宮内俊輔" },
+          { minute: "8分", name: "白石郁哉" },
+          { minute: "12分", name: "横山航河" },
+          { minute: "13分", name: "加藤純一（プレジデントPK）" },
+          { minute: "15分", name: "宮下豪也" },
+          { minute: "21分", name: "中村駿介" },
+          { minute: "22分", name: "中村駿介" },
+          { minute: "27分", name: "中村駿介" },
+          { minute: "42分", name: "木戸皓貴" },
+        ],
       },
       {
         no: "第2戦",
@@ -701,6 +727,17 @@ export const tournaments: Tournament[] = [
         iso: "2026-07-30T23:00:00+09:00",
         dateLabel: "7月30日(木) 23:00〜",
         abemaUrl: "https://abema.go.link/isTJe",
+        result: { outcome: "win", score: "7-0" },
+        scorers: [
+          { minute: "8分", name: "横山航河" },
+          { minute: "14分", name: "小田崚平" },
+          { minute: "17分", name: "木戸皓貴" },
+          { minute: "31分", name: "横山航河" },
+          { minute: "35分", name: "木戸皓貴" },
+          { minute: "36分", name: "林田大和" },
+          { minute: "マッチボール", name: "宮下豪也" },
+        ],
+        note: "ゴールを守った深谷圭佑は、相手の決定機を好セーブで阻止して7-0のクリーンシートに貢献。解説の林陵平から「ノイアーよりノイアーでした」と称賛された。",
       },
       {
         no: "第3戦",
@@ -708,6 +745,17 @@ export const tournaments: Tournament[] = [
         iso: "2026-07-31T23:00:00+09:00",
         dateLabel: "7月31日(金) 23:00〜",
         abemaUrl: "https://abema.go.link/bFDNv",
+        result: { outcome: "win", score: "8-1" },
+        note: "16分に箱﨑裕也が先制。白石郁哉・木戸皓貴も得点を重ね、最後は白石郁哉がマッチボールを決めた。全得点の順序・時刻・ダブルゴールの適用状況は、公式映像を確認のうえ追記します。",
+      },
+      {
+        no: "第4戦",
+        opponent: "UNDERDOGS FC",
+        iso: "2026-08-02T00:00:00+09:00",
+        dateLabel: "8月1日(土) 24:00〜",
+        abemaUrl: "https://abema.go.link/ae2b0",
+        broadcastNote:
+          "第1〜3戦は加藤純一Twitchでの配信でしたが、この第4戦は加藤純一Twitchに加えKings League公式Twitchでも配信されます。",
       },
     ],
     mainRounds: [
@@ -727,7 +775,8 @@ export const tournaments: Tournament[] = [
             {
               body: [
                 "**キングス・ワールドカップ・クラブズ2026** は、ジェラール・ピケが考案した“新時代”7人制サッカーの**クラブ世界一決定戦**。世界各国のキングスリーグを勝ち抜いたクラブが集い、クラブ単位で世界一を争う。",
-                "**この大会は、過去4大会（メキシコ大会・イタリア大会・フランス大会・ブラジル大会）とは別枠の「クラブ版」大会である。** ムラッシュFCは本戦には参戦せず、キングスリーグ・イタリア所属クラブとのエキシビションマッチ3試合を戦う。",
+                "**この大会は、過去4大会（メキシコ大会・イタリア大会・フランス大会・ブラジル大会）とは別枠の「クラブ版」大会である。** ムラッシュFCは本戦には参戦せず、キングスリーグ・イタリア所属クラブとのエキシビションマッチ4試合を戦う。",
+                "当初予定されていたZebras FC・GEAR 7 FC・Zeta Comoとの3試合の終了後、UNDERDOGS FCとの第4戦が緊急追加された。",
                 "新体制で臨む今大会の陣容は、プレジデントに加藤純一、共同オーナーに柿谷曜一朗、監督に太田宏介。ムラッシュFC戦は**ABEMAで全試合無料生中継**される。",
               ],
             },
@@ -774,6 +823,12 @@ export const tournaments: Tournament[] = [
               title: "Zeta Como（第3戦）",
               body: [
                 "キングスリーグ・イタリアでも上位を争うクラブの一つ。元イタリア代表の Luca Toni（ルカ・トーニ）と、サッカー系コンテンツクリエイターの ZW Jackson（ズィーダブリュー・ジャクソン）が共同オーナーを務める。",
+              ],
+            },
+            {
+              title: "UNDERDOGS FC（第4戦）",
+              body: [
+                "キングスリーグ・イタリア所属で、KWCC2026の本戦にも出場しているクラブ（ROUND 1でLa Capital CFと対戦）。当初の3試合終了後に第4戦の相手として緊急追加された。",
               ],
             },
           ],
