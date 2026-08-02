@@ -70,8 +70,6 @@ export interface MvpCandidate {
   nameEn: string;
   /** 選手はポジション（GK/DF/MF/FW）、首脳陣は役職名 */
   label: string;
-  /** 背番号（選手のみ） */
-  number?: number;
   /** 首脳陣は true。カードで役職を出し分けるため */
   isStaff: boolean;
   /** 選手名鑑に個別ページがある場合のみ */
@@ -84,13 +82,13 @@ export interface MvpCandidate {
  */
 const currentPlayers: MvpCandidate[] = players
   .filter((p) => p.status === "confirmed")
+  // 並びは選手名鑑と同じ背番号順（カード上に番号は出さない）
   .sort((a, b) => (a.number ?? 999) - (b.number ?? 999))
   .map((p) => ({
     slug: p.slug,
     name: p.name,
     nameEn: p.nameEn,
     label: p.position,
-    number: p.number,
     isStaff: false,
     href: `/players/${p.slug}`,
   }));
