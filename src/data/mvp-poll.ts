@@ -150,8 +150,8 @@ export const MVP_CANDIDATES: MvpCandidate[] = (() => {
   return out;
 })();
 
-/** 初期表示する候補の数。残りは「すべての候補を見る」で展開する */
-export const INITIAL_VISIBLE_CANDIDATES = 12;
+// 候補は最初から全員を表示する。
+// 折りたたむと、開かないと見えない候補だけが不利になり票が偏るため。
 
 const CANDIDATE_BY_SLUG = new Map(MVP_CANDIDATES.map((c) => [c.slug, c]));
 
