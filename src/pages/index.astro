@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { tournaments } from "../data/tournaments";
 import { nextMatch } from "../data/next-match";
+import MvpPoll from "../components/MvpPoll.astro";
 
 /**
  * NEXT MATCH：表示状態は src/data/next-match.ts の `state` が唯一の情報源。
@@ -323,6 +324,11 @@ const visualTimeline = [
           </div>
         )
       }
+
+      <!-- MVP投票（LATEST RESULT の直下・NEXT TOURNAMENT の上） -->
+      <div class="mx-auto mb-12 max-w-3xl sm:mb-14">
+        <MvpPoll />
+      </div>
 
       <!-- セクション見出し -->
       <div class="flex items-center justify-center gap-3">

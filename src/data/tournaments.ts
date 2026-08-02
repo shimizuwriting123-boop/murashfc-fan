@@ -42,6 +42,8 @@ export interface DetailSection {
   icon?: string;
   title: string;
   items: DetailItem[];
+  /** このセクションの直後に MVP 投票ブロックを差し込む（総括セクション用） */
+  showMvpPollAfter?: boolean;
 }
 
 export interface TournamentDetail {
@@ -964,6 +966,8 @@ export const tournaments: Tournament[] = [
         },
         {
           title: "4試合を終えて",
+          // 記事を読み終えた直後にMVP投票を出す
+          showMvpPollAfter: true,
           items: [
             {
               title: "「勝てるかもしれない」から、「勝てるチーム」へ",

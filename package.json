@@ -16,10 +16,12 @@
   "dependencies": {
     "@astrojs/mdx": "^6.0.3",
     "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/vercel": "^10.0.8",
     "@fontsource/bebas-neue": "^5.2.7",
     "@fontsource/noto-serif-jp": "^5.2.8",
     "@fontsource/oswald": "^5.2.8",
     "@fontsource/shippori-mincho-b1": "^5.2.8",
+    "@supabase/supabase-js": "^2.111.0",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.4.2",
     "astro-embed": "^0.13.1",

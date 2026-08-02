@@ -8,6 +8,7 @@ import {
 import VideoSection from "../../components/VideoSection.astro";
 import { renderRichText } from "../../utils/autoLink";
 import { players, type Position } from "../../data/players";
+import MvpPoll from "../../components/MvpPoll.astro";
 
 export function getStaticPaths() {
   return tournaments
@@ -595,6 +596,12 @@ const meta = [
                   </div>
                 ))}
               </div>
+
+              {section.showMvpPollAfter && (
+                <div class="mt-10">
+                  <MvpPoll heading="ここまで読んだあなたのMVPは？" />
+                </div>
+              )}
             </section>
           );
         })

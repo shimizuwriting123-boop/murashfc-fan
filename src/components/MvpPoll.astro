@@ -1,0 +1,565 @@
+---
+import {
+  INITIAL_VISIBLE_CANDIDATES,
+  MAX_REASON_TAGS,
+  MVP_CANDIDATES,
+  POLL_ID,
+  REASON_TAGS,
+  REVEAL_THRESHOLD,
+  VOTE_DEADLINE_ISO,
+  isVotingOpen,
+} from "../data/mvp-poll";
+
+interface Props {
+  /** 投票前の見出し。設置場所に合わせて変えられる */
+  heading?: string;
+}
+
+const { heading = "あなたが選ぶ イタリア大会MVPは？" } = Astro.props;
+
+// ビルド時点で締切を過ぎていれば、最初から投票UIを出さない。
+// （静的生成のため、実行時の再判定はクライアント側でも行う）
+const openAtBuild = isVotingOpen();
+---
+
+<section
+  class="mvp-poll rounded-lg border border-white/10 bg-murash-charcoal/70 p-5 sm:p-7"
+  data-mvp-poll
+  data-poll-id={POLL_ID}
+  data-deadline={VOTE_DEADLINE_ISO}
+  data-threshold={REVEAL_THRESHOLD}
+  data-max-tags={MAX_REASON_TAGS}
+  data-open-at-build={String(openAtBuild)}
+  data-closed-heading="ファンが選んだ イタリア大会MVP"
+>
+  <p class="font-display text-xs font-bold tracking-[0.3em] text-murash-red">
+    FAN VOTE
+  </p>
+
+  <h2
+    data-mvp-heading
+    class="mt-2 font-display text-xl font-bold tracking-tight text-white sm:text-2xl"
+  >
+    {openAtBuild ? heading : "ファンが選んだ イタリア大会MVP"}
+  </h2>
+
+  <p data-mvp-sub class="mt-1 text-sm text-white/55">
+    {openAtBuild ? "1人を選んでください" : "投票は締め切りました"}
+  </p>
+
+  <noscript>
+    <p
+      class="mt-4 rounded-sm border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/60"
+    >
+      この企画にはJavaScriptが必要です。
+    </p>
+  </noscript>
+
+  <!-- ============ 投票パネル ============ -->
+  <div data-panel="vote" hidden={!openAtBuild}>
+    <ul
+      data-mvp-grid
+      class="mt-5 grid gap-2.5"
+      style="grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));"
+    >
+      {
+        MVP_CANDIDATES.map((c, i) => (
+          <li
+            class:list={[
+              "mvp-cand-item",
+              i >= INITIAL_VISIBLE_CANDIDATES && "mvp-cand-hidden",
+            ]}
+          >
+            <button
+              type="button"
+              data-candidate={c.slug}
+              data-name={c.name}
+              aria-pressed="false"
+              class="mvp-cand group flex h-full w-full flex-col items-center gap-1.5 rounded-md border border-white/10 bg-murash-black/50 px-2 py-3 text-center transition-colors hover:border-murash-red/50"
+            >
+              <span
+                aria-hidden="true"
+                class="mvp-initial flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 font-display text-[11px] font-bold tracking-wider text-white/60"
+              >
+                {c.nameEn.slice(0, 3)}
+              </span>
+              <span class="font-display text-[13px] font-bold leading-tight text-white">
+                {c.name}
+              </span>
+              <span class="font-display text-[10px] font-semibold tracking-wider text-white/40">
+                {c.isStaff ? c.label : `${c.label}${c.number ? ` / No.${c.number}` : ""}`}
+              </span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      MVP_CANDIDATES.length > INITIAL_VISIBLE_CANDIDATES && (
+        <div class="mt-3 flex justify-center">
+          <button
+            type="button"
+            data-mvp-expand
+            class="inline-flex items-center gap-1.5 rounded-sm border border-white/15 bg-white/5 px-4 py-2 font-display text-xs font-semibold tracking-wide text-white/70 transition-colors hover:border-murash-red/40 hover:text-white"
+          >
+            すべての候補を見る
+            <span aria-hidden="true">▾</span>
+          </button>
+        </div>
+      )
+    }
+
+    <!-- 理由タグ（候補を選ぶと表示） -->
+    <div data-mvp-reasons hidden class="mt-6 border-t border-white/10 pt-5">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p class="font-display text-sm font-bold text-white/85">選んだ理由</p>
+        <p class="text-xs text-white/40">
+          任意・最大{MAX_REASON_TAGS}つ<span data-mvp-tagcount class="ml-1"></span>
+        </p>
+      </div>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {
+          REASON_TAGS.map((t) => (
+            <button
+              type="button"
+              data-reason={t.id}
+              aria-pressed="false"
+              class="mvp-tag rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/65 transition-colors hover:border-murash-red/40 hover:text-white"
+            >
+              {t.label}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        data-mvp-submit
+        class="inline-flex items-center gap-2 rounded-sm bg-murash-red px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
+      >
+        この内容で投票する
+      </button>
+      <p
+        data-mvp-error
+        role="status"
+        aria-live="polite"
+        class="text-sm text-murash-red-light"
+      >
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ 結果パネル ============ -->
+  <div data-panel="result" hidden>
+    <!-- 閾値未満のあいだの表示 -->
+    <p
+      data-mvp-pending
+      hidden
+      class="mt-5 rounded-md border border-white/10 bg-white/5 px-4 py-3 text-sm leading-relaxed text-white/70"
+    >
+    </p>
+
+    <div data-mvp-revealed hidden>
+      <div
+        class="mt-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"
+      >
+        <p class="font-display text-base font-bold text-white sm:text-lg">
+          みんなの投票結果
+        </p>
+        <p class="text-sm text-white/50">
+          総投票数 <span data-mvp-total class="font-display font-bold text-white/80"
+          ></span>票
+        </p>
+      </div>
+
+      <ol data-mvp-bars class="mt-4 space-y-3"></ol>
+
+      <p
+        data-mvp-others
+        class="mt-3 flex items-center justify-between border-t border-white/10 pt-3 text-sm text-white/45"
+      >
+      </p>
+
+      <p data-mvp-yourvote hidden class="mt-2 text-sm text-white/55"></p>
+
+      <!-- 理由の内訳 -->
+      <div data-mvp-reasonbox hidden class="mt-6 border-t border-white/10 pt-5">
+        <p class="font-display text-sm font-bold text-white/85">選ばれた理由</p>
+        <div data-mvp-reasontabs class="mt-3 flex flex-wrap gap-2"></div>
+        <ul data-mvp-reasonlist class="mt-3 space-y-1.5"></ul>
+      </div>
+    </div>
+  </div>
+
+  <p class="mt-5 text-xs leading-relaxed text-white/35">
+    ファン投票のため、結果は厳密な集計ではありません。投票にあたって個人情報は保存していません。
+  </p>
+</section>
+
+<style>
+  .mvp-cand-hidden {
+    display: none;
+  }
+  .mvp-poll.is-expanded .mvp-cand-hidden {
+    display: block;
+  }
+  .mvp-cand[aria-pressed="true"] {
+    border-color: var(--color-murash-red);
+    background-color: rgba(230, 0, 18, 0.08);
+  }
+  .mvp-cand[aria-pressed="true"] .mvp-initial {
+    border-color: rgba(230, 0, 18, 0.5);
+    color: #fff;
+  }
+  .mvp-tag[aria-pressed="true"] {
+    border-color: var(--color-murash-red);
+    background-color: var(--color-murash-red);
+    color: #fff;
+    font-weight: 600;
+  }
+  .mvp-tag[data-disabled="true"] {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .mvp-bar-track {
+    background-color: rgba(255, 255, 255, 0.07);
+  }
+  .mvp-bar-fill {
+    background-color: var(--color-murash-red);
+  }
+</style>
+
+<script>
+  interface Reason {
+    id: string;
+    label: string;
+    pct: number;
+  }
+  interface Entry {
+    slug: string;
+    name: string;
+    role: string | null;
+    votes: number;
+    pct: number;
+    reasons: Reason[];
+  }
+  interface Results {
+    total: number;
+    threshold: number;
+    revealed: boolean;
+    top: Entry[];
+    othersPct: number;
+    yourVote: { slug: string; name: string; inTop: boolean } | null;
+    votingOpen: boolean;
+  }
+
+  const roots = document.querySelectorAll<HTMLElement>("[data-mvp-poll]");
+
+  roots.forEach((root) => {
+    const pollId = root.dataset.pollId ?? "mvp";
+    const storageKey = `mvp-vote:${pollId}`;
+    const maxTags = Number(root.dataset.maxTags ?? 3);
+    const deadline = new Date(root.dataset.deadline ?? "").getTime();
+
+    const votePanel = root.querySelector<HTMLElement>('[data-panel="vote"]');
+    const resultPanel = root.querySelector<HTMLElement>('[data-panel="result"]');
+    const headingEl = root.querySelector<HTMLElement>("[data-mvp-heading]");
+    const subEl = root.querySelector<HTMLElement>("[data-mvp-sub]");
+    const errorEl = root.querySelector<HTMLElement>("[data-mvp-error]");
+    const reasonsBlock = root.querySelector<HTMLElement>("[data-mvp-reasons]");
+    const tagCountEl = root.querySelector<HTMLElement>("[data-mvp-tagcount]");
+    const submitBtn = root.querySelector<HTMLButtonElement>("[data-mvp-submit]");
+    const expandBtn = root.querySelector<HTMLButtonElement>("[data-mvp-expand]");
+
+    const candBtns = Array.from(
+      root.querySelectorAll<HTMLButtonElement>(".mvp-cand"),
+    );
+    const tagBtns = Array.from(
+      root.querySelectorAll<HTMLButtonElement>(".mvp-tag"),
+    );
+
+    let selected: { slug: string; name: string } | null = null;
+    const selectedTags = new Set<string>();
+
+    /** 自分の投票（localStorage）。API の共有キャッシュに個人情報を載せないため */
+    function readMyVote(): { slug: string; name: string } | null {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+    function saveMyVote(v: { slug: string; name: string }) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(v));
+      } catch {
+        /* プライベートモード等では保存できないが、投票自体は成立する */
+      }
+    }
+
+    const votingOpen = () => Number.isFinite(deadline) && Date.now() <= deadline;
+
+    // ---------- 候補の選択 ----------
+    candBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        candBtns.forEach((b) =>
+          b.setAttribute("aria-pressed", String(b === btn)),
+        );
+        selected = {
+          slug: btn.dataset.candidate ?? "",
+          name: btn.dataset.name ?? "",
+        };
+        if (reasonsBlock) reasonsBlock.hidden = false;
+        if (errorEl) errorEl.textContent = "";
+      });
+    });
+
+    // ---------- 理由タグ（最大 maxTags） ----------
+    function syncTagState() {
+      const full = selectedTags.size >= maxTags;
+      tagBtns.forEach((b) => {
+        const on = selectedTags.has(b.dataset.reason ?? "");
+        b.setAttribute("aria-pressed", String(on));
+        // 上限に達したら未選択のタグは押せないことを見た目でも示す
+        b.dataset.disabled = String(full && !on);
+      });
+      if (tagCountEl) {
+        tagCountEl.textContent = selectedTags.size
+          ? `（${selectedTags.size}/${maxTags}）`
+          : "";
+      }
+    }
+
+    tagBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.reason ?? "";
+        if (selectedTags.has(id)) {
+          selectedTags.delete(id);
+        } else {
+          if (selectedTags.size >= maxTags) {
+            if (errorEl)
+              errorEl.textContent = `理由は${maxTags}つまで選べます`;
+            return;
+          }
+          selectedTags.add(id);
+        }
+        if (errorEl) errorEl.textContent = "";
+        syncTagState();
+      });
+    });
+
+    expandBtn?.addEventListener("click", () => {
+      root.classList.add("is-expanded");
+      expandBtn.hidden = true;
+    });
+
+    // ---------- 送信 ----------
+    submitBtn?.addEventListener("click", async () => {
+      if (!selected) {
+        if (errorEl) errorEl.textContent = "候補を選んでください";
+        return;
+      }
+      submitBtn.disabled = true;
+      const original = submitBtn.textContent;
+      submitBtn.textContent = "送信中…";
+      try {
+        const res = await fetch("/api/mvp-vote", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            candidateSlug: selected.slug,
+            reasonTags: [...selectedTags],
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (errorEl)
+            errorEl.textContent = data?.error ?? "投票できませんでした";
+          submitBtn.disabled = false;
+          submitBtn.textContent = original;
+          return;
+        }
+        saveMyVote(selected);
+        render(data as Results, selected);
+      } catch {
+        if (errorEl)
+          errorEl.textContent = "通信に失敗しました。時間をおいてお試しください";
+        submitBtn.disabled = false;
+        submitBtn.textContent = original;
+      }
+    });
+
+    // ---------- 結果描画 ----------
+    function render(data: Results, myVote: { slug: string; name: string } | null) {
+      if (votePanel) votePanel.hidden = true;
+      if (resultPanel) resultPanel.hidden = false;
+
+      const pending = root.querySelector<HTMLElement>("[data-mvp-pending]");
+      const revealed = root.querySelector<HTMLElement>("[data-mvp-revealed]");
+
+      if (headingEl) headingEl.textContent = "みんなの投票結果";
+      if (subEl) {
+        subEl.textContent = data.votingOpen
+          ? ""
+          : "投票は締め切りました";
+        subEl.hidden = data.votingOpen;
+      }
+
+      // 閾値未満：％も票数も出さない
+      if (!data.revealed) {
+        if (revealed) revealed.hidden = true;
+        if (pending) {
+          pending.hidden = false;
+          pending.textContent = myVote
+            ? `投票ありがとうございます。結果は${data.threshold}票から公開します。（現在 ${data.total}票）`
+            : `結果は${data.threshold}票から公開します。（現在 ${data.total}票）`;
+        }
+        if (headingEl && !myVote) headingEl.textContent = "みんなの投票結果";
+        return;
+      }
+
+      if (pending) pending.hidden = true;
+      if (revealed) revealed.hidden = false;
+
+      const totalEl = root.querySelector<HTMLElement>("[data-mvp-total]");
+      if (totalEl) totalEl.textContent = data.total.toLocaleString("ja-JP");
+
+      // 上位バー
+      const bars = root.querySelector<HTMLElement>("[data-mvp-bars]");
+      if (bars) {
+        bars.innerHTML = "";
+        data.top.forEach((e) => {
+          const mine = myVote?.slug === e.slug;
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div class="flex items-baseline justify-between gap-3">
+              <p class="font-display text-sm font-bold text-white">
+                ${escapeHtml(e.name)}${
+                  e.role
+                    ? `<span class="ml-1.5 font-display text-[10px] font-semibold tracking-wider text-white/40">${escapeHtml(e.role)}</span>`
+                    : ""
+                }${
+                  mine
+                    ? '<span class="ml-1.5 text-murash-red-light" title="あなたの1票" aria-label="あなたの1票">✓</span>'
+                    : ""
+                }
+              </p>
+              <p class="shrink-0 text-sm tabular-nums text-white/55">
+                <span class="font-display font-bold text-white/85">${e.pct}%</span>
+                <span class="mx-1 text-white/25">・</span>${e.votes.toLocaleString("ja-JP")}票
+              </p>
+            </div>
+            <div class="mvp-bar-track mt-1.5 h-1.5 w-full overflow-hidden rounded-full">
+              <div class="mvp-bar-fill h-full rounded-full" style="width:${e.pct}%"></div>
+            </div>`;
+          bars.appendChild(li);
+        });
+      }
+
+      // その他（6位以下の合計。個別の順位・票数は出さない）
+      const others = root.querySelector<HTMLElement>("[data-mvp-others]");
+      if (others) {
+        others.innerHTML = `<span>その他</span><span class="tabular-nums">${data.othersPct}%</span>`;
+        others.hidden = data.othersPct <= 0;
+      }
+
+      // 自分の1票が6位以下だったとき（順位・票数・％は出さない）
+      const yourVoteEl = root.querySelector<HTMLElement>("[data-mvp-yourvote]");
+      if (yourVoteEl) {
+        const inTop = !!myVote && data.top.some((e) => e.slug === myVote.slug);
+        if (myVote && !inTop) {
+          yourVoteEl.hidden = false;
+          yourVoteEl.textContent = `あなたの1票：${myVote.name}`;
+        } else {
+          yourVoteEl.hidden = true;
+        }
+      }
+
+      renderReasons(data);
+    }
+
+    /** 理由の内訳。データは最初のレスポンスに含まれているので追加通信しない */
+    function renderReasons(data: Results) {
+      const box = root.querySelector<HTMLElement>("[data-mvp-reasonbox]");
+      const tabs = root.querySelector<HTMLElement>("[data-mvp-reasontabs]");
+      const list = root.querySelector<HTMLElement>("[data-mvp-reasonlist]");
+      if (!box || !tabs || !list) return;
+
+      const withReasons = data.top.filter((e) => e.reasons.length > 0);
+      if (withReasons.length === 0) {
+        box.hidden = true;
+        return;
+      }
+      box.hidden = false;
+
+      const paint = (slug: string) => {
+        const e = data.top.find((x) => x.slug === slug);
+        list.innerHTML = "";
+        (e?.reasons ?? []).forEach((r) => {
+          const li = document.createElement("li");
+          li.className =
+            "flex items-baseline justify-between gap-3 text-sm text-white/65";
+          li.innerHTML = `<span>${escapeHtml(r.label)}</span><span class="tabular-nums text-white/45">${r.pct}%</span>`;
+          list.appendChild(li);
+        });
+        tabs
+          .querySelectorAll<HTMLButtonElement>("button")
+          .forEach((b) =>
+            b.setAttribute("aria-pressed", String(b.dataset.slug === slug)),
+          );
+      };
+
+      tabs.innerHTML = "";
+      data.top.forEach((e) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.dataset.slug = e.slug;
+        b.className = "mvp-tag rounded-sm border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/65 transition-colors hover:border-murash-red/40 hover:text-white";
+        b.textContent = e.name;
+        b.addEventListener("click", () => paint(e.slug));
+        tabs.appendChild(b);
+      });
+
+      paint(withReasons[0].slug);
+    }
+
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function showResultsOnly(myVote: { slug: string; name: string } | null) {
+      try {
+        const res = await fetch("/api/mvp-results");
+        if (!res.ok) return;
+        render((await res.json()) as Results, myVote);
+      } catch {
+        /* 取得できなければ投票パネルのままにしておく */
+      }
+    }
+
+    // ---------- 初期表示 ----------
+    const myVote = readMyVote();
+    if (!votingOpen()) {
+      // 締切後は投票UIを出さず結果のみ
+      if (votePanel) votePanel.hidden = true;
+      if (headingEl)
+        headingEl.textContent =
+          root.dataset.closedHeading ?? "ファンが選んだ イタリア大会MVP";
+      if (subEl) subEl.textContent = "投票は締め切りました";
+      showResultsOnly(myVote);
+    } else if (myVote) {
+      // 投票済みのブラウザではいきなり結果表示
+      showResultsOnly(myVote);
+    } else {
+      syncTagState();
+    }
+  });
+</script>
