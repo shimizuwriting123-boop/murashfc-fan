@@ -1,17 +1,17 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { tournaments } from "../data/tournaments";
+import { nextMatch } from "../data/next-match";
 
 /**
- * NEXT MATCH：日時は tournaments.ts の exhibitionMatches を唯一の情報源とする
- * （詳細ページと値を共有するため、ここでは日時をハードコードしない）。
- * 実際のカウントダウン対象（現在時刻より後で最も近い試合）は、
- * ビルド時刻に依存しないようクライアント側スクリプトで決定する。
+ * NEXT MATCH：表示状態は src/data/next-match.ts の `state` が唯一の情報源。
+ * - scheduled … カウントダウン＋試合カード（日時は matches が持つ）
+ * - tba       … 日程未発表。カウントダウンは出さず、直前大会の結果＋待機表示
+ * - none      … ブロックごと非表示
+ * ここに日付をハードコードしないこと。
  */
-const NEXT_MATCH_TOURNAMENT = tournaments.find(
-  (t) => t.exhibitionMatches && t.exhibitionMatches.length > 0,
-);
-const upcomingMatches = NEXT_MATCH_TOURNAMENT?.exhibitionMatches ?? [];
+const isScheduled = nextMatch.state === "scheduled";
+const upcomingMatches = isScheduled ? nextMatch.matches : [];
 
 // 結果バッジ表示用（大会詳細ページと同じ配色ルール）
 const RESULT_BADGE: Record<
@@ -38,21 +38,13 @@ const RESULT_BADGE: Record<
  * 語の途中で折れてしまう。`.next-match-title { word-break: keep-all }` で任意改行を止め、
  * ここで分割した意味の切れ目にだけ <wbr> を入れて折り返させる。
  */
-const NEXT_MATCH_NAME_CHUNKS = [
-  "キングス・",
-  "ワールドカップ",
-  " エキシビジョン",
-  "マッチ",
-];
-
-const NEXT_MATCH = {
-  name: NEXT_MATCH_NAME_CHUNKS.join(""),
-  location: "イタリア／ミラノ",
-  dateLabel: "2026年7月28日〜8月2日",
-  detailUrl: NEXT_MATCH_TOURNAMENT
-    ? `/tournaments/${NEXT_MATCH_TOURNAMENT.urlSlug}`
-    : "/tournaments",
-};
+function titleChunks(state: typeof nextMatch.state): string[] {
+  if (state === "scheduled" && nextMatch.scheduled) {
+    return [nextMatch.scheduled.name];
+  }
+  return ["キングス・", "ワールドカップ", " ネイションズ"];
+}
+const NEXT_MATCH_NAME_CHUNKS = titleChunks(nextMatch.state);
 
 /**
  * 大会戦績カード用のデータを tournaments.ts から導出する。
@@ -275,7 +267,8 @@ const visualTimeline = [
     </a>
   </section>
 
-  <!-- NEXT MATCH カウントダウン -->
+  <!-- NEXT MATCH（state=none のときはブロックごと非表示） -->
+  {nextMatch.state !== "none" && (
   <section id="next-match" class="relative overflow-hidden border-b border-white/10 bg-murash-black">
     <!-- 背景演出：斜めの赤ライン + 赤グロー -->
     <div class="pointer-events-none absolute inset-0 -z-0">
@@ -289,11 +282,53 @@ const visualTimeline = [
     </div>
 
     <div class="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+      <!-- 直前大会の結果サマリー（日程未発表のときはここが主役） -->
+      {
+        !isScheduled && (
+          <div class="mx-auto mb-12 max-w-3xl rounded-lg border border-white/10 bg-murash-charcoal/70 p-5 sm:mb-14 sm:p-7">
+            <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+              <p class="font-display text-xs font-bold tracking-[0.3em] text-white/45">
+                LATEST RESULT
+              </p>
+              <a
+                href={nextMatch.lastTournament.href}
+                class="group inline-flex items-center gap-1.5 font-display text-sm font-semibold tracking-wide text-murash-red-light transition-colors hover:text-murash-red"
+              >
+                大会レポートを読む
+                <span
+                  aria-hidden="true"
+                  class="transition-transform group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </a>
+            </div>
+
+            <div class="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <p class="font-display text-lg font-bold tracking-tight text-white sm:text-xl">
+                {nextMatch.lastTournament.label}
+              </p>
+              <p class="font-display text-2xl font-bold tracking-tight text-murash-red sm:text-3xl">
+                {nextMatch.lastTournament.record}
+              </p>
+            </div>
+
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {nextMatch.lastTournament.scores.map((s) => (
+                <li class="rounded-sm border border-emerald-400/40 bg-emerald-400/10 px-2.5 py-1 font-display text-sm font-bold tabular-nums tracking-wide text-emerald-300">
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
       <!-- セクション見出し -->
       <div class="flex items-center justify-center gap-3">
         <span class="h-5 w-1.5 rounded-full bg-murash-red"></span>
         <p class="font-display text-base font-bold tracking-[0.45em] text-murash-red sm:text-lg">
-          NEXT MATCH
+          {isScheduled ? "NEXT MATCH" : nextMatch.tba.label}
         </p>
         <span class="h-5 w-1.5 rounded-full bg-murash-red"></span>
       </div>
@@ -315,89 +350,127 @@ const visualTimeline = [
           }
         </h2>
 
-        <div
-          class="mt-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-base text-white/85 sm:text-lg"
-        >
-          <span class="inline-flex items-center gap-2">
-            <span aria-hidden="true" class="text-2xl leading-none">🇮🇹</span>
-            {NEXT_MATCH.location}
-          </span>
-          <span class="inline-flex items-center gap-2">
-            <span aria-hidden="true" class="text-lg leading-none">🗓</span>
-            {NEXT_MATCH.dateLabel}
-          </span>
-        </div>
+        {
+          isScheduled && nextMatch.scheduled && (
+            <div class="mt-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-base text-white/85 sm:text-lg">
+              <span class="inline-flex items-center gap-2">
+                <span aria-hidden="true" class="text-2xl leading-none">
+                  📍
+                </span>
+                {nextMatch.scheduled.location}
+              </span>
+              <span class="inline-flex items-center gap-2">
+                <span aria-hidden="true" class="text-lg leading-none">
+                  🗓
+                </span>
+                {nextMatch.scheduled.dateLabel}
+              </span>
+            </div>
+          )
+        }
+
+        <!-- 日程未発表：待機表示（カウントダウンの数字は出さない） -->
+        {
+          !isScheduled && (
+            <div class="mt-5">
+              <p class="text-center text-base text-white/60 sm:text-lg">
+                {nextMatch.tba.subtitle}
+              </p>
+
+              <div class="mt-6 flex justify-center">
+                <span class="inline-flex items-center gap-2 rounded-sm border border-white/15 bg-white/5 px-4 py-2 font-display text-sm font-semibold tracking-wide text-white/55 sm:text-base">
+                  <span aria-hidden="true" class="text-white/35">
+                    🗓
+                  </span>
+                  {nextMatch.tba.status}
+                </span>
+              </div>
+
+              <div class="mx-auto mt-8 max-w-2xl space-y-3">
+                <p class="text-center text-sm leading-relaxed text-white/50">
+                  {nextMatch.tba.note}
+                </p>
+                <p class="text-center text-sm leading-relaxed text-white/40">
+                  {nextMatch.tba.caution}
+                </p>
+              </div>
+            </div>
+          )
+        }
 
         <!-- 次戦ラベル（JSで対象試合名を差し込む） -->
-        <p
-          id="cd-target-label"
-          class="mt-4 text-center font-display text-sm font-semibold tracking-wide text-murash-red-light sm:text-base"
-        >
-        </p>
+        {
+          isScheduled && (
+            <p
+              id="cd-target-label"
+              class="mt-4 text-center font-display text-sm font-semibold tracking-wide text-murash-red-light sm:text-base"
+            />
+          )
+        }
 
-        <!-- KICK OFF ラベル -->
-        <div class="mt-12 flex items-center justify-center gap-3 sm:mt-16">
-          <span
-            aria-hidden="true"
-            class="h-px w-16 bg-gradient-to-r from-transparent to-murash-red/70 sm:w-24"
-          ></span>
-          <p
-            class="font-display text-sm font-bold tracking-[0.4em] text-murash-red sm:text-base"
-          >
-            ⚡ KICK OFF まで
-          </p>
-          <span
-            aria-hidden="true"
-            class="h-px w-16 bg-gradient-to-l from-transparent to-murash-red/70 sm:w-24"
-          ></span>
-        </div>
-
-        <!-- カウントダウン -->
-        <div
-          id="countdown"
-          data-matches={JSON.stringify(
-            upcomingMatches.map((m) => ({
-              no: m.no,
-              opponent: m.opponent,
-              iso: m.iso,
-            })),
-          )}
-          class="countdown-pulse mt-8 grid grid-cols-4 gap-3 rounded-lg p-2 sm:mt-10 sm:gap-4 sm:p-3"
-        >
-          {
-            [
-              { id: "cd-days", label: "日" },
-              { id: "cd-hours", label: "時間" },
-              { id: "cd-mins", label: "分" },
-              { id: "cd-secs", label: "秒" },
-            ].map((u) => (
-              <div class="countdown-cell group relative flex flex-col items-center justify-center rounded-md border border-white/15 bg-black/55 px-2 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-murash-red/50 hover:bg-black/70 sm:py-7">
-                <div
-                  id={u.id}
-                  class="cd-num font-display text-4xl font-bold tabular-nums leading-none text-white min-[380px]:text-5xl sm:text-7xl lg:text-8xl"
-                  style="text-shadow: 0 0 32px rgba(230,0,18,0.35), 0 0 10px rgba(230,0,18,0.25);"
-                >
-                  --
-                </div>
+        <!-- KICK OFF ラベル＋カウントダウン（日程確定時のみ） -->
+        {
+          isScheduled && (
+            <>
+              <div class="mt-12 flex items-center justify-center gap-3 sm:mt-16">
                 <span
                   aria-hidden="true"
-                  class="mx-auto mt-3 block h-0.5 w-8 bg-gradient-to-r from-transparent via-murash-red to-transparent transition-all group-hover:w-14 sm:w-12"
+                  class="h-px w-16 bg-gradient-to-r from-transparent to-murash-red/70 sm:w-24"
                 />
-                <div class="mt-2 font-display text-[11px] font-semibold tracking-[0.25em] text-white/55 sm:text-xs">
-                  {u.label}
-                </div>
+                <p class="font-display text-sm font-bold tracking-[0.4em] text-murash-red sm:text-base">
+                  ⚡ KICK OFF まで
+                </p>
+                <span
+                  aria-hidden="true"
+                  class="h-px w-16 bg-gradient-to-l from-transparent to-murash-red/70 sm:w-24"
+                />
               </div>
-            ))
-          }
-        </div>
 
-        <p
-          id="cd-note"
-          class="mt-6 hidden text-center text-xs text-white/35 sm:mt-8"
-        >
-        </p>
+              <div
+                id="countdown"
+                data-matches={JSON.stringify(
+                  upcomingMatches.map((m) => ({
+                    no: m.no,
+                    opponent: m.opponent,
+                    iso: m.iso,
+                  })),
+                )}
+                class="countdown-pulse mt-8 grid grid-cols-4 gap-3 rounded-lg p-2 sm:mt-10 sm:gap-4 sm:p-3"
+              >
+                {[
+                  { id: "cd-days", label: "日" },
+                  { id: "cd-hours", label: "時間" },
+                  { id: "cd-mins", label: "分" },
+                  { id: "cd-secs", label: "秒" },
+                ].map((u) => (
+                  <div class="countdown-cell group relative flex flex-col items-center justify-center rounded-md border border-white/15 bg-black/55 px-2 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-murash-red/50 hover:bg-black/70 sm:py-7">
+                    <div
+                      id={u.id}
+                      class="cd-num font-display text-4xl font-bold tabular-nums leading-none text-white min-[380px]:text-5xl sm:text-7xl lg:text-8xl"
+                      style="text-shadow: 0 0 32px rgba(230,0,18,0.35), 0 0 10px rgba(230,0,18,0.25);"
+                    >
+                      --
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      class="mx-auto mt-3 block h-0.5 w-8 bg-gradient-to-r from-transparent via-murash-red to-transparent transition-all group-hover:w-14 sm:w-12"
+                    />
+                    <div class="mt-2 font-display text-[11px] font-semibold tracking-[0.25em] text-white/55 sm:text-xs">
+                      {u.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-        <!-- エキシビ3試合の一覧（次戦は data-next="true" で強調） -->
+              <p
+                id="cd-note"
+                class="mt-6 hidden text-center text-xs text-white/35 sm:mt-8"
+              />
+            </>
+          )
+        }
+
+        <!-- 試合一覧（次戦は data-next="true" で強調） -->
         {
           upcomingMatches.length > 0 && (
             <ul id="match-list" class="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-3">
@@ -449,15 +522,19 @@ const visualTimeline = [
           )
         }
 
-        <div class="mt-8 flex justify-center">
-          <a
-            href={NEXT_MATCH.detailUrl}
-            class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
-          >
-            大会情報を見る
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
+        {
+          isScheduled && nextMatch.scheduled && (
+            <div class="mt-8 flex justify-center">
+              <a
+                href={nextMatch.scheduled.detailUrl}
+                class="inline-flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:border-white/40 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
+              >
+                大会情報を見る
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          )
+        }
 
         <p
           class="mt-6 text-center font-display text-sm font-semibold tracking-wide text-murash-red/85"
@@ -467,6 +544,7 @@ const visualTimeline = [
       </div>
     </div>
   </section>
+  )}
 
   <!-- コンテンツ一覧 -->
   <section class="mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-28">
@@ -840,9 +918,16 @@ const visualTimeline = [
     iso: string;
   }
 
+  // next-match.ts の state が "scheduled" のときだけ #countdown が描画される。
+  // それ以外（tba / none）では要素自体が存在しないため、ここは何もしない。
   const el = document.getElementById("countdown");
-  if (el instanceof HTMLElement && el.dataset.matches) {
-    const matches: MatchData[] = JSON.parse(el.dataset.matches);
+  const parsed: MatchData[] =
+    el instanceof HTMLElement && el.dataset.matches
+      ? JSON.parse(el.dataset.matches)
+      : [];
+
+  if (parsed.length > 0) {
+    const matches = parsed;
     // 日時順に並べておく（データ側の順序に依存しない）
     matches.sort(
       (a, b) => new Date(a.iso).getTime() - new Date(b.iso).getTime(),

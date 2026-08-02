@@ -87,6 +87,10 @@ function makeSeen(): Set<string> {
   return new Set<string>();
 }
 
+// エキシビションマッチが全て終了していれば、日程セクションを「結果」として見せる
+const exhibitionFinished =
+  !!t.exhibitionMatches?.length && t.exhibitionMatches.every((m) => !!m.result);
+
 // エキシビションマッチの結果バッジ表示用
 const RESULT_BADGE: Record<
   "win" | "lose" | "draw",
@@ -120,7 +124,8 @@ const meta = [
 
 <Layout
   title={`${t.no} ${t.name}（${t.date}）| 大会の軌跡 | ムラッシュFC ファンサイト（非公認）`}
-  description={`${t.no} ${t.name}（${t.date}・${detail.hostCountry}）の詳細レポート。試合の名場面、舞台裏、個性派メンバー＆スタッフ列伝までファン目線で振り返ります。`}
+  description={t.metaDescription ??
+    `${t.no} ${t.name}（${t.date}・${detail.hostCountry}）の詳細レポート。試合の名場面、舞台裏、個性派メンバー＆スタッフ列伝までファン目線で振り返ります。`}
 >
   <!-- ページヘッダー -->
   <section class="relative overflow-hidden border-b border-white/10">
@@ -222,8 +227,16 @@ const meta = [
       <section class="border-b border-white/10 bg-murash-black/40">
         <div class="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
           <h2 class="section-heading">
-            <span class="section-label-en">SCHEDULE</span>
-            <span class="section-title-jp text-2xl sm:text-3xl">大会日程（日本時間）</span>
+            <span class="section-label-en">
+              {exhibitionFinished ? "RESULTS" : "SCHEDULE"}
+            </span>
+            <span class="section-title-jp text-2xl sm:text-3xl">
+              {
+                exhibitionFinished
+                  ? `全${t.exhibitionMatches!.length}戦の結果`
+                  : "大会日程（日本時間）"
+              }
+            </span>
           </h2>
           <div class="mt-3 h-px w-full bg-gradient-to-r from-murash-red/60 to-transparent" />
 
@@ -279,7 +292,7 @@ const meta = [
                             rel="noopener"
                             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-sm bg-murash-red px-4 py-2.5 font-display text-sm font-semibold tracking-wide text-white transition-colors hover:bg-murash-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-murash-red focus-visible:ring-offset-2 focus-visible:ring-offset-murash-black"
                           >
-                            ABEMAで無料生中継
+                            {m.result ? "ABEMAで見る" : "ABEMAで無料生中継"}
                             <span aria-hidden="true">↗</span>
                           </a>
                         )}
@@ -526,6 +539,51 @@ const meta = [
                         />
                       ))}
                     </div>
+                    {item.callout && (
+                      <aside class="mt-5 rounded-md border border-white/10 bg-white/5 p-4 sm:p-5">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="rounded-sm border border-white/15 bg-white/5 px-1.5 py-0.5 font-display text-[10px] font-bold tracking-widest text-white/60">
+                            NOTE
+                          </span>
+                          <p class="font-display text-sm font-bold text-white/85">
+                            {item.callout.title}
+                          </p>
+                        </div>
+                        <div class="mt-3 space-y-3">
+                          {item.callout.body.map((p) => (
+                            <p
+                              class="text-sm leading-[1.9] text-white/70 sm:text-base"
+                              set:html={renderRichText(p, {
+                                excludeUrl: SELF_URL,
+                                seenTerms,
+                              })}
+                            />
+                          ))}
+                        </div>
+                      </aside>
+                    )}
+
+                    {item.sourceLinks && item.sourceLinks.length > 0 && (
+                      <div class="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+                        {item.sourceLinks.map((l) => (
+                          <a
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener"
+                            class="group inline-flex items-center gap-1.5 font-display text-sm font-semibold tracking-wide text-murash-red-light transition-colors hover:text-murash-red"
+                          >
+                            {l.label}
+                            <span
+                              aria-hidden="true"
+                              class="transition-transform group-hover:translate-x-0.5"
+                            >
+                              →
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
                     {item.note && (
                       <p class="mt-3 inline-flex items-start gap-2 rounded-sm border border-white/10 bg-white/5 px-3 py-2 text-xs italic text-white/45">
                         <span class="font-display not-italic text-murash-red">TBD</span>
