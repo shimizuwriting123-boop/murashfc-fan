@@ -299,19 +299,21 @@ const meta = [
                       </div>
 
                       {m.scorers && m.scorers.length > 0 && (
-                        <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-white/10 pt-3 text-sm text-white/70">
-                          {m.scorers.map((s) => (
-                            <li>
-                              <span class="text-white/45">{s.minute}</span>{" "}
-                              <span
-                                set:html={renderRichText(s.name, {
+                        <div class="mt-4 border-t border-white/10 pt-3">
+                          <p class="font-display text-[11px] font-bold tracking-widest text-white/40">
+                            得点者
+                          </p>
+                          <ul class="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-white/70">
+                            {m.scorers.map((s) => (
+                              <li
+                                set:html={renderRichText(s, {
                                   excludeUrl: SELF_URL,
                                   seenTerms: matchSeen,
                                 })}
                               />
-                            </li>
-                          ))}
-                        </ul>
+                            ))}
+                          </ul>
+                        </div>
                       )}
 
                       {m.note && (

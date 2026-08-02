@@ -73,9 +73,12 @@ export interface ExhibitionMatch {
   };
   /** 配信体制が通常と異なる場合の補足（例：他プラットフォームでも同時配信） */
   broadcastNote?: string;
-  /** 確定している得点者（分・選手名）。一部でも未確定な試合では省略し note を使う */
-  scorers?: { minute: string; name: string }[];
-  /** 得点内訳が未確定の試合向けの、確定分のみを述べる補足文。GK評などの追加エピソードにも使う */
+  /**
+   * 得点者。表記は「選手名」または「選手名（2得点）」「選手名（マッチボール）」。
+   * 分は各試合セクションの本文に書くため、ここでは持たない（4試合でカードの粒度を揃える）。
+   */
+  scorers?: string[];
+  /** その試合の短い所感。全試合に置いてカードの形式を揃える */
   note?: string;
 }
 
@@ -733,16 +736,15 @@ export const tournaments: Tournament[] = [
         abemaUrl: "https://abema.go.link/bhYzm",
         result: { outcome: "win", score: "9-2" },
         scorers: [
-          { minute: "1分", name: "宮内俊輔" },
-          { minute: "8分", name: "白石郁哉" },
-          { minute: "12分", name: "横山航河" },
-          { minute: "13分", name: "加藤純一（プレジデントPK）" },
-          { minute: "15分", name: "宮下豪也" },
-          { minute: "21分", name: "中村駿介" },
-          { minute: "22分", name: "中村駿介" },
-          { minute: "27分", name: "中村駿介" },
-          { minute: "42分", name: "木戸皓貴" },
+          "宮内俊輔",
+          "白石郁哉",
+          "横山航河",
+          "加藤純一（プレジデントPK）",
+          "宮下豪也",
+          "中村駿介（3得点）",
+          "木戸皓貴",
         ],
+        note: "常設化後初の国際試合。開始1分の先制から前半だけで5得点を奪い、後半は中村駿介がハットトリックで突き放した。太田宏介監督がサスペンションを発動し、7対4という異様な人数差が生まれた一戦でもある。",
       },
       {
         no: "第2戦",
@@ -752,15 +754,13 @@ export const tournaments: Tournament[] = [
         abemaUrl: "https://abema.go.link/isTJe",
         result: { outcome: "win", score: "7-0" },
         scorers: [
-          { minute: "8分", name: "横山航河" },
-          { minute: "14分", name: "小田崚平" },
-          { minute: "17分", name: "木戸皓貴" },
-          { minute: "31分", name: "横山航河" },
-          { minute: "35分", name: "木戸皓貴" },
-          { minute: "36分", name: "林田大和" },
-          { minute: "マッチボール", name: "宮下豪也" },
+          "横山航河（2得点）",
+          "小田崚平",
+          "木戸皓貴（2得点）",
+          "林田大和",
+          "宮下豪也（マッチボール）",
         ],
-        note: "ゴールを守った深谷圭佑は、相手の決定機を好セーブで阻止して7-0のクリーンシートに貢献。解説の林陵平から「ノイアーよりノイアーでした」と称賛された。",
+        note: "7得点を挙げながら無失点で終えた一戦。ゴールを守った深谷圭佑は相手の決定機を好セーブで阻止し、解説の林陵平から「ノイアーよりノイアーでした」と称賛された。",
       },
       {
         no: "第3戦",
@@ -769,7 +769,8 @@ export const tournaments: Tournament[] = [
         dateLabel: "7月31日(金) 23:00〜",
         abemaUrl: "https://abema.go.link/bFDNv",
         result: { outcome: "win", score: "8-1" },
-        note: "箱﨑裕也・白石郁哉・木戸皓貴が得点し、最後は白石郁哉がマッチボールを決めた。全得点の順序・時刻は未確定のため、得点記録は掲載していない。",
+        scorers: ["箱﨑裕也", "白石郁哉（マッチボール）", "木戸皓貴"],
+        note: "前半終了間際のダブルゴールタイムに、白石郁哉のゴールと木戸皓貴の追加点で1分足らずに4点を加算した試合。得点者は確認できている選手のみを掲載している。",
       },
       {
         no: "第4戦",
@@ -781,13 +782,14 @@ export const tournaments: Tournament[] = [
           "第1〜3戦は加藤純一Twitchでの配信。この第4戦は加藤純一Twitchに加えKings League公式Twitchでも配信された。ABEMA実況は辻歩。",
         result: { outcome: "win", score: "6-2" },
         scorers: [
-          { minute: "1分", name: "児玉剛" },
-          { minute: "2分", name: "宮内俊輔" },
-          { minute: "24分", name: "木戸皓貴" },
-          { minute: "33分", name: "白石郁哉" },
-          { minute: "35分", name: "リバースPKによる得点" },
-          { minute: "マッチボール", name: "横山航河" },
+          "児玉剛",
+          "宮内俊輔",
+          "木戸皓貴",
+          "白石郁哉",
+          "リバースPKによる加点",
+          "横山航河（マッチボール）",
         ],
+        note: "開始2分で2-0とし、本戦出場クラブを立ち上がりから圧倒した最終戦。GK児玉剛は自らゴールを決めたうえ、相手が使ったリバースPKもセーブし、公式速報に「GOAL & SAVE」と記された。",
       },
     ],
     mainRounds: [
